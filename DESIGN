@@ -1,0 +1,113 @@
+#	$Id: DESIGN,v 1.3.4.1 2018/03/08 06:10:10 doug Exp $	
+
+A cpio entry basically looks like 
+an inode followed by contents of the specified length.
+Hereafter I'll use the term /entry header/ to refer
+to that inode-like information.
+
+The exact form of the entry header can, unfortunately, vary.
+(Such are the woes of an operating system
+that had friends who didn't play nicely
+[until competition showed up].
+[Gee, that seems like a familiar story, doesn't it.]
+
+According to the documentation for cpio(1GNU)
+there are the following entry header formats:
+• bin,		the obsolete binary format.
+• newc,		the new (SVR4) portable format.
+• odc,		the old portable (ASCII) format.
+• crc,		the new (SVR4) portable format with checksum.
+• tar,		the old tar format.
+• ustar,	the POSIX.1 tar format.
+• hpbin,	the obsolete binary format used by HPUX's cpio.
+• hpodc,	the portable format used by HPUX's cpio.
+
+The file cpio.el is the door into the package.
+cpio.el controls loading other files as needed and, as of yet,
+implements the high-level presentation and user-interface functions.
+
+Believing in portability, the formats newc, odc and crc will be first
+to be implemented.
+tar and ustar formats are already handled by tar-mode and will not be implemented.
+If either HP format is implemented, then hpodc will be implemented first.
+
+For common parsing, interpreting, constructing and modifying functions,
+for the different entry header formats (common function, not common implementation)
+there will be a common API and implementations done
+in each of the separate files cpio-ENTRY-HEADER-FORMAT.el, e.g. cpio-newc.el.
+
+This will thus have lots of different functions for each entry header format,
+each function named to identify the header format to which it applies.
+In the spirit of lisp, they will be referenced by buffer local variables.
+
+Having done no development whatsoever so far, I'm guessing
+that a generic entry header format will be useful,
+produced, ideally by a single function,
+but, given the variety of formats, cannot be.
+There will therefore be a variety of entry-header-parsing functions, e.g.:
+    cpio-parse-entry-header-bin
+    cpio-parse-entry-header-newc
+    cpio-parse-entry-header-odc
+    cpio-parse-entry-header-crc
+    cpio-parse-entry-header-hpbin
+    cpio-parse-entry-header-hpodc
+, but the common point for programming that /uses/ those functions would be
+to call (funcall cpio-parse-entry-header-func).
+Indeed, the common function (to isolate such cruft even further)
+might be written so simply:
+(defun cpio-parse-entry-header (header-str)
+   "Parse the given HEADER-STRing and return a cpio entry header structure."
+   (funcall cpio-parse-entry-header-func))
+
+Of course, such simplicity is not entirely possible.
+You have to guarantee that cpio-parse-entry-header-func has been
+appropriately populated.
+
+Similarly, a number of variables will exist to reflect differences
+between the different header formats.
+
+################################################################
+Here are some functions that I know this must deliver:
+
+    • presentation (a là dired)
+    • view/edit entry
+    • delete entry
+    • insert entry (If I recall cpio sorts the entries by name,
+		    so this should be unambiguous.)
+    • update entry (after editing.)
+    • create archive (from a list of files, etc. From dired? From what else?)
+    • extract archive (Lots of error handling here.
+    • batch mode operation
+
+Here are some that would also be nice:
+
+    • validate archive
+    • repair archive
+
+Those then reveal at least some support functions:
+
+    • discern archive type
+    • parse entry headers
+    • find entry contents
+    • write entry headers (+ contents)
+    • mtime → human date/time conversion
+    • mtime replacement in an entry header structure
+    • uid/gid → string
+    • octal mode ↔ drwx (s, S, etc.) mode conversions.
+    • dev and rdev handling (No, I have no idea what to do with this right now.)
+
+All of those functions should have generic implementations.
+They may have header-type-specific get/put functions,
+but the processing itself as above should be generic.
+
+I should read through the info for cpio to see what else might be worthwhile.
+I see things among the options to cpio(1GNU) like these
+    • swap bytes/half words
+    • block size (This will affect padding.)
+    • make-directories
+    • patterns to define which files to include.
+    • link (hard link, common inode number)
+    • dereference
+    • mod time handling
+    • override owner/group 
+    • unconditional overwriting
