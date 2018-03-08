@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+#	$Id: QUESTIONS,v 1.1.4.2 2018/03/08 06:10:11 doug Exp $	
+
+• cpio(1) accepts block size on its command line.
+  How should that be handled?
+  One obvious choice is via customization,
+  but that still feels long term.
+  What would be other ways?
+• Similarly, what about --swap-bytes and --swap-halfwords?
+• How should --link be implemented?
+• And --[no-]-absolute-filenames?
+  This might be reasonable to customize.
+• How about --dereference?
+• Does --owner=[USER][:.][GROUP] make sense for anyone besides root?
+  Similarly for --no-preserve-owner.
+• The extract functions act like --preserve-modification-time is set by default.
+  Is that the right thing.
+• The function of --unconditional has an implicit implementation in cpio-mode.
+  Via cpio-dired cpio-mode tries to act like dired and allow over-writing
+  after an affirmative response to a prompt.
+  From lisp code, however, it will over-write any files.
+  Is that the right way to operate?
