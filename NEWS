@@ -1,0 +1,27 @@
+# -*- outline -*-
+#	$Id: NEWS,v 1.2.4.2 2018/03/08 06:10:11 doug Exp $	
+
+* Version 0.01
+** Basic function of cpio-mode, cpio-dired-mode, and
+   cpio-contents-entry-mode are in place.
+** You can extract selected entries (M-x cpio-dired-extract-entries),
+   or extrac all entries (M-x cpio-dired-extract-all).
+** You can view an antry's contents and even edit the contents' buffer.
+   However, you cannot save it yet.
+** cpio-dired-mode has the following implemented commands
+   + cpio-dired-find-entry ("f", "e", "C-j")
+   + cpio-dired-display-entry ("C-o")
+   + cpio-dired-view-archive ("C-cC-c")
+   + cpio-dired-next-line (SPC, "n", "C-n")
+   + cpio-dired-previous-line ("p", "C-p")
+   + cpio-dired-mark-entries-regexp ("* %", "% m")
+   + cpio-dired-mark ("m", "* m")
+   + cpio-dired-next-dirline (">")
+   + cpio-dired-prev-dirline ("<")
+   + cpio-dired-extract-entries ("X m")
+   + cpio-dired-extract-all ("X a")
+   + cpio-dired-summary ("?") -- Don't trust this yet.
+   + cpio-dired-mark ("m", "* m")
+   + cpio-dired-unmark ("u", "* u")
+   + cpio-dired-unmark-all-marks ("U", "* !")
+   + cpio-dired-mark-entries-regexp ("* %", "% m")
