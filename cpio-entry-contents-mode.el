@@ -22,7 +22,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2017 Dec 06
-;; Version: 0.02
+;; Version: 0.01
 ;; Keywords: cpio, contents, edit
 
 ;;; Commentary:

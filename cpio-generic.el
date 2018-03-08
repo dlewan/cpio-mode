@@ -24,7 +24,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Apr 23
-;; Version: 0.02
+;; Version: 0.01
 ;; Keywords: generically useful emacs lisp functions.
 
 ;;; Commentary:

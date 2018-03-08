@@ -7,7 +7,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.02
+;; Version: 0.01
 ;; Keywords: cpio, archive
 
 ;;; Commentary:

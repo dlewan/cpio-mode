@@ -20,7 +20,7 @@ dnl 	$Id: configure.ac,v 1.2.2.2.2.1 2018/03/08 06:22:08 doug Exp $
 # 
 
 dnl Autoconf requirements
-AC_INIT(cpio-mode, 0.02, d.lewan2000@gmail.com)
+AC_INIT(cpio-mode, 0.01, d.lewan2000@gmail.com)
 AC_PREFIX_DEFAULT(${HOME}/local)
 dnl information on the package
 dnl checks for programs
