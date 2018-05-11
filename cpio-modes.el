@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes.el --- handle modes.
-;	$Id: cpio-modes.el,v 1.1.4.5 2018/05/11 13:17:00 doug Exp $	
+;	$Id: cpio-modes.el,v 1.1.4.6 2018/05/11 20:13:13 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -260,7 +260,6 @@ please let me know."
 		       (cpio-other-chars-to-bits other-chars)))
     bits))
 
-
 (defun cpio-type-char-to-bits (char)
   "Return the mode bits implied by the given type CHAR."
   (let ((fname "cpio-type-char-to-bits"))
@@ -370,26 +369,6 @@ please let me know."
 	  ((= exec-char ?T)
 	   (setq bits (logior bits s-isvtx))))
     bits))
-
-(defun UNUSED-cpio-low-mode-bits (bits)
-  ;; HEREHERE This is no longer needed.
-  ;; ∃ (chmod) ∈ emacs.n
-  ;; Look for its use.
-  "Return the low mode bits in BITS.
-These are the bits that can be set by chmod(1)."
-  (let ((fname "cpio-low-mode-bits"))
-    (logand bits *cpio-low-mode-bits*)))
-
-
-;; 
-;; Commands
-;; 
-
-
-;; 
-;; Mode definition (IF APPROPRIATE)
-;; 
-
 
 
 (provide 'cpio-modes)

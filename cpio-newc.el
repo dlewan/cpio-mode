@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.3.2.7 2018/04/26 14:15:32 doug Exp $	
+;	$Id: cpio-newc.el,v 1.3.2.8 2018/05/11 20:13:13 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -358,24 +358,25 @@ This function does NOT get the contents."
     ;; from the buffer and we're using the string proper.
     ;; This call establishes the match-data
     ;; that the subsequent calls will use.
-    (string-match *cpio-newc-header-re* header-string)
-    (setq result
-	  (vector (cpio-newc-parse-ino      header-string)
-		  (cpio-newc-parse-mode     header-string)
-		  (cpio-newc-parse-uid      header-string)
-		  (cpio-newc-parse-gid      header-string)
-		  (cpio-newc-parse-nlink    header-string)
-		  (cpio-newc-parse-mtime    header-string)
-		  (setq filesize (cpio-newc-parse-filesize header-string))
-		  (cpio-newc-parse-dev-maj  header-string)
-		  (cpio-newc-parse-dev-min  header-string)
-		  (cpio-newc-parse-rdev-maj header-string)
-		  (cpio-newc-parse-rdev-min header-string)
-		  (setq namesize (cpio-newc-parse-namesize header-string))
-		  (cpio-newc-parse-chksum   header-string)
-		  (cpio-newc-parse-name     header-string namesize)
-		  (cpio-newc-parse-chksum   header-string)
-		  (cpio-newc-header-size    header-string namesize)))
+    (save-match-data
+      (string-match *cpio-newc-header-re* header-string)
+      (setq result
+	    (vector (cpio-newc-parse-ino      header-string)
+		    (cpio-newc-parse-mode     header-string)
+		    (cpio-newc-parse-uid      header-string)
+		    (cpio-newc-parse-gid      header-string)
+		    (cpio-newc-parse-nlink    header-string)
+		    (cpio-newc-parse-mtime    header-string)
+		    (setq filesize (cpio-newc-parse-filesize header-string))
+		    (cpio-newc-parse-dev-maj  header-string)
+		    (cpio-newc-parse-dev-min  header-string)
+		    (cpio-newc-parse-rdev-maj header-string)
+		    (cpio-newc-parse-rdev-min header-string)
+		    (setq namesize (cpio-newc-parse-namesize header-string))
+		    (cpio-newc-parse-chksum   header-string)
+		    (cpio-newc-parse-name     header-string namesize)
+		    (cpio-newc-parse-chksum   header-string)
+		    (cpio-newc-header-size    header-string namesize))))
     (if (cpio-entry-name result)
 	result
       nil)))
@@ -522,103 +523,6 @@ After all that's where the contents are, not in the header."
 
 ;;;;;;;;;;;;;;;;
 ;; 
-;; Header accessors
-;; 
-
-;; HEREHERE Are these needed here and not up in cpio.el?
-
-;; (defun cpio-newc-get-magic (parsed-header)
-;;   "Return the magic field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-magic"))
-;;     (arev parsed-header *cpio-magic-idx*)))
-;; (setq cpio-get-magic-func 'cpio-newc-get-magic)
-
-;; (defun UNUSED-cpio-newc-get-ino (parsed-header)
-;;   "Return the ino field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-ino"))
-;;     (aref parsed-header *cpio-ino-parsed-idx*)))
-;; (setq cpio-get-ino-func 'cpio-newc-get-ino)
-
-;; (defun UNUSED-cpio-newc-get-mode (parsed-header)
-;;   "Return the mode field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-mode"))
-;;     (aref parsed-header *cpio-mode-parsed-idx*)))
-;; (setq cpio-get-mode-func 'cpio-newc-get-mode)
-
-;; (defun UNUSED-cpio-newc-get-uid (parsed-header)
-;;   "Return the uid field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-uid"))
-;;     (aref parsed-header *cpio-uid-parsed-idx*)))
-;; (setq cpio-get-uid-func 'cpio-newc-get-uid)
-
-;; (defun UNUSED-cpio-newc-get-gid (parsed-header)
-;;   "Return the gid field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-gid"))
-;;     (aref parsed-header *cpio-gid-parsed-idx*)))
-;; (setq cpio-get-gid-func 'cpio-newc-get-gid)
-
-;; (defun UNUSED-cpio-newc-get-nlink (parsed-header)
-;;   "Return the nlink field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-nlink"))
-;;     (aref parsed-header *cpio-nlink-parsed-idx*)))
-;; (setq cpio-get-nlink-func 'cpio-newc-get-nlink)
-
-;; (defun UNUSED-cpio-newc-get-mtime (parsed-header)
-;;   "Return the mtime field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-mtime"))
-;;     (aref parsed-header *cpio-mtime-parsed-idx*)))
-;; (setq cpio-get-mtime-func 'cpio-newc-get-mtime)
-
-;; (defun UNUSED-cpio-newc-get-filesize (parsed-header)
-;;   "Return the filesize field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-filesize"))
-;;     (aref parsed-header *cpio-filesize-parsed-idx*)))
-;; (setq cpio-get-filesize-func 'cpio-newc-get-filesize)
-
-;; (defun UNUSED-cpio-newc-get-dev-maj (parsed-header)
-;;   "Return the dev field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-dev-maj"))
-;;     (aref parsed-header *cpio-dev-maj-parsed-idx*)))
-;; (setq cpio-get-dev-maj-func 'cpio-newc-get-dev-maj)
-
-;; (defun UNUSED-cpio-newc-get-dev-min (parsed-header)
-;;   "Return the dev field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-dev-min"))
-;;     (aref parsed-header *cpio-dev-min-parsed-idx*)))
-;; (setq cpio-get-dev-min-func 'cpio-newc-get-dev-min)
-
-;; (defun UNUSED-cpio-newc-get-rdev-maj (parsed-header)
-;;   "Return the rdev field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-rdev-maj"))
-;;     (aref parsed-header *cpio-rdev-parsed-idx*)))
-;; (setq cpio-get-rdev-maj-func 'cpio-newc-get-rdev-maj)
-
-;; (defun UNUSED-cpio-newc-get-rdev-min (parsed-header)
-;;   "Return the rdev field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-rdev-min"))
-;;     (aref parsed-header *cpio-rdev-parsed-idx*)))
-;; (setq cpio-get-rdev-min-func 'cpio-newc-get-rdev-min)
-
-;; (defun UNUSED-cpio-newc-get-namesize (parsed-header)
-;;   "Return the namesize field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-namesize"))
-;;     (aref parsed-header *cpio-namesize-parsed-idx*)))
-;; (setq cpio-get-namesize-func 'cpio-newc-get-namesize)
-
-;; (defun UNUSED-cpio-newc-get-chksum (parsed-header)
-;;   "Return the chksum field from the PARSED-HEADER."
-;;   (let ((fchksum "cpio-newc-get-chksum"))
-;;     (aref parsed-header *cpio-chksum-parsed-idx*)))
-;; (setq cpio-get-chksum-func 'cpio-newc-get-chksum)
-
-;; (defun UNUSED-cpio-newc-get-filename (parsed-header)
-;;   "Return the name field from the PARSED-HEADER."
-;;   (let ((fname "cpio-newc-get-filename"))
-;;     (aref parsed-header *cpio-name-parsed-idx*)))
-;; (setq cpio-get-filename-func 'cpio-newc-get-filename)
-
-;;;;;;;;;;;;;;;;
-;; 
 ;; Header construction
 ;; 
 
@@ -646,7 +550,7 @@ This function does NOT include the contents."
 				 "\0"))
     (setq header-string (pad-right header-string (round-up (length header-string) *cpio-newc-padding-modulus*) "\0"))
     ;; Check (at least during development).
-    (if (string-match *cpio-newc-header-re* header-string)
+    (if (string-match-p *cpio-newc-header-re* header-string)
 	header-string
       (error "%s(): I built a bad header: [[%s]]" fname header))))
 (setq cpio-make-header-string-func 'cpio-newc-make-header-string)
@@ -695,35 +599,31 @@ I likely won't need this, but someone might."
   "Return a string value for the mode from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-mode"))
     (format "%08X" (aref attrs *cpio-mode-parsed-idx*))))
-;; (setq cpio-make-mode-func 'cpio-newc-make-mode)
 
 (defun cpio-newc-make-uid (attrs)
   "Return an integer string value for the UID from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-uid")
-	(uid (aref attrs 2)))
+	(uid (aref attrs *cpio-uid-parsed-idx*)))
     (cond ((numberp uid)
 	   (format "%08X" uid))
-	  ((string-match "\\`[[:graph:]]\\'" uid)
+	  ((string-match-p "\\`[[:graph:]]\\'" uid)
 	   (cpio-look-up-uid uid))
 	  (t (error "Bad UID: [[%s]]" uid)))))
-;; (setq cpio-make-uid-function 'cpio-newc-make-uid)
 
 (defun cpio-newc-make-gid (attrs)
   "Return an integer string value for the GID from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-gid")
-	(gid (aref attrs 3)))
+	(gid (aref attrs *cpio-gid-parsed-idx*)))
     (cond ((numberp gid)
 	   (format "%08X" gid))
-	  ((string-match "\\`[[:graph:]]\\'" gid)
+	  ((string-match-p "\\`[[:graph:]]\\'" gid)
 	   (cpio-look-up-gid gid))
 	  (t (error "Bad GID: [[%s]]" gid)))))
-;; (setq cpio-make-gid-function 'cpio-newc-make-gid)
 
 (defun cpio-newc-make-nlink (attrs)
   "Return an integer string value for the number of links from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-nlink"))
     (format "%08X" (aref attrs *cpio-nlink-parsed-idx*))))
-;; (setq cpio-make-nlink-function 'cpio-newc-make-nlink)
 
 (defun cpio-newc-make-mtime (attrs)
   "Return a string value for the mod time from the file attributes ATTRS."
@@ -732,7 +632,6 @@ I likely won't need this, but someone might."
     ;; We're only about 1/2 way through using this up it seems.
     ;; Still, time will eventually overflow a 32 bit unsigned integer.
     (format "%08X" (float-time mod-time))))
-;; (setq cpio-make-mtime-function 'cpio-newc-make-mtime)
 
 (defun cpio-newc-make-filesize (attrs)
   "Return an 8 digit hex string for the filesize attribute among the given ATTRs."
@@ -755,7 +654,6 @@ I likely won't need this, but someone might."
 		  (cpio-big-inode-to-string))
 		 (t (error "Bad dev value: [[%s]]." ino))))
 	  (t (error "Bad dev value: [[%s]]." ino)))))
-;; (setq cpio-make-dev-function 'cpio-newc-make-dev)
 
 (defun cpio-newc-make-dev-min (attrs)
   "Return a string value for the WWWW from the file attributes ATTRS."
@@ -774,7 +672,6 @@ I likely won't need this, but someone might."
 		  (cpio-big-inode-to-string))
 		 (t (error "Bad dev value: [[%s]]." ino))))
 	  (t (error "Bad dev value: [[%s]]." ino)))))
-;; (setq cpio-make-dev-function 'cpio-newc-make-dev)
 
 (defun cpio-newc-make-rdev-maj (attrs)
   "Return a string value for the WWWW from the file attributes ATTRS."
@@ -792,7 +689,6 @@ I likely won't need this, but someone might."
     ;; MAINTENANCE Every concrete example I look at has this value for rdev-maj.
     ;; See (cpio-newc-make-rdev-maj) for more information.
     "00000000"))
-;; (setq cpio-make-rdev-function 'cpio-newc-make-rdev)
 
 (defun cpio-newc-make-chksum (attrs)
   "Return a string value for the newc cpio entry from the file attributes ATTRS."
@@ -802,7 +698,6 @@ I likely won't need this, but someone might."
     ;; And, indeed, it's only set in crc archives.
     ;; See copyout.c->writeout-defered-file() and nowhere else.
     "00000000"))
-;; (setq cpio-make-chksum-function 'cpio-newc-make-chksum)
 
 ;; Filename is not one of ATTRS. ∴ It doesn't get a constructor here.
 
@@ -880,7 +775,6 @@ CAVEAT: This respects neither narrowing nor the point."
 	     (goto-char contents-end))
 	    (t t)))
     (nreverse catalog)))
-(setq cpio-build-catalog-function 'cpio-newc-build-catalog)
 
 (defun cpio-newc-start-of-trailer ()
   "Return the character position of the (ostensible) start of the trailer
@@ -925,6 +819,8 @@ once the TRAILER is written and padded."
 (defun cpio-newc-delete-trailer ()
   "Delete the trailer in the current cpio newc archive."
   (let ((fname "cpio-newc-delete-trailer"))
+    (unless (eq major-mode 'cpio-mode)
+      (error "%s(): Called outside of a cpio archive buffer." fname))
     ;; First, get to the end of the last entry in the archive.
     (goto-char (point-min))
     (mapc (lambda (e)
@@ -1123,23 +1019,8 @@ what the proper way to do it is."
  		    (make-string 8 ?=)	;????
 		    "\n")))
 	  (t t))))
-;; 
-;; The catalog
-;; 
 
 
-
-;; 
-;; Commands
-;; 
-
-;; (define-derived-mode cpio-newc-mode nil "CPIO NEWC"
-;;   "A mode for processing CPIO archives in the NEWC format."
-;;   (goto-char (point-min))
-;;   (cond ((looking-at *cpio-newc-header-re*)
-;; 	 (
-;; 	 )
-;; 	(t nil))
 
 (provide 'cpio-newc)
 ;;; cpio-newc.el ends here.

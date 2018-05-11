@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.1.4.3 2018/04/26 14:15:31 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.1.4.4 2018/05/11 20:13:13 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -125,23 +125,6 @@ prepared for editing."
   :keymap *cpio-entry-contents-mode-map* :global nil)
 
 (cpio-entry-contents-make-keymap)
-
-;; (defvar cpio-entry-contents-mode nil
-;;   "Variable to turn cpio-entry-contents-mode on or off.")
-;; (make-variable-buffer-local 'cpio-entry-contents-mode)
-;; 
-;; (defun cpio-entry-contents-mode (&optional prefix)
-;;   "Set up the current buffer as a buffer subordinate to a buffer holding a cpio archive.
-;; When called without an argument turn cpio-entry-contents-mode on."
-;;   (interactive (list (or current-prefix-arg 'toggle)))
-;;   (let ((fname "cpio-entry-contents-mode")
-;; 	(enable (if (eq prefix 'toggle)
-;; 		    (not cpio-entry-contents-mode)
-;; 		  (> (prefix-numeric-value prefix) 0))))
-;;     (cpio-entry-contents-make-keymap)
-;;     (if enable
-;; 	(setq cpio-entry-contents-mode t)
-;;       (setq cpio-entry-contents-mode nil))))
 
 
 (provide 'cpio-entry-contents-mode)

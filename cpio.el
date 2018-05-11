@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.2.4.9 2018/05/11 13:17:00 doug Exp $	
+;	$Id: cpio.el,v 1.2.4.10 2018/05/11 20:13:14 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -250,89 +250,6 @@
   "The format of the cpio archive in the current-buffer.
 Takes the values 'bin, 'newc, 'odc etc.")
 (make-variable-buffer-local '*cpio-format*)
-
-(let ((i 0))
-  ;; HEREHERE Are these even used?
-  ;; It doesn't look like it.
-  (defvar *cpio-magic-idx* 0	; (setq i (1+ i))
-    "Index of magic in a parsed cpio header.")
-  (setq *cpio-magic-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-ino-idx* 0	; (setq i (1+ i))
-    "Index of ino in a parsed cpio header.")
-  (setq *cpio-ino-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-mode-idx* 0	; (setq i (1+ i))
-    "Index of mode in a parsed cpio header.")
-  (setq *cpio-mode-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-uid-idx* 0	; (setq i (1+ i))
-    "Index of uid in a parsed cpio header.")
-  (setq *cpio-uid-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-gid-idx* 0	; (setq i (1+ i))
-    "Index of gid in a parsed cpio header.")
-  (setq *cpio-gid-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-nlink-idx* 0	; (setq i (1+ i))
-    "Index of nlink in a parsed cpio header.")
-  (setq *cpio-nlink-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-mtime-idx* 0	; (setq i (1+ i))
-    "Index of mtime in a parsed cpio header.")
-  (setq *cpio-mtime-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-entry-size-idx* 0 ; (setq i (1+ i))
-    "Index of filesize in a parsed cpio header.")
-  (setq *cpio-entry-size-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-dev-maj-idx* 0	; (setq i (1+ i))
-    "Index of dev major in a parsed cpio header.")
-  (setq *cpio-dev-maj-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-dev-min-idx* 0	; (setq i (1+ i))
-    "Index of dev minor in a parsed cpio header.")
-  (setq *cpio-dev-min-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-rdev-maj-idx* 0	; (setq i (1+ i))
-    "Index of rdev major in a parsed cpio header.")
-  (setq *cpio-rdev-maj-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-rdev-min-idx* 0	; (setq i (1+ i))
-    "Index of rdev minor in a parsed cpio header.")
-  (setq *cpio-rdev-min-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-namesize-idx* 0 ; (setq i (1+ i))
-    "Index of namesize in a parsed cpio header.")
-  (setq *cpio-namesize-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-checksum-idx* 0 ; (setq i (1+ i))
-    "Index of checksum in a parsed cpio header.")
-  (setq *cpio-checksum-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-filename-idx 0 ; (setq i (1+ i))
-    "Index of filename in a parsed cpio header.")
-  (setq *cpio-filename-idx* i)
-  (setq i (1+ i))
-
-  (defvar *cpio-checksum-idx* 0 ; (setq i (1+ i))
-    "Index of the checksum in a parsed cpio-header.")
-  (setq *cpio-filename-idx* i)
-  (setq i (1+ i)))
 
 ;; N.B. The format REs go here since they are what we use
 ;; to discern the type of the archive.
@@ -775,7 +692,7 @@ CAVEAT: See `cpio-magic'."
 (defun cpio-contents-start (entry-name)
   "Return the contents start for ENTRY-NAME."
   (let* ((fname "cpio-contents-start")
-	 (catalog-entry (cdr (assoc entry-name (cpio-catalog)))))
+	 (catalog-entry (cpio-entry entry-name)))
     (aref catalog-entry *cpio-catalog-entry-contents-start-idx*)))
 
 (defun cpio-entry-attrs (entry-name)
@@ -784,7 +701,7 @@ CAVEAT: See `cpio-magic'."
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-entry-attrs entry-name))
-      (aref (cdr (assoc entry-name (cpio-catalog))) 0))))
+      (aref (cpio-entry entry-name) 0))))
 
 (defun cpio-entry-header-start (entry)
   "Return the start of the entry specified in ENTRY."
@@ -944,7 +861,7 @@ will create a conflict.
 
 CONTRACT: This can only be invoked in a cpio archive under cpio-mode
 or a buffer affiliated with such a buffer."
-  ;; (interactive "sName: \nP")
+  (interactive "sName: \nP")
   (let* ((fname "cpio-extract-entry")
 	 (attrs (cpio-entry-attrs entry-name))
 	 (entry-type (cpio-entry-type entry-name)))
@@ -968,7 +885,7 @@ or a buffer affiliated with such a buffer."
 	    (warn "%s(): Unknown entry type -- not extracting." fname))
 	   (t (error "%s(): Impossible condition." fname)))))
 
-(defun cpio-extract-regular-file (entry-name)
+(defun cpio-extract-regular-file (entry-name &optional from-lisp)
   "Extract the regular file entry ENTRY-NAME.
 CONTRACT: ENTRY-NAME is in fact an entry of a regular file."
   (let* ((fname "cpio-extract-regular-file")
@@ -1365,7 +1282,6 @@ many are simply invented."
 	 (namesize (1+ (length name)))
 	 (checksum 0) 			;HEREHERE This will have to change.
 	 (result (make-vector 14 nil)))
-    ;;(error "%s() is not yet implemented" fname)
     (aset result *cpio-ino-parsed-idx* ino)
     (aset result *cpio-mode-parsed-idx* mode)
     (aset result *cpio-uid-parsed-idx* uid)
@@ -1651,9 +1567,10 @@ This also establishes those variables as buffer-local."
     ;;     --> *cpio-magic-field-offset*
     (mapcar (lambda (fsv)		;format-specific-variable
 	      (let* ((fs-name (symbol-name fsv))
-		     (general-name (progn (or (string-match (concat "\\`\\*cpio-\\(" format-name "-\\)") fs-name)
-					      (error "%s(): Some FSV isn't playing by the rules! [[%s]]" fname fsv))
-					  (replace-match "" t t fs-name 1)))
+		     (general-name (save-match-data
+				     (or (string-match (concat "\\`\\*cpio-\\(" format-name "-\\)") fs-name)
+					 (error "%s(): Some FSV isn't playing by the rules! [[%s]]" fname fsv))
+				     (replace-match "" t t fs-name 1)))
 		     (general-var (make-symbol general-name)))
 		(set general-var fsv)))
 	    newc-offset-vars)))

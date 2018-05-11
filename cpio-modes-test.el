@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes-test.el --- tests of the code in cpio-modes.el.
-;	$Id: cpio-modes-test.el,v 1.1.4.3 2018/03/08 06:10:13 doug Exp $	
+;	$Id: cpio-modes-test.el,v 1.1.4.4 2018/05/11 20:13:13 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -205,17 +205,6 @@
   (should (string-equal (cpio-int-mode-to-file-type s-ifdir)  "d"))
   (should (string-equal (cpio-int-mode-to-file-type s-ifreg)  "-"))
   (should (string-equal (cpio-int-mode-to-file-type s-iflnk)  "l")))
-
-
-;; 
-;; Commands
-;; 
-
-
-;; 
-;; Mode definition (IF APPROPRIATE)
-;; 
-
 
 
 (provide 'cpio-modes)

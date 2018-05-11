@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic-tests.el --- tests of cpio-generic.el
-;	$Id: cpio-generic-tests.el,v 1.1.4.4 2018/04/26 14:15:31 doug Exp $	
+;	$Id: cpio-generic-tests.el,v 1.1.4.5 2018/05/11 20:13:13 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -131,9 +131,10 @@
 
 
 ;; 
-;; Mode definition (IF APPROPRIATE)
+;; Run tests.
 ;; 
 
+(ert "^cpio-generic-drwx-test$")
 
 
 (provide 'cpio-generic-test)

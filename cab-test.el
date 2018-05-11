@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.1.2.14 2018/03/08 06:10:11 doug Exp $	
+;	$Id: cab-test.el,v 1.1.2.15 2018/05/11 20:13:12 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -552,17 +552,6 @@
 	     (should (progn (message "%s(): 559" fname)
 			    (not (buffer-live-p grandchild-322))))))
     (message "%s(): Leaving." fname)))
-
-
-;; 
-;; Commands
-;; 
-
-
-;; 
-;; Mode definition (IF APPROPRIATE)
-;; 
-
 
 
 (provide 'cab-test)

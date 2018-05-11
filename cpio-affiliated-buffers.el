@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other.
-;	$Id: cpio-affiliated-buffers.el,v 1.1.2.13 2018/04/26 14:15:30 doug Exp $	
+;	$Id: cpio-affiliated-buffers.el,v 1.1.2.14 2018/05/11 20:13:12 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -112,29 +112,6 @@ CONTRACT: BUFFER and PARENT are buffers."
 	   (mapc 'cab-deregister *cab-subordinates*))
 	  (t nil))))
 
-(defun OBS-cab-deregister (buffer)
-  "Deregister the given BUFFER as an affiliate of its parent buffer."
-  (let ((fname "cab-deregister")
-	(local-subordinates ())
-	(parent))
-    (if (buffer-live-p buffer)
-	(with-current-buffer buffer
-
-	  (setq parent *cab-parent*)
-	  (setq *cab-parent* nil)
-	  (mapc (lambda (b)
-		  (kill-buffer b))
-    		*cab-subordinates*)))
-    (if (buffer-live-p parent)
-	(with-current-buffer parent
-	  (mapc (lambda (b)
-		  (if (and (equal b buffer)
-			   (buffer-live-p b))
-		      (remove-hook 'kill-buffer-hook 'cab-deregister 'local)
-		    (if (buffer-live-p b)
-			(push b local-subordinates))))
-		  *cab-subordinates*)
-	  (setq *cab-subordinates* local-subordinates)))))
 
 (defun cab-deregister (&optional buffer)
   "Deregister and kill BUFFER and all its subordinate buffers.
@@ -179,17 +156,6 @@ CAVEAT: This function should disappear as affiliated buffer code stabilizes."
 	      (if (boundp '*cab-subordinates*)
 		  (setq *cab-subordinates* (delete-duplicates *cab-subordinates*)))))
 	  (buffer-list))))
-
-
-;; 
-;; Commands
-;; 
-
-
-;; 
-;; Mode definition (IF APPROPRIATE)
-;; 
-
 
 
 (provide 'cpio-affiliated-buffers)
