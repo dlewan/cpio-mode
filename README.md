@@ -22,7 +22,7 @@ To add a new archive type a devloper should be able to do so
 merely by being able to parse an entry and
 write a parsed entry back to a file.
  
-Right now (2017 Dec 10), the cpio-mode package supports the above
+Right now (2018 May 11), the cpio-mode package supports the above
 for the "newc" format of cpio archives.
 However, the internal structure of cpio-mode implements
 all of the manipulation code in terms of parsed headers

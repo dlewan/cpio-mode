@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other.
-;	$Id: cpio-affiliated-buffers.el,v 1.1.2.12 2018/03/08 06:10:11 doug Exp $	
+;	$Id: cpio-affiliated-buffers.el,v 1.1.2.13 2018/04/26 14:15:30 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -82,9 +82,9 @@
     (if (equal buffer parent)
 	(error "%s(): You can't affiliate a buffer [[%s]] with itself [[%s]]." fname buffer parent))
 
-    (with-current-buffer parent
-      (if (not (member buffer *cab-subordinates*))
-	  (push buffer *cab-subordinates*))
+    (unless (cab-registered-p buffer parent)
+      (with-current-buffer parent
+	(push buffer *cab-subordinates*))
       (add-hook 'kill-buffer-hook 'cab-kill-buffer-hook))
 
     (with-current-buffer buffer
@@ -96,6 +96,14 @@
 	    (t t)))
 
     (local-set-key "\C-x\C-k" 'cab-deregister)))
+
+(defun cab-registered-p (buffer parent)
+  "Return non-NIL if BUFFER is already registered to PARENT.
+CONTRACT: BUFFER and PARENT are buffers."
+  (let ((fname "cab-registered-p"))
+    ;; (error "%s() is not yet implemented" fname)
+    (with-current-buffer parent
+      (not (member buffer *cab-subordinates*)))))
 
 (defun cab-kill-buffer-hook ()
   "Deregister the current buffer when it is killed."
@@ -129,9 +137,11 @@
 		  *cab-subordinates*)
 	  (setq *cab-subordinates* local-subordinates)))))
 
-(defun cab-deregister (buffer)
+(defun cab-deregister (&optional buffer)
   "Deregister and kill BUFFER and all its subordinate buffers.
 Remove its entry in its parent buffer."
+  (interactive)
+  (unless buffer (setq buffer (current-buffer)))
   (let ((fname "cab-deregister")
 	(parent)
 	(subordinates))

@@ -1,4 +1,4 @@
-#	$Id: DESIGN,v 1.3.4.1 2018/03/08 06:10:10 doug Exp $	
+#	$Id: DESIGN,v 1.3.4.2 2018/04/26 14:15:29 doug Exp $	
 
 A cpio entry basically looks like 
 an inode followed by contents of the specified length.
@@ -9,7 +9,7 @@ The exact form of the entry header can, unfortunately, vary.
 (Such are the woes of an operating system
 that had friends who didn't play nicely
 [until competition showed up].
-[Gee, that seems like a familiar story, doesn't it.]
+[Gee, that seems like a familiar story, doesn't it?])
 
 According to the documentation for cpio(1GNU)
 there are the following entry header formats:
@@ -87,14 +87,44 @@ Here are some that would also be nice:
 Those then reveal at least some support functions:
 
     • discern archive type
+      * hpbin
+      * hpodc
+      * DONE newc
+      * odc
+      * tar
+      * ustar
     • parse entry headers
-    • find entry contents
+      * hpbin
+      * hpodc
+      * DONE newc
+      * odc
+      * tar
+      * ustar
+    • DONE find entry contents (cpio-contents)
     • write entry headers (+ contents)
-    • mtime → human date/time conversion
-    • mtime replacement in an entry header structure
-    • uid/gid → string
-    • octal mode ↔ drwx (s, S, etc.) mode conversions.
+      * hpbin
+      * hpodc
+      * DONE newc
+      * odc
+      * tar
+      * ustar
+    • DONE mtime → human date/time conversion (mtime-to-touch-string, cpio-mtime-to-mtime-string)
+    • DONE mtime replacement in an entry header structure (cpio-set-mtime)
+      Also other entry-related information.
+      Attributes:
+	  * (cpio-set-entry-size)
+	  * (cpio-set-entry-name)
+	  * (cpio-set-uid)
+	  * (cpio-set-gid)
+	  * (cpio-set-mode
+      Location information:
+	  * cpio-set-header-start
+	  * cpio-set-contents-start
+    • DONE uid/gid → string (defcustom cpio-try-names)
+    • DONE octal mode ↔ drwx (s, S, etc.) mode conversions. (cpio-int-mode-to-mode-string)
+    • DONE And its inverse (cpio-mode-string-to-int-mode)
     • dev and rdev handling (No, I have no idea what to do with this right now.)
+
 
 All of those functions should have generic implementations.
 They may have header-type-specific get/put functions,

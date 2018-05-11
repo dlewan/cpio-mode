@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes.el --- handle modes.
-;	$Id: cpio-modes.el,v 1.1.4.3 2018/03/08 06:10:13 doug Exp $	
+;	$Id: cpio-modes.el,v 1.1.4.5 2018/05/11 13:17:00 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -46,6 +46,7 @@
 ;; Mode-related bits (adapted from /usr/include/linux/stat.h).
 ;; 
 
+(defconst s-iunk   #o1000000)
 (defconst s-ifmt   #o0170000)
 (defconst s-ifsock #o0140000)
 (defconst s-iflnk  #o0120000)
@@ -146,8 +147,7 @@ please let me know."
   (let ((fname "cpio-int-mode-to-user-permissions")
 	(read-string    (cpio-int-mode-to-user-read-string    int-mode))
 	(write-string   (cpio-int-mode-to-user-write-string   int-mode))
-	(execute-string (cpio-int-mode-to-user-execute-string int-mode))
-	)
+	(execute-string (cpio-int-mode-to-user-execute-string int-mode)))
     (concat read-string write-string execute-string)))
 
 (defun cpio-int-mode-to-user-read-string (int-mode)
@@ -175,7 +175,6 @@ please let me know."
 	   (if (/= (logand int-mode s-isuid) 0)
 	       "S"
 	     "-")))))
-
 
 (defun cpio-int-mode-to-group-permissions (int-mode)
   "Extract the 3-character string expressing the group permissions from INT-MODE."
@@ -247,10 +246,135 @@ please let me know."
 
 (defun cpio-mode-string-to-int-mode (mode-string)
   "Convert an ls -l style mode string to its corresponding integer."
-  (let ((fname "cpio-mode-string-to-int-mode"))
-    (error "%s(): is not implemented yet." fname)))
+  (let* ((fname "cpio-mode-string-to-int-mode")
+	 (bits 0)
+	 (chars (mapcar 'string-to-char (split-string mode-string "" t)))
+	 (type-char (car (subseq chars 0  1)))
+	 (owner-chars    (subseq chars 1  4))
+	 (group-chars    (subseq chars 4  7))
+	 (other-chars    (subseq chars 7 10)))
+    ;; (error "%s(): is not implemented yet." fname)
+    (setq bits (logior bits
+		       (cpio-type-char-to-bits type-char)
+		       (cpio-owner-chars-to-bits owner-chars)
+		       (cpio-group-chars-to-bits group-chars)
+		       (cpio-other-chars-to-bits other-chars)))
+    bits))
 
 
+(defun cpio-type-char-to-bits (char)
+  "Return the mode bits implied by the given type CHAR."
+  (let ((fname "cpio-type-char-to-bits"))
+    (unless (and (characterp char)
+		 (or (= char (string-to-char *cpio-modes-link*))
+		     (= char (string-to-char *cpio-modes-reg*))
+		     (= char (string-to-char *cpio-modes-dir*))
+		     (= char (string-to-char *cpio-modes-char*))
+		     (= char (string-to-char *cpio-modes-block*))
+		     (= char (string-to-char *cpio-modes-fifo*))
+		     (= char (string-to-char *cpio-modes-sock*))
+		     (= char (string-to-char *cpio-modes-unknown*))))
+      (signal 'wrong-type-argument char))
+    ;; (error "%s() is not yet implemented" fname)
+    (cond ((= char  (string-to-char *cpio-modes-link*))
+	   s-iflnk)
+	  ((= char  (string-to-char *cpio-modes-reg*))
+	   s-ifreg)
+	  ((= char  (string-to-char *cpio-modes-dir*))
+	   s-ifdir)
+	  ((= char  (string-to-char *cpio-modes-char*))
+	   s-ifchr)
+	  ((= char  (string-to-char *cpio-modes-block*))
+	   s-ifblk)
+	  ((= char  (string-to-char *cpio-modes-fifo*))
+	   s-ififo)
+	  ((= char  (string-to-char *cpio-modes-sock*))
+	   s-ifsock)
+	  (t
+	   (error "%s(): Uknown file type is not yet supported." fname)))))
+
+(defun cpio-owner-chars-to-bits (chars)
+  "Interpret the given CHARS as bits relevant to the owner of a file."
+  (let ((fname "cpio-owner-chars-to-bits")
+	(read-char)
+	(write-char)
+	(exec-char)
+	(bits 0))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (and (listp chars)
+		 (= (length chars) 3)
+		 (member (setq read-char  (nth 0 chars)) '(?- ?r))
+		 (member (setq write-char (nth 1 chars)) '(?- ?w))
+		 (member (setq exec-char  (nth 2 chars)) '(?- ?x ?s ?S)))
+      (signal 'wrong-type-argument chars))
+    (cond ((= read-char ?-))
+	  ((= read-char ?r)
+	   (setq bits (logior bits s-irusr))))
+    (cond ((= write-char ?-))
+	  ((= write-char ?w)
+	   (setq bits (logior bits s-iwusr))))
+    (cond ((= exec-char ?-))
+	  ((= exec-char ?x)
+	   (setq bits (logior bits s-ixusr)))
+	  ((= exec-char ?s)
+	   (setq bits (logior bits s-ixuser s-isuid)))
+	  ((= exec-char ?S)
+	   (setq bits (logior bits s-isuid))))
+    bits))
+
+(defun cpio-group-chars-to-bits (chars)
+  "Interpret CHARS as group mode bits."
+  (let ((fname "cpio-group-chars-to-bits")
+	(read-char)
+	(write-char)
+	(exec-char)
+	(bits 0))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (and (listp chars)
+		 (= (length chars) 3)
+		 (member (setq read-char  (nth 0 chars)) '(?- ?r))
+		 (member (setq write-char (nth 1 chars)) '(?- ?w))
+		 (member (setq exec-char  (nth 2 chars)) '(?- ?x ?s ?S)))
+      (signal 'wrong-type-argument chars))
+    (cond ((= read-char ?-))
+	  ((= read-char ?r)
+	   (setq bits (logior bits s-irgrp))))
+    (cond ((= write-char ?-))
+	  ((= write-char ?w)
+	   (setq bits (logior bits s-iwgrp))))
+    (cond ((= exec-char ?-))
+	  ((= exec-char ?x)
+	   (setq bits (logior bits s-ixgrp)))
+	  ((= exec-char ?s)
+	   (setq bits (logior bits s-ixgrp s-isgid)))
+	  ((= exec-char ?S)
+	   (setq bits (logior bits s-isgid))))
+    bits))
+
+(defun cpio-other-chars-to-bits (chars)
+  "Interpret CHARS as other mode bits."
+  (let ((fname "cpio-other-chars-to-bits"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (and (listp chars)
+		 (= (length chars) 3)
+		 (member (setq read-char  (nth 0 chars)) '(?- ?r))
+		 (member (setq write-char (nth 1 chars)) '(?- ?w))
+		 (member (setq exec-char  (nth 2 chars)) '(?- ?x ?t ?T)))
+      (signal 'wrong-type-argument chars))
+    (cond ((= read-char ?-))
+	  ((= read-char ?r)
+	   (setq bits (logior bits s-iroth))))
+    (cond ((= write-char ?-))
+	  ((= write-char ?w)
+	   (setq bits (logior bits s-iwoth))))
+    (cond ((= exec-char ?-))
+	  ((= exec-char ?x)
+	   (setq bits (logior bits s-ixoth)))
+	  ((= exec-char ?t)
+	   (setq bits (logior bits s-ixoth s-isvtx)))
+	  ((= exec-char ?T)
+	   (setq bits (logior bits s-isvtx))))
+    bits))
 
 (defun UNUSED-cpio-low-mode-bits (bits)
   ;; HEREHERE This is no longer needed.

@@ -1,27 +1,75 @@
 # -*- outline -*-
-#	$Id: NEWS,v 1.2.4.2 2018/03/08 06:10:11 doug Exp $	
+#	$Id: NEWS,v 1.2.4.5 2018/05/11 13:16:58 doug Exp $	
+
+* Version 0.03
+** More dired-like commands:
+   + cpio-dired-flag-garbage-entries
+   + cpio-dired-goto-entry
+   + cpio-dired-mark-executables
+   + cpio-dired-marek-subdir-entries
+   + cpio-dired-mark-symlinks
+** Fixes to saving an archive.
+** Fixes to cpio-dired-do-chgrp/own/mod.
+** Automated test updates:
+*** Automated tests now also check the catalog.
+*** Automated tests that modify the catalog
+    now confirm that the archive can be unpacked by cpio(1)
+    after saving.
+*** Automated tests all pass.
+
+* Version 0.02
+** You can now save an archive.
+** More dired-like commands:
+   + cpio-dired-add-entry ("I")
+   + cpio-dired-display-entry ("f")
+   + cpio-dired-do-chgrp ("G")
+   + cpio-dired-do-chown ("O")
+   + cpio-dired-do-copy ("C")
+   + cpio-dired-do-delete ("D")
+   + cpio-dired-do-flagged-delete ("x")
+   + cpio-dired-do-query-replace-regexp ("Q")
+   + cpio-dired-do-rename ("R")
+   + cpio-dired-do-search ("A")
+   + cpio-dired-find-entry-other-window ("o")
+   + cpio-dired-flag-auto-save-entries ("#")
+   + cpio-dired-flag-entry-deletion ("d")
+   + cpio-dired-hide-details-mode  ("(")
+   + cpio-dired-kill ("C-x k")
+   + cpio-dired-mark-entries-regexp ("%m", "*%")
+   + cpio-dired-quit-window ("q")
+   + cpio-dired-save-archive ("C-x C-s")
+   + cpio-dired-summary ("?")
+   + cpio-dired-unmark ("u", "*u")
+   + cpio-dired-unmark-all-entries (M-xDEL "*?")
+   + cpio-dired-unmark-all-marks ("*!", "U")
+   + cpio-revert-buffer ("r")
+** Other interactive commands:
+   + cpio-dired-extract-all ("Xa")
+   + cpio-dired-extract-entries ("Xm")
+   + cpio-dired-view-archive ("C-cC-c")
+   + cpio-view-dired-style-buffer  ("C-cC-c" -- from archive buffer).
+** You can now edit and save entry contents.
+** Some automated testing of the dired-like interface.
 
 * Version 0.01
 ** Basic function of cpio-mode, cpio-dired-mode, and
    cpio-contents-entry-mode are in place.
 ** You can extract selected entries (M-x cpio-dired-extract-entries),
-   or extrac all entries (M-x cpio-dired-extract-all).
-** You can view an antry's contents and even edit the contents' buffer.
+   or extract all entries (M-x cpio-dired-extract-all).
+** You can view an entry's contents and even edit the contents' buffer.
    However, you cannot save it yet.
-** cpio-dired-mode has the following implemented commands
-   + cpio-dired-find-entry ("f", "e", "C-j")
+** cpio-dired-mode has the following implemented commands:
    + cpio-dired-display-entry ("C-o")
-   + cpio-dired-view-archive ("C-cC-c")
-   + cpio-dired-next-line (SPC, "n", "C-n")
-   + cpio-dired-previous-line ("p", "C-p")
-   + cpio-dired-mark-entries-regexp ("* %", "% m")
-   + cpio-dired-mark ("m", "* m")
-   + cpio-dired-next-dirline (">")
-   + cpio-dired-prev-dirline ("<")
-   + cpio-dired-extract-entries ("X m")
    + cpio-dired-extract-all ("X a")
-   + cpio-dired-summary ("?") -- Don't trust this yet.
+   + cpio-dired-extract-entries ("X m")
+   + cpio-dired-find-entry ("f", "e", "C-j")
    + cpio-dired-mark ("m", "* m")
+   + cpio-dired-mark-entries-regexp ("* %", "% m")
+   + cpio-dired-next-dirline (">")
+   + cpio-dired-next-line (SPC, "n", "C-n")
+   + cpio-dired-prev-dirline ("<")
+   + cpio-dired-previous-line ("p", "C-p")
+   + cpio-dired-summary ("?") -- Don't trust this yet.
    + cpio-dired-unmark ("u", "* u")
    + cpio-dired-unmark-all-marks ("U", "* !")
-   + cpio-dired-mark-entries-regexp ("* %", "% m")
+   + cpio-dired-view-archive ("C-cC-c")

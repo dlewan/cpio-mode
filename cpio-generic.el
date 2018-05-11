@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.1.4.4.2.1 2018/03/08 06:22:09 doug Exp $	
+;	$Id: cpio-generic.el,v 1.1.4.5 2018/04/26 14:15:31 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -24,7 +24,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Apr 23
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: generically useful emacs lisp functions.
 
 ;;; Commentary:
@@ -296,11 +296,15 @@ rwx = 7 and rw- = 6, for example."
 
 (defun round-up (number modulus)
   "Round NUMBER up to the next multiple of MODULUS.
+If number ≡ 0 (modulus), then the NUMBER is already rounded up,
+so NUMBER is returned.
 CAVEAT: If NUMBER is negative, then the result may be surprising."
   (let ((fname "round-up"))
     (unless (and (integerp number) (integerp modulus))
       (error "%s() takes integer arguments." fname))
-    (* modulus (/ (+ number modulus -1) modulus))))
+    (if (= 0 (mod number modulus))
+	number
+      (* modulus (/ (+ number modulus -1) modulus)))))
 
 (defun pad-right (string width char)
   "Pad STRING on the right with CHAR until it is WIDTH characters wide.
@@ -404,6 +408,60 @@ The intent here is to make calculating padding and locations easier."
   "Return the maximum point given a 0-based point."
   (let ((fname "cpio-point-max"))
     (1- (point-max))))
+
+(defun cpio-uid-for-owner (owner)
+  "Return the uid (an integer) for the given OWNER (a string) if it exists.
+If it doesn't exist, then return NIL.
+If OWNER is a sequence of digits, then return OWNER as the GID.
+
+CAVEAT: This deletes any buffer holding /etc/passwd."
+  (let ((fname "cpio-uid-for-owner")
+	(passwd-buffer (find-file-noselect "/etc/passwd"))
+	(uid nil))
+    ;; (error "%s() is not yet implemented" fname)
+    (if (string-match "\\`[[:digit:]]+\\'" owner)
+	(setq uid owner)
+      (with-current-buffer passwd-buffer
+	(goto-char (point-min))
+	(save-match-data
+	  (catch 'found-it
+	    (while (< (point) (point-max))
+	      (cond ((looking-at (concat owner ":[[:graph:]]+:\\([[:digit:]]+\\):[[:digit:]]+:"))
+		     (setq uid (match-string-no-properties 1))
+		     (throw 'found-it uid))
+		    (t nil))
+	      (forward-line))))))
+    (kill-buffer passwd-buffer)
+    (string-to-number uid)))
+
+(defun cpio-gid-for-group (group)
+  "Return the GID (an integer) for the given GROUP (a string) if it exists.
+If it doesn't exist, then return NIL.
+If GROUP is a sequence of digits, then return GROUP as the GID.
+
+CAVEAT: This deletes any buffer holding /etc/group."
+  (let ((fname "cpio-gid-for-group")
+	(group-buffer (find-file-noselect "/etc/group"))
+	(gid nil))
+    ;; (error "%s() is not yet implemented" fname)
+    (cond ((null group)
+	   nil)
+	  ((stringp group)
+	   (if (string-match "\\`[[:digit:]]+\\'" group)
+	       (setq gid group)
+	     (with-current-buffer group-buffer
+	       (goto-char (point-min))
+	       (save-match-data
+		 (catch 'found-it
+		   (while (< (point) (point-max))
+		     (cond ((looking-at (concat group ":[[:graph:]]+:\\([[:digit:]]+\\):"))
+			    (setq gid (match-string-no-properties 1))
+			    (throw 'found-it gid))
+			   (t nil))
+		     (forward-line))))))
+	   (kill-buffer group-buffer)
+	   (string-to-number gid))
+	  (t nil))))
 
 
 ;; 

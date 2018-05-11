@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.1.4.2.2.1 2018/03/08 06:22:08 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.1.4.3 2018/04/26 14:15:31 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -22,7 +22,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2017 Dec 06
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: cpio, contents, edit
 
 ;;; Commentary:
@@ -74,7 +74,7 @@
       ;; 4. Write the header in the archive buffer (plus padding).
       (goto-char (cpio-entry-header-start entry))
       (insert header-string)
-      (aset entry *cpio-catalog-entry-content-start-idx* (point-marker))
+      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker))
       ;; 5. Write the new contents in the archive buffer (plus padding).
       (cpio-insert-padded-contents new-contents)
       ;; 6. Adjust the trailer.

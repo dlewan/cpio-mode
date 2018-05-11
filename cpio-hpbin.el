@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-hpbin.el --- handle hpbin cpio entry header formats
-;	$Id: cpio-hpbin.el,v 1.3.2.2 2018/03/08 06:10:13 doug Exp $	
+;	$Id: cpio-hpbin.el,v 1.3.2.3 2018/04/26 14:15:32 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -24,7 +24,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: cpio, HP binary header
 
 ;;; Commentary:
@@ -33,7 +33,7 @@
 
 ;;; Code:
 
-;
+;;
 ;; Dependencies
 ;; 
 

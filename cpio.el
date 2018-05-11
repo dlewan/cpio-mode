@@ -1,13 +1,13 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.2.4.7.2.1 2018/03/08 06:22:10 doug Exp $	
+;	$Id: cpio.el,v 1.2.4.9 2018/05/11 13:17:00 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: cpio, archive
 
 ;;; Commentary:
@@ -39,7 +39,7 @@
 ;; OPTIONS:
 ;; 
 ;; ENVIRONMENT:
-;;     This was originally developed under emacs 24.2
+;;     Early development was done under emacs 24.2
 ;;     on the Fedora 18 distribution of 64 bit GNU/Linux.
 ;; 
 ;;     Current development is happening under emacs 24.5
@@ -53,6 +53,12 @@
 ;; CAVEATS:
 ;;     Only regular files can be edited.
 ;;     I'm not sure what to do with symbolic links yet.
+;; 
+;; SECURITY ISSUES:
+;;     There are no ownership/group-ship tests on anything.
+;;     You could create an archive with bad behavior
+;;     (for example, a set-uid executable)
+;;     when unpacked by root.
 ;; 
 
 ;; 
@@ -193,14 +199,6 @@
 ;; (And, yes, I hate specifications that depend on context.)
 ;; 
 
-;; Implemented commands (so far):
-;; M-x cpio-mode
-;; M-x cpio-dired-find-entry (e..f
-;; M-x cpio-extract-entry
-;; M-x cpio-extract-all
-;; M-x cpio-entry-contents-save (Don't trust this yet.)
-;; 
-
 ;;; Code:
 
 ;;
@@ -298,12 +296,12 @@ Takes the values 'bin, 'newc, 'odc etc.")
 
   (defvar *cpio-dev-maj-idx* 0	; (setq i (1+ i))
     "Index of dev major in a parsed cpio header.")
-  (setq *cpio-dev-idx* i)
+  (setq *cpio-dev-maj-idx* i)
   (setq i (1+ i))
 
   (defvar *cpio-dev-min-idx* 0	; (setq i (1+ i))
     "Index of dev minor in a parsed cpio header.")
-  (setq *cpio-dev-idx* i)
+  (setq *cpio-dev-min-idx* i)
   (setq i (1+ i))
 
   (defvar *cpio-rdev-maj-idx* 0	; (setq i (1+ i))
@@ -334,8 +332,7 @@ Takes the values 'bin, 'newc, 'odc etc.")
   (defvar *cpio-checksum-idx* 0 ; (setq i (1+ i))
     "Index of the checksum in a parsed cpio-header.")
   (setq *cpio-filename-idx* i)
-  (setq i (1+ i))
-  )
+  (setq i (1+ i)))
 
 ;; N.B. The format REs go here since they are what we use
 ;; to discern the type of the archive.
@@ -490,7 +487,9 @@ See `cpio-discern-archive-type' for the full list.")
 			    'cpio-get-contents-func
 			    'cpio-end-of-archive
 			    'cpio-make-header-string-func
-			    'cpio-adjust-trailer-func)
+			    ;; Archive manipulation functions.
+			    'cpio-adjust-trailer-func
+			    'cpio-delete-trailer-func)
   "A list of variables peculiar to the different headers and their fields.
 The design here is that package-wide variables have the prefix `cpio-'
 and the corresponding functions for a specific format FMT have the form `cpio-FMT-'.
@@ -501,8 +500,12 @@ All of this can then be calculated via (symbol-name), etc.")
 			  ;; Header parsing functions
 			  'cpio-end-of-archive-func
 			  'cpio-start-of-trailer-func
+			  ;; Header making functions
 			  'cpio-make-header-string-func
-			  'cpio-adjust-trailer-func))
+			  ;; Archive manipulation functions
+			  'cpio-adjust-trailer-func
+			  'cpio-insert-trailer-func
+			  'cpio-delete-trailer-func))
 ;; (make-variable-buffer-local '*cpio-local-funcs*)
 
 (defvar *cpio-catalog* ()
@@ -532,7 +535,8 @@ A parsed header is a vector of the following form:
      rdev-maj
      rdev-min
      contents-size
-     checksum].")
+     checksum
+     name].")
 (make-variable-buffer-local '*cpio-catalog*)
 (setq *cpio-catalog* ())
 
@@ -547,8 +551,8 @@ A parsed header is a vector of the following form:
   (setq *cpio-catalog-entry-header-start-idx* i)
   
   (setq i (1+ i))
-  (defvar *cpio-catalog-entry-content-start-idx* i)
-  (setq *cpio-catalog-entry-content-start-idx* i))
+  (defvar *cpio-catalog-entry-contents-start-idx* i)
+  (setq *cpio-catalog-entry-contents-start-idx* i))
 
 (defvar *cpio-dired-buffer* ()
   "The [subordinate] buffer used to present the curent catalog
@@ -561,6 +565,7 @@ A parsed header is a vector of the following form:
 (setq *cpio-archive-name* ())
 (make-variable-buffer-local '*cpio-archive-names*)
 
+;; Indexes for the fields in a parsed header.
 (let ((i 0))
   (defvar *cpio-ino-parsed-idx* i)
   (setq *cpio-ino-parsed-idx* i)
@@ -610,12 +615,19 @@ A parsed header is a vector of the following form:
   (setq *cpio-namesize-parsed-idx* i)
 
   (setq i (1+ i))
-  (defvar *cpio-checksum-idx* i)
-  (setq *cpio-checksum-idx* i)
+  (defvar *cpio-checksum-parsed-idx* i)
+  (setq *cpio-checksum-parsed-idx* i)
 
   (setq i (1+ i))
   (defvar *cpio-name-parsed-idx* i)
   (setq *cpio-name-parsed-idx* i))
+
+(defvar *cpio-padding-modulus* ()
+  "The modulus to be used for building padded strings.")
+(defvar *cpio-padding-char* ()
+  "The character to be used for building padded strings.")
+(defvar *cpio-padding-str* ()
+  "A single character string of the character to be used for building padded strings.")
 
 
 ;;
@@ -628,6 +640,12 @@ A parsed header is a vector of the following form:
   "The default cpio format to use for a new or empty archive."
   :type 'string
   :group 'cpio)
+
+;; N.B. This is here because this file is where the cpio-dired lines are created.
+(defcustom cpio-try-names t
+  "Non-nil means that GIDs and UIDs are displayed as integers."
+  :group 'cpio
+  :type 'boolean)
 
 
 ;; 
@@ -646,7 +664,7 @@ and NIL if the current buffer does not begin with a cpio entry header."
       (goto-char (point-min))
       (catch 'found-it
 	(mapcar (lambda (archive-spec)
-		  (cond ((looking-at (car archive-spec))
+		  (cond ((looking-at-p (car archive-spec))
 			 (setq this-archive-type (cdr archive-spec))
 			 (throw 'found-it t))
 			(t t)))
@@ -758,20 +776,38 @@ CAVEAT: See `cpio-magic'."
   "Return the contents start for ENTRY-NAME."
   (let* ((fname "cpio-contents-start")
 	 (catalog-entry (cdr (assoc entry-name (cpio-catalog)))))
-    (aref catalog-entry *cpio-catalog-entry-content-start-idx*)))
+    (aref catalog-entry *cpio-catalog-entry-contents-start-idx*)))
 
 (defun cpio-entry-attrs (entry-name)
   "Retrieve the entry attributes for ENTRY-NAME."
   (let ((fname "cpio-entry-attrs"))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
-	  (aref (cdr (assoc entry-name (cpio-catalog))) 0))
+	  (cpio-entry-attrs entry-name))
       (aref (cdr (assoc entry-name (cpio-catalog))) 0))))
 
 (defun cpio-entry-header-start (entry)
   "Return the start of the entry specified in ENTRY."
   (let ((fname "cpio-entry-start"))
     (aref entry *cpio-catalog-entry-header-start-idx*)))
+
+(defun cpio-entry-contents-start (entry)
+  "Return the start of the contents of the entry specified in ENTRY."
+  (let ((fname "cpio-entry-start"))
+    (aref entry *cpio-catalog-entry-contents-start-idx*)))
+
+(defun cpio-set-contents-start (entry where)
+  "Set the contents start marker in ENTRY to the location WHERE.
+WHERE can be an integer or marker."
+  (let ((fname "cpio-set-contents-start")
+	(where-marker (cond ((integerp where)
+			     (set-marker (make-marker) where))
+			    ((markerp where)
+			     where)
+			    (t
+			     (error 'wrong-type-error where)))))
+    ;; (error "%s() is not yet implemented" fname)
+    (aset entry *cpio-catalog-entry-contents-start-idx* where-marker)))
 
 (defun cpio-contents (entry-name &optional archive-buffer)
   "Return a string that is the contents of the named entry."
@@ -803,7 +839,7 @@ CAVEAT: See `cpio-magic'."
       *cpio-catalog*)))
 
 (defun cpio-make-header-string (parsed-header)
-  "Build a cpio header string based on the given PARSED-HEADER."
+  "Build a padded cpio header string based on the given PARSED-HEADER."
   (let ((fname "cpio-make-header-string"))
     (funcall cpio-make-header-string-func parsed-header)))
 
@@ -811,6 +847,51 @@ CAVEAT: See `cpio-magic'."
   "Set the entry-size element of PARSED-HEADER to SIZE."
   (let ((fname "cpio-set-entry-size"))
     (aset parsed-header *cpio-entry-size-parsed-idx* size)))
+
+(defun cpio-set-entry-name (parsed-header entry-name)
+  "Set the entry-name element of the PARSED-HEADER to ENTRY-NAME.
+To be consistent, this also sets the name's size element."
+  (let ((fname "cpio-set-entry-name"))
+    (aset parsed-header *cpio-name-parsed-idx* entry-name)
+    ;; The namesize in the header includes the terminating NULL at the end of the name.
+    ;; See, for example, (cpio-newc-header-size).
+    (aset parsed-header *cpio-namesize-parsed-idx* (1+ (length entry-name)))))
+
+(defun cpio-set-uid (parsed-header uid)
+  "Set the uid field in the PARSED-HEADER to UID.
+UID can be either a string (representing a number)
+or an integer."
+  (let ((fname "cpio-set-uid"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (integerp uid)
+      (setq uid (string-to-number uid)))
+    (aset parsed-header *cpio-uid-parsed-idx* uid)))
+
+(defun cpio-set-gid (parsed-header gid)
+  "Set the gid field in the PARSED-HEADER to GID.
+GID can be either a string (representing a number)
+or an integer."
+  (let ((fname "cpio-set-gid"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (integerp gid)
+      (setq uid (string-to-number gid)))
+    (aset parsed-header *cpio-gid-parsed-idx* gid)))
+
+(defun cpio-set-mode (parsed-header mode)
+  "Set the mode field in the PARSED-HEADER to MODE.
+MODE is either an integer or a string representing an integer."
+  (let ((fname "cpio-set-mode"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (integerp mode)
+      (setq uid (string-to-number mode)))
+    (aset parsed-header *cpio-mode-parsed-idx* mode)))
+
+(defun cpio-set-mtime (parsed-header mtime)
+  "Set the modification time in the PARSED-HEADER to MTIME.
+MTIME is an emacs time."
+  (let ((fname "cpio-set-mtime"))
+    ;; (error "%s() is not yet implemented" fname)
+    (aset parsed-header *cpio-mtime-parsed-idx* mtime)))
 
 (defun cpio-extract-all ()
   "Extract all entries from the cpio archive related to the current buffer."
@@ -945,6 +1026,29 @@ If ENTRY-NAME is not in the current archive, then return NIL."
 	   (cpio-int-mode-to-file-type entry-mode))
 	  (t nil))))
 
+(defun cpio-numeric-entry-type (numeric-mode)
+  "Return the numeric entry type of the given NUMERIC MODE."
+  (let ((fname "cpio-numeric-entry-type"))
+    ;; (error "%s() is not yet implemented" fname)
+    (cond ((= #o170000 (logand s-ifmt   numeric-mode))
+	   s-ifmt)
+	  ((= #o140000 (logand s-ifsock numeric-mode))
+	   s-ifsock)
+	  ((= #o120000 (logand s-iflnk  numeric-mode))
+	   s-iflink)
+	  ((/= 0       (logand s-ifreg  numeric-mode))
+	   s-ifreg)
+	  ((/= 0       (logand s-ifdir  numeric-mode))
+	   s-ifdir)
+	  ((/= s-ifblk (logand s-ifblk  numeric-mode))
+	   s-ifblk)
+	  ((/= 0       (logand s-ifchr  numeric-mode))
+	   s-ifchr)
+	  ((/= 0       (logand s-ififo  numeric-mode))
+	   s-ififo)
+	  (t
+	   s_iunk))))
+
 (defun cpio-set-file-attrs (file-name)
   "Set the attributes on FILE-NAME
 based on its attributes in the catalog."
@@ -986,10 +1090,32 @@ Touch understands times of the form YYYYMMDDhhmm.ss."
   "Replace the trailer in the current buffer
 with one with the correct size fot its contents."
   (let* ((fname "cpio-adjust-trailer"))
-    (funcall cpio-adjust-trailer-func)))
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (funcall cpio-adjust-trailer-func))
+      (funcall cpio-adjust-trailer-func))))
+
+(defun cpio-insert-trailer ()
+  "Insert a trailer in a cpio archive."
+  (let ((fname "cpio-insert-trailer"))
+    ;; (error "%s() is not yet implemented" fname)
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (funcall cpio-insert-trailer-func))
+      (funcall cpio-insert-trailer-func))))
+
+(defun cpio-delete-trailer ()
+  "Delete the trailer in the cpio archive buffer affiliated with the current buffer."
+  (let ((fname "cpio-delete-trailer"))
+    ;; (error "%s() is not yet implemented" fname)
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (funcall cpio-delete-trailer-func))
+      (funcall cpio-delete-trailer-func))))
 
 (defun cpio-delete-archive-entry (entry)
-  "Delete the entry in the cpio archive specified by ENTRY."
+  "Delete the entry in the cpio archive specified by ENTRY.
+ENTRY is a catalog entry."
   (let ((fname "cpio-delete-archive-entry"))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
@@ -998,9 +1124,12 @@ with one with the correct size fot its contents."
 	     (size (cpio-entry-size attrs))
 	     (entry-start (cpio-entry-header-start entry))
 	     (contents-start (cpio-contents-start (cpio-entry-name attrs)))
-	     (entry-end (1+ (round-up (+ contents-start (cpio-entry-size attrs))
+	     (entry-end (1+ (round-up (+ (1- contents-start)
+					 (cpio-entry-size attrs))
 				      *cpio-padding-modulus*))))
-      (delete-region entry-start entry-end)))))
+	(setq buffer-read-only nil)
+	(delete-region entry-start entry-end)
+	(setq buffer-read-only t)))))
 
 (defun cpio-insert-padded-header (header-string)
   "Insert an appropriately padded version of HEADER-STRING."
@@ -1028,28 +1157,37 @@ with one with the correct size fot its contents."
   "Create a buffer with a ls -l format reflecting the contents of the current cpio archive.
 This returns the buffer created."
   (let* ((fname "cpio-present-ala-dired")
-	 (archive-name (file-name-nondirectory (buffer-file-name)))
+	 (archive-name (with-current-buffer archive-buffer
+			 (file-name-nondirectory (buffer-file-name))))
 	 (buffer-name (cpio-dired-buffer-name archive-name))
-	 (buffer (get-buffer-create buffer-name))
+	 (buffer (get-buffer-create buffer-name)) ;Is this not archive-buffer?
 	 (entry-string)
-	 (catalog *cpio-catalog*))
+	 (catalog (cpio-catalog)))
     (with-current-buffer buffer
       (setq *cpio-catalog* catalog)
       (setq buffer-read-only nil)
       (erase-buffer)
       (insert "CPIO archive: " archive-name ":\n\n")
       (mapc (lambda (e)
-	      (let ((line (cpio-dired-format-entry (cdr e))))
+	      (let ((line (cpio-dired-format-entry (aref (cdr e) 0))))
 		(insert (concat line "\n"))))
 	    (cpio-sort-catalog))
       (setq buffer-read-only t)
       (cpio-dired-mode)
-      (goto-char (point-min))
-      (cpio-dired-next-line 2))
+      (cpio-dired-move-to-first-entry))
     ;; No, I do not yet understand why this must be done
     ;; every time the presentation is updated.
     (cab-register buffer archive-buffer)
     buffer))
+
+(defun cpio-dired-move-to-first-entry ()
+  "Move the point to the first entry in a cpio-dired style buffer."
+  (let ((fname "cpio-dired-move-to-first-entry"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): You're not in a cpio-dired buffer." fname))
+    (goto-char (point-min))
+    (cpio-dired-next-line *cpio-dired-head-offset*)))
 
 (defun cpio-sort-catalog ()
   "Return a copy of the catalog sorted by entry name (car cpio-catalog-entry)."
@@ -1063,26 +1201,33 @@ CONTRACT: L and R should be entries:
   (let ((fname "cpio-entry-less-p"))
     (string-lessp (car l) (car r))))
 
-(defun cpio-dired-format-entry (catalog-entry)
-  "Create a dired-style line for CATALOG-ENTRY."
+(defun cpio-dired-format-entry (attrs &optional mark)
+  "Create a dired-style line for ATTRS.
+If the optional MARK is given,
+then it is a character and used as the mark on the generated line.
+The line does not include a trailing <new line>."
   (let* ((fname "cpio-dired-format-entry")
-	 (entry-attrs (cpio-entry-attrs-from-catalog-entry catalog-entry))
-	 (mode-string       (cpio-int-mode-to-mode-string         (cpio-mode-value entry-attrs)))
-	 (uid-string        (cpio-uid-to-uid-string               (cpio-uid        entry-attrs)))
-	 (gid-string        (cpio-gid-to-gid-string               (cpio-gid        entry-attrs)))
-	 (nlink-string      (cpio-nlink-to-nlink-string           (cpio-nlink      entry-attrs)))
-	 (mtime-string      (cpio-mtime-to-mtime-string           (cpio-mtime      entry-attrs)))
-	 (filesize-string   (cpio-filesize-to-filesize-string     (cpio-entry-size entry-attrs)))
-	 (dev-maj-string    (cpio-dev-maj-to-dev-maj-string       (cpio-dev-maj    entry-attrs)))
-	 (dev-min-string    (cpio-dev-min-to-dev-min-string       (cpio-dev-min    entry-attrs)))
-	 (entry-name-string (cpio-entry-name-to-entry-name-string (cpio-entry-name entry-attrs)))
+	 (mode-string       (cpio-int-mode-to-mode-string         (cpio-mode-value attrs)))
+	 (uid-string        (cpio-uid-to-uid-string               (cpio-uid        attrs)))
+	 (gid-string        (cpio-gid-to-gid-string               (cpio-gid        attrs)))
+	 (nlink-string      (cpio-nlink-to-nlink-string           (cpio-nlink      attrs)))
+	 (mtime-string      (cpio-mtime-to-mtime-string           (cpio-mtime      attrs)))
+	 (filesize-string   (cpio-filesize-to-filesize-string     (cpio-entry-size attrs)))
+	 (dev-maj-string    (cpio-dev-maj-to-dev-maj-string       (cpio-dev-maj    attrs)))
+	 (dev-min-string    (cpio-dev-min-to-dev-min-string       (cpio-dev-min    attrs)))
+	 (entry-name-string (cpio-entry-name-to-entry-name-string (cpio-entry-name attrs)))
 	 (fmt (if entry-name-string
 		  (if cpio-try-names
-		      (format "  %%s %%3s %%8s %%8s %%8s %%7s %%s")
-		    (format   "  %%s %%3s %%5s %%5s %%8s %%7s %%s"))
+		      (format "%%c %%s %%3s %%8s %%8s %%8s %%7s %%s")
+		    (format   "%%c %%s %%3s %%5s %%5s %%8s %%7s %%s"))
 		nil)))
+    (unless mark (setq mark ?\s))
+    (unless (characterp mark)
+      (signal 'wrong-type-error (list 'characterp mark)))
     (if fmt
-	(format fmt mode-string nlink-string uid-string gid-string filesize-string mtime-string entry-name-string))))
+	(format fmt mark 
+		mode-string nlink-string uid-string gid-string 
+		filesize-string mtime-string entry-name-string))))
 
 (defun cpio-uid-to-uid-string (uid)
   "Convert the given UID, an integer, to a string."
@@ -1111,22 +1256,14 @@ CAUTION: This depends on your emacs being able to handle
 a UNIX/GNU/Linux time as an integer."
   (let ((fname "cpio-mtime-to-mtime-string")
 	(six-months (* 6 30 24 60 60))
-	(now (emacs-time-to-ticks (current-time)))
-	(tmp-time (emacs-time-to-ticks mtime)))
+	(now (time-to-seconds (current-time)))
+	(tmp-time (time-to-seconds mtime)))
     (cond (long
 	   (format-time-string "%F %T" mtime))
 	  ((< (- now tmp-time) six-months)
 	   (format-time-string "%b %d %H:%M" mtime))
 	  (t
 	   (format-time-string "%b %d %Y " mtime)))))
-
-(defun emacs-time-to-ticks (emacs-time)
-  "Convert the given EMACS-TIME to a time in ticks.
-CAVEAT: This assumes that your version of emacs supports
-at least 32 bit integers."
-  (let ((fname "emacs-time-to-ticks"))
-    (+ (lsh (car emacs-time) 16) (cadr emacs-time))))
-   
 
 (defun cpio-filesize-to-filesize-string (filesize)
   "Convert the given FILESIZE, an integer, to a string."
@@ -1148,19 +1285,140 @@ at least 32 bit integers."
   (let ((fname "cpio-entry-name-to-entry-name-string"))
     name))
 
-(defun cpio-dired-mark-read-regexp (ARGS)
-  ;; Is this just an alias for the dired version?
-  "Do that. BUT TELL SOMEONE WHAT IT MEANS."
-  (let ((fname "cpio-dired-mark-read-regexp"))
-    (error "%s(): is not yet implemented." fname)))
+(defun cpio-find-entry (entry-name)
+  "Find the given ENTRY-NAME and return the buffer holding its contents."
+  (let ((fname "cpio-dired--find-entry")
+	(target-buffer))
+    ;; (error "%s() is not yet implemented" fname)
+    (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
+	(error "%s(): Could not get a buffer for entry [[%s]]." fname))
+    (cab-register target-buffer *cab-parent*)
+    (with-current-buffer target-buffer
+      (cond ((or (/= 0 (1- (point)))
+		 (= 0 (length (buffer-string))))
+	     (erase-buffer) 		;This should not be necessary.
+	     (insert (cpio-contents entry-name))
+	     ;; (setq buffer-read-only t)
+	     (goto-char (point-min)))
+	    (t t))
+      (make-variable-buffer-local 'cpio-entry-name)
+      (setq cpio-entry-name entry-name)
+      (set-buffer-modified-p nil)
+      (cpio-entry-contents-mode))
+    (pop-to-buffer target-buffer)))
 
-(defun cpio-dired-move-to-entry-name ()
-  "Move the point to the beginning of the entry on the current line
-if there is one."
-  (let ((fname "cpio-dired-move-to-entry-name"))
-    (beginning-of-line)
-    (if (looking-at *cpio-dired-entry-regexp*)
-	(goto-char (match-beginning *cpio-dired-name-idx*)))))
+(defun cpio-create-entry-attrs (filename)
+  "Create an entry attribute structure based on the given FILENAME."
+  (let* ((fname "cpio-create-entry-attrs")
+	 (attrs (file-attributes filename))
+
+	 (ino (nth 10 attrs))
+	 (mode (cpio-mode-string-to-int-mode (nth 8 attrs)))
+	 (uid (nth 2 attrs))
+	 (gid (nth 3 attrs))
+
+	 (nlink 1)
+	 (mtime (time-to-seconds (nth 5 attrs)))
+	 (entry-size (nth 7 attrs))
+	 (dev-maj (nth 11 attrs))
+
+	 (dev-min 1)
+	 (rdev-maj 0)
+	 (rdev-min 0)
+	 (namesize (length filename))
+
+	 (checksum 0)
+
+	 (result (make-vector 14 nil)))
+    ;; (error "%s() is not yet implemented" fname)
+    (aset result *cpio-ino-parsed-idx*        ino)
+    (aset result *cpio-mode-parsed-idx*       mode)
+    (aset result *cpio-uid-parsed-idx*        uid)
+    (aset result *cpio-gid-parsed-idx*        gid)
+
+    (aset result *cpio-nlink-parsed-idx*      nlink)
+    (aset result *cpio-mtime-parsed-idx*      (seconds-to-time mtime))
+    (aset result *cpio-entry-size-parsed-idx* entry-size)
+    (aset result *cpio-dev-maj-parsed-idx*    dev-maj)
+
+    (aset result *cpio-dev-min-parsed-idx*    dev-min)
+    (aset result *cpio-rdev-maj-parsed-idx*   rdev-maj)
+    (aset result *cpio-rdev-min-parsed-idx*   rdev-min)
+    (aset result *cpio-namesize-parsed-idx*   namesize)
+    
+    (aset result *cpio-checksum-parsed-idx*   checksum)
+    (aset result *cpio-name-parsed-idx*       filename)
+
+    result))
+
+(defun cpio-create-faux-directory-attrs (name)
+  "Create attributes appropriate for adding a directory entry to a cpio-archive.
+CAVEAT: While many attributes are derived from a best guess of reality,
+many are simply invented."
+  (let* ((fname "cpio-create-faux-directory-attrs")
+	 (local-attrs (file-attributes "."))
+	 (ino 1)
+	 ;; HEREHERE think about basing the mode on umask or local-attrs.
+	 (mode (logior s-ifdir
+		       s-irwxu
+		       s-irusr
+		       s-ixusr))
+	 (uid (user-uid))
+	 (gid (group-gid))
+	 
+	 (nlink 1)
+	 (mtime (current-time))
+	 (entry-size 0)
+	 (dev-maj 1)
+	 (dev-min 1)
+	 (rdev-maj 0)
+	 (rdev-min 0)
+	 (namesize (1+ (length name)))
+	 (checksum 0) 			;HEREHERE This will have to change.
+	 (result (make-vector 14 nil)))
+    ;;(error "%s() is not yet implemented" fname)
+    (aset result *cpio-ino-parsed-idx* ino)
+    (aset result *cpio-mode-parsed-idx* mode)
+    (aset result *cpio-uid-parsed-idx* uid)
+    (aset result *cpio-gid-parsed-idx* gid)
+    
+    (aset result *cpio-nlink-parsed-idx* nlink)
+    (aset result *cpio-mtime-parsed-idx* mtime)
+    (aset result *cpio-entry-size-parsed-idx* entry-size)
+    (aset result *cpio-dev-maj-parsed-idx* dev-maj)
+    
+    (aset result *cpio-dev-min-parsed-idx* dev-min)
+    (aset result *cpio-rdev-maj-parsed-idx* rdev-maj)
+    (aset result *cpio-rdev-min-parsed-idx* rdev-min)
+    (aset result *cpio-namesize-parsed-idx* namesize)
+    
+    (aset result *cpio-checksum-parsed-idx* checksum)
+    (aset result *cpio-name-parsed-idx* name)
+    
+    result))
+
+(defun cpio-entry-exists-p (name)
+  "Return non-nil if there's already an entry called NAME
+in the current archive."
+  (let ((fname "cpio-entry-exists-p"))
+    ;; (error "%s() is not yet implemented" fname)
+    (assoc name (cpio-catalog))))
+
+(defun cpio-move-to-entry (entry-name)
+  "Move the point to ENTRY-NAME."
+  (let ((fname "cpio-move-to-entry")
+	(where nil))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): You're not in a cpio-dired buffer." fname))
+    (save-excursion
+      (cpio-dired-move-to-first-entry)
+      (while (not (looking-at-p (concat entry-name "$")))
+	(cpio-dired-next-line 1))
+      (if (looking-at-p (concat entry-name "$"))
+	  (setq where (point))))
+    (if where
+	(goto-char where))))
 
 
 ;; 
@@ -1172,8 +1430,12 @@ if there is one."
   ;; (cpio-dired-buffer-name) is in cpio.el because
   ;; it is invoked in the archive's directory.
   (interactive)
-  (let ((fname "cpio-view-dired-style-buffer"))
-    (switch-to-buffer (cpio-dired-buffer-name (buffer-file-name)))))
+  (let ((fname "cpio-view-dired-style-buffer")
+	(archive-file-name (buffer-file-name)))
+    (unless (eq major-mode 'cpio-mode)
+      (error "%s(): You're not in a cpio archive buffer under cpio-mode." fname))
+    (bury-buffer)
+    (switch-to-buffer (cpio-dired-buffer-name archive-file-name))))
 
 
 ;; 
@@ -1187,7 +1449,7 @@ if there is one."
   "Treat cpio archives like file systems with a dired UI."
   (if (null (setq *cpio-format* (cpio-discern-archive-type)))
       (error "You're not in a supported CPIO buffer."))
-  (message "You're in a cpio buffer of type [[%s]]." (symbol-name *cpio-format*)) (sit-for 1.0)
+  (message "You're in a cpio buffer of type [[%s]]." (symbol-name *cpio-format*)) ; (sit-for 1.0)
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
     (setq buffer-read-only t)
@@ -1195,11 +1457,47 @@ if there is one."
     (cpio-set-locals *cpio-format*)
     (setq *cpio-archive-name* (buffer-file-name))
     (cpio-build-catalog)
-    (setq cpio-dired-buffer (cpio-present-ala-dired (current-buffer)))
+    (with-current-buffer (setq cpio-dired-buffer
+			       (cpio-present-ala-dired (current-buffer)))
+      (cpio-dired-set-unmodified))
     (cpio-create-keymap)
+    (bury-buffer)
     ;; cpio-mode is the top level function here,
     ;; so this should control what we see at this point.
     (switch-to-buffer cpio-dired-buffer)))
+
+(defvar *cpio-dired-modified* nil
+  "A flag to record if any archive-modifying events have occured
+since either the beginning or the last save.")
+(make-variable-buffer-local '*cpio-dired-modified*)
+
+(defun cpio-dired-modified-p ()
+  "Return non-NIL if the catalog has been modified
+and, thus, the archive can be saved."
+  (let ((fname "cpio-dired-modified-p"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): only makes sense in a cpio-dired buffer."))
+    *cpio-dired-modified*))
+
+(defun cpio-dired-set-modified ()
+  "Flag the catalog as modified."
+  (let ((fname "cpio-dired-set-modified"))
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): only makes sense in a cpio-dired buffer."))
+    (setq *cpio-dired-modified* t)))
+
+(defun cpio-dired-set-unmodified ()
+  "Flag the catalog as not modified."
+  (let ((fname "cpio-dired-set-unmodified"))
+    ;; (error "%s() is not yet implemented" fname)
+    ;; HEREHERE There's probably more to this than just the following.
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): only makes sense in a cpio-dired buffer."))
+    (setq *cpio-dired-modified* t)
+    (with-current-buffer *cab-parent*
+      (set-buffer-modified-p nil))))
 
 (defvar *cpio-have-made-keymap* nil
   "Flag to indicate that the cpio-mode-map has already been built.")
@@ -1327,7 +1625,10 @@ See *cpio-local-funcs* for more information."
     (cpio-set-local-newc-offset-vars)
     (make-local-variable '*cpio-padding-modulus*)
     (setq *cpio-padding-modulus* *cpio-newc-padding-modulus*)
-    (setq *cpio-padding-char* *cpio-newc-padding-char*)))
+    (make-local-variable '*cpio-padding-char*)
+    (setq *cpio-padding-char* *cpio-newc-padding-char*)
+    (make-local-variable '*cpio-padding-str*)
+    (setq *cpio-padding-str* *cpio-newc-padding-str*)))
 
 ;; 
 ;; Assuming this has worked. (It runs without errors.)

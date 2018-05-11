@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic-tests.el --- tests of cpio-generic.el
-;	$Id: cpio-generic-tests.el,v 1.1.4.3 2018/03/08 06:10:13 doug Exp $	
+;	$Id: cpio-generic-tests.el,v 1.1.4.4 2018/04/26 14:15:31 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -23,7 +23,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Dec 27
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: 
 
 ;;; Commentary:

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.3.2.6 2018/03/08 06:10:14 doug Exp $	
+;	$Id: cpio-newc.el,v 1.3.2.7 2018/04/26 14:15:32 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -24,7 +24,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: cpio, portable newc header
 
 ;;; Commentary:
@@ -102,13 +102,25 @@
   "RE to match the c_filesize field in a newc header.")
 (setq *cpio-newc-filesize-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-dev-re* "[[:xdigit:]]\\{8\\}"
+(defvar *cpio-newc-dev-maj-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_dev field in a newc header.")
-(setq *cpio-newc-dev-re* "[[:xdigit:]]\\{8\\}")
+(setq *cpio-newc-dev-maj-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-rdev-re* "[[:xdigit:]]\\{8\\}"
+(defvar *cpio-newc-dev-min-re* "[[:xdigit:]]\\{8\\}"
+  "RE to match the c_dev field in a newc header.")
+(setq *cpio-newc-dev-min-re* "[[:xdigit:]]\\{8\\}")
+
+(defvar *cpio-newc-rdev-maj-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_rdev field in a newc header.")
-(setq *cpio-newc-rdev-re* "[[:xdigit:]]\\{8\\}")
+(setq *cpio-newc-rdev-maj-re* "[[:xdigit:]]\\{8\\}")
+
+(defvar *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}"
+  "RE to match the c_rdev field in a newc header.")
+(setq *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}")
+
+(defvar *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}"
+  "RE to match the c_rdev field in a newc header.")
+(setq *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}")
 
 (defvar *cpio-newc-namesize-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_namesize field in a newc header.")
@@ -133,11 +145,11 @@
 				    "\\(" *cpio-newc-nlink-re*    "\\)"
 				    "\\(" *cpio-newc-mtime-re*    "\\)"
 				    "\\(" *cpio-newc-filesize-re* "\\)"
-				    "\\(" *cpio-newc-dev-re*      "\\)"
-				    "\\(" *cpio-newc-dev-re*      "\\)"
+				    "\\(" *cpio-newc-dev-maj-re*  "\\)"
+				    "\\(" *cpio-newc-dev-min-re*  "\\)"
 
-				    "\\(" *cpio-newc-rdev-re*     "\\)"
-				    "\\(" *cpio-newc-rdev-re*     "\\)"
+				    "\\(" *cpio-newc-rdev-maj-re* "\\)"
+				    "\\(" *cpio-newc-rdev-min-re* "\\)"
 				    "\\(" *cpio-newc-namesize-re* "\\)"
 				    "\\(" *cpio-newc-chksum-re*   "\\)"
 				    "\\(" *cpio-newc-filename-re* "\\)"
@@ -178,19 +190,19 @@
 
   (defvar *cpio-newc-dev-maj-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the dev.")
-  (setq *cpio-newc-dev_maj-re-idx* (setq i (1+ i)))
+  (setq *cpio-newc-dev-maj-re-idx* (setq i (1+ i)))
 
   (defvar *cpio-newc-dev-min-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the dev.")
-  (setq *cpio-newc-dev_min-re-idx* (setq i (1+ i)))
+  (setq *cpio-newc-dev-min-re-idx* (setq i (1+ i)))
 
   (defvar *cpio-newc-rdev-maj-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the rdev.")
-  (setq *cpio-newc-rdev_maj-re-idx* (setq i (1+ i)))
+  (setq *cpio-newc-rdev-maj-re-idx* (setq i (1+ i)))
 
   (defvar *cpio-newc-rdev-min-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the rdev.")
-  (setq *cpio-newc-rdev_min-re-idx* (setq i (1+ i)))
+  (setq *cpio-newc-rdev-min-re-idx* (setq i (1+ i)))
 
   (defvar *cpio-newc-namesize-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the namesize.")
@@ -198,7 +210,13 @@
 
   (defvar *cpio-newc-chksum-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the chksum.")
-  (setq *cpio-newc-chksum-re-idx* (setq i (1+ i))))
+  (setq *cpio-newc-chksum-re-idx* (setq i (1+ i)))
+
+  (defvar *cpio-newc-filename-re-idx* 0 ; (setq i (1+ i))
+    "Index of the sub RE from *cpio-newc-header-re* to parse the namesize.")
+  (setq *cpio-newc-filename-re-idx* (setq i (1+ i)))
+
+)
 ;; 
 ;; EO newc header variables.
 ;; 
@@ -217,10 +235,16 @@
   "The modulus to which some things are padded in a NEWC cpio archive.")
 (setq *cpio-newc-padding-modulus* 4)
 
-(defvar *cpio-newc-padding-char* "\0"
-  "A single character string to be used for padding headers and entry contents
+(defvar *cpio-newc-padding-char* ?\0
+  "A character to be used for padding headers and entry contents
 in a newc cpio archive.")
-(setq *cpio-newc-padding-char* "\0")
+(setq *cpio-newc-padding-char* ?\0)
+
+(defvar *cpio-newc-padding-str* "\0"
+  "A single character string of the character
+to be used for padding headers and entry contents
+in a newc cpio archive.")
+(setq *cpio-newc-padding-str* "\0")
 
 (let ((i 0)
       (l (length *cpio-newc-magic-re*)))
@@ -303,14 +327,15 @@ CAVEATS:
   (unless where (setq where (point)))
   (let ((fname "cpio-newc-header-at-point")
 	(found nil))
-    (cond ((looking-at *cpio-newc-header-re*)
-	   (match-string 0))
-	  (t
-	   (forward-char (length *cpio-newc-magic-re*))
-	   (while (and (re-search-backward *cpio-newc-magic-re* (point-min) t)
-		       (not (setq found (looking-at *cpio-newc-header-re*)))))
-	   (if found 
-	       (match-string 0))))))
+    (save-match-data
+      (cond ((looking-at *cpio-newc-header-re*)
+	     (match-string 0))
+	    (t
+	     (forward-char (length *cpio-newc-magic-re*))
+	     (while (and (re-search-backward *cpio-newc-magic-re* (point-min) t)
+			 (not (setq found (looking-at *cpio-newc-header-re*)))))
+	     (if found 
+		 (match-string 0)))))))
 (setq cpio-header-at-point-func 'cpio-newc-header-at-point)
 
 ;;;;;;;;;;;;;;;;
@@ -350,8 +375,7 @@ This function does NOT get the contents."
 		  (cpio-newc-parse-chksum   header-string)
 		  (cpio-newc-parse-name     header-string namesize)
 		  (cpio-newc-parse-chksum   header-string)
-		  (cpio-newc-header-size    header-string namesize)
-		  ))
+		  (cpio-newc-header-size    header-string namesize)))
     (if (cpio-entry-name result)
 	result
       nil)))
@@ -366,9 +390,9 @@ This function does NOT get the contents."
 	(local-namesize (1- namesize))
 	(total -1))
     (if (= 0 (mod (setq total (+ 1 *cpio-newc-name-field-offset* local-namesize)) 
-		  4))
+		  *cpio-newc-padding-modulus*))
 	(setq total (1+ total)))
-    (round-up total 4)))
+    (round-up total *cpio-newc-padding-modulus*)))
 
 (defun cpio-newc-parse-magic (header-string)
   "Get the magic field from HEADER-STRING."
@@ -599,7 +623,7 @@ After all that's where the contents are, not in the header."
 ;; 
 
 (defun cpio-newc-make-header-string (attrs)
-  "Make a NEWC style cpio header for the given ATTRibuteS.
+  "Make a NEWC style padded cpio header for the given ATTRibuteS.
 This function does NOT include the contents."
   (let ((fname "cpio-newc-parse-header")
 	(name (cpio-entry-name attrs))
@@ -704,7 +728,7 @@ I likely won't need this, but someone might."
 (defun cpio-newc-make-mtime (attrs)
   "Return a string value for the mod time from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-mtime")
-	(mod-time (aref attrs 5)))
+	(mod-time (aref attrs *cpio-mtime-parsed-idx*)))
     ;; We're only about 1/2 way through using this up it seems.
     ;; Still, time will eventually overflow a 32 bit unsigned integer.
     (format "%08X" (float-time mod-time))))
@@ -790,7 +814,7 @@ I likely won't need this, but someone might."
   "Parse the newc cpio header that begins at point.
 If there is no header there, then signal an error."
   (let ((fname "cpio-newc-parse-header-at-point"))
-    (unless (looking-at *cpio-newc-header-re*) (error "%s(): point is not looking at a newc header."))
+    (unless (looking-at-p *cpio-newc-header-re*) (error "%s(): point is not looking at a newc header."))
     (cpio-newc-parse-header (match-string-no-properties 0))))
 
 (defun cpio-newc-goto-next-header ()
@@ -815,10 +839,6 @@ This sets match-data for the entire header and each field."
   "Build an internal structure reflecting the contents of the newc cpio archive in the current buffer.
 See the variable *cpio-catalog* for more information.
 CAVEAT: This respects neither narrowing nor the point."
-  ;; No, I do not know just what that is at the moment.
-  ;; It's probably an alist indexed by entry name and
-  ;; should contain markers pointing at headers, contents, parsed headers,
-  ;; perhaps also subordinate buffers.
   (let ((fname "cpio-newc-build-catalog")
 	(header-start)			;A marker.
 	(header-end)
@@ -881,30 +901,48 @@ once the TRAILER is written and padded."
     (round-up (+ end-of-contents (length *cpio-newc-trailer*)) 512)))
 
 (defun cpio-newc-adjust-trailer ()
-  "Insert a padded copy of the trailer of the current cpio newc archive."
-  (let ((fname "cpio-newc-adjust-trailer"))
-    (if *cab-parent*
-	(with-current-buffer *cab-parent*
-	  (cpio-adjust-trailer))
-      (let* ((base-trailer "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0")
-	     (base-len (length base-trailer))
-	     (len))
-	(goto-char (point-min))
-	(mapc (lambda (e)
-		(let* ((ename (car e))	;Isn't there a generic function for this?
-		       (attrs (cpio-entry-attrs ename))
-		       ;; Fencepost issue here.
-		       (entry-end (+ (cpio-contents-start ename)
-				     (cpio-entry-size attrs))))
-		  (goto-char entry-end)
-		  (skip-chars-forward "\0")))
-	      *cpio-catalog*)
-	(delete-region (point) (point-max))
-	(insert base-trailer)
-	(goto-char (point-max))
-	(setq len (round-up (1- (point)) *cpio-newc-blocksize*))
-	(setq len (1+ (- len (point))))
-	(insert (make-string len ?\0))))))
+  "Replace thed current trailer in the current cpio newc archive."
+  (let* ((fname "cpio-newc-adjust-trailer"))
+    (cpio-newc-delete-trailer)
+    (cpio-newc-insert-trailer)))
+
+(defun cpio-newc-insert-trailer ()
+  "Insert a newc trailer into a cpio archive."
+  (let* ((fname "cpio-newc-insert-trailer")
+	 (base-trailer "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0")
+	 (base-len (length base-trailer))
+	 (len))
+    ;; (error "%s() is not yet implemented" fname)
+    ;; ...and insert the new trailer...
+    (setq buffer-read-only nil)
+    (insert base-trailer)
+    (goto-char (point-max))
+    ;; ...with padding.
+    (setq len (round-up (1- (point)) *cpio-newc-blocksize*))
+    (setq len (1+ (- len (point))))
+    (insert (make-string len ?\0))
+    (setq buffer-read-only t)))
+
+(defun cpio-newc-delete-trailer ()
+  "Delete the trailer in the current cpio newc archive."
+  (let ((fname "cpio-newc-delete-trailer"))
+    ;; (error "%s() is not yet implemented" fname)
+    ;; First, get to the end of the last entry in the archive.
+    (goto-char (point-min))
+    (mapc (lambda (e)
+	    (let* ((ename (car e))	;Isn't there a generic function for this?
+		   (attrs (cpio-entry-attrs ename))
+		   ;; Fencepost issue here.
+		   (entry-end (+ (cpio-contents-start ename)
+				 (cpio-entry-size attrs))))
+	      (goto-char entry-end)
+	      (skip-chars-forward "\0")))
+	  *cpio-catalog*)
+    ;; Next, delete what's left...
+    (setq buffer-read-only nil)
+    (delete-region (point) (point-max))
+    (setq buffer-read-only t)))
+
 
 ;; 
 ;; Test and other development assistance.
@@ -971,8 +1009,9 @@ what the proper way to do it is."
       (goto-char (match-beginning 0))
       (sit-for *locations-delay*)
       (setq soh (point))
-      (looking-at *cpio-newc-magic*)
-      (goto-char (match-end 0))
+      (save-match-data
+	(looking-at *cpio-newc-magic*)
+	(goto-char (match-end 0)))
       (forward-char (+ 8		;inode
 		       8		;mode
 		       8		;uid
@@ -984,10 +1023,10 @@ what the proper way to do it is."
       (setq filesize (string-to-number (buffer-substring-no-properties (point) (+ (point) 8))))
 
       (forward-char (+ 8		;filesize
-		       8		;dev_maj
-		       8		;dev_min
-		       8		;rdev_maj
-		       8))		;rdev_min
+		       8		;dev-maj
+		       8		;dev-min
+		       8		;rdev-maj
+		       8))		;rdev-min
 					;namesize
       (sit-for *locations-delay*)
       ;; HEREHERE
@@ -1044,8 +1083,7 @@ what the proper way to do it is."
       (insert (concat "Notes: 1. Name length includes the terminating NULL.\n"
 		      "       2. SOH is calculated via a search for the magic number.\n"
 		      "       3. EOH and SON are equal; each calculation is via the point.\n"
-		      "       4. hpad and cpad are each calculated by motion.\n"
-		      ))
+		      "       4. hpad and cpad are each calculated by motion.\n"))
       (goto-char (point-min)))
     (pop-to-buffer lbuf)))
 

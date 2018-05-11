@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.3.2.3 2018/03/08 06:10:14 doug Exp $	
+;	$Id: cpio-odc.el,v 1.3.2.4 2018/04/26 14:15:33 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -24,7 +24,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: cpio, binary header
 
 ;;; Commentary:

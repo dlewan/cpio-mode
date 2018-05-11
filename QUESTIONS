@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-#	$Id: QUESTIONS,v 1.1.4.2 2018/03/08 06:10:11 doug Exp $	
+#	$Id: QUESTIONS,v 1.1.4.3 2018/05/11 13:16:59 doug Exp $	
 
+cpio(1) related questions:
 • cpio(1) accepts block size on its command line.
   How should that be handled?
   One obvious choice is via customization,
@@ -20,3 +21,18 @@
   after an affirmative response to a prompt.
   From lisp code, however, it will over-write any files.
   Is that the right way to operate?
+
+Dired related questions:
+• I only use Linux and other UNIX flavored operating systems.
+  M-x dired-clean-directory "flags numerical backups."
+  What do numerical backups look like?
+• How should I interpret M-x cpio-dired-find-alternate-entry?
+  M-x cpio-dired-flag-backup-entries?
+  M-x cpio-dired-hide-all?
+  M-x cpio-dired-hide-subdir?
+• The following commands prepare things for shell commands.
+  How should I interpret them?
+  M-x cpio-dired-mark-entries-containing-regexp
+• Should renaming marked files unmark them?
+  For example, moving them to a directory.
+  They currently remain marked.

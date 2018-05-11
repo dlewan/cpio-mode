@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-wanted.el --- Stuff cpio-mode wants from emacs lisp, but that isn't there.
-;	$Id: cpio-wanted.el,v 1.1.4.4 2018/03/08 06:10:15 doug Exp $	
+;	$Id: cpio-wanted.el,v 1.1.4.5 2018/04/26 14:15:33 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -23,7 +23,7 @@
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
 ;; Created: 2015 Dec 26
-;; Version: 0.01
+;; Version: 0.02
 ;; Keywords: wanted, not provided
 
 ;;; Commentary:
