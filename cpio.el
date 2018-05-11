@@ -806,7 +806,6 @@ WHERE can be an integer or marker."
 			     where)
 			    (t
 			     (error 'wrong-type-error where)))))
-    ;; (error "%s() is not yet implemented" fname)
     (aset entry *cpio-catalog-entry-contents-start-idx* where-marker)))
 
 (defun cpio-contents (entry-name &optional archive-buffer)
@@ -862,7 +861,6 @@ To be consistent, this also sets the name's size element."
 UID can be either a string (representing a number)
 or an integer."
   (let ((fname "cpio-set-uid"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (integerp uid)
       (setq uid (string-to-number uid)))
     (aset parsed-header *cpio-uid-parsed-idx* uid)))
@@ -872,7 +870,6 @@ or an integer."
 GID can be either a string (representing a number)
 or an integer."
   (let ((fname "cpio-set-gid"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (integerp gid)
       (setq uid (string-to-number gid)))
     (aset parsed-header *cpio-gid-parsed-idx* gid)))
@@ -881,7 +878,6 @@ or an integer."
   "Set the mode field in the PARSED-HEADER to MODE.
 MODE is either an integer or a string representing an integer."
   (let ((fname "cpio-set-mode"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (integerp mode)
       (setq uid (string-to-number mode)))
     (aset parsed-header *cpio-mode-parsed-idx* mode)))
@@ -890,7 +886,6 @@ MODE is either an integer or a string representing an integer."
   "Set the modification time in the PARSED-HEADER to MTIME.
 MTIME is an emacs time."
   (let ((fname "cpio-set-mtime"))
-    ;; (error "%s() is not yet implemented" fname)
     (aset parsed-header *cpio-mtime-parsed-idx* mtime)))
 
 (defun cpio-extract-all ()
@@ -1029,7 +1024,6 @@ If ENTRY-NAME is not in the current archive, then return NIL."
 (defun cpio-numeric-entry-type (numeric-mode)
   "Return the numeric entry type of the given NUMERIC MODE."
   (let ((fname "cpio-numeric-entry-type"))
-    ;; (error "%s() is not yet implemented" fname)
     (cond ((= #o170000 (logand s-ifmt   numeric-mode))
 	   s-ifmt)
 	  ((= #o140000 (logand s-ifsock numeric-mode))
@@ -1098,7 +1092,6 @@ with one with the correct size fot its contents."
 (defun cpio-insert-trailer ()
   "Insert a trailer in a cpio archive."
   (let ((fname "cpio-insert-trailer"))
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (funcall cpio-insert-trailer-func))
@@ -1107,7 +1100,6 @@ with one with the correct size fot its contents."
 (defun cpio-delete-trailer ()
   "Delete the trailer in the cpio archive buffer affiliated with the current buffer."
   (let ((fname "cpio-delete-trailer"))
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (funcall cpio-delete-trailer-func))
@@ -1183,7 +1175,6 @@ This returns the buffer created."
 (defun cpio-dired-move-to-first-entry ()
   "Move the point to the first entry in a cpio-dired style buffer."
   (let ((fname "cpio-dired-move-to-first-entry"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (goto-char (point-min))
@@ -1289,7 +1280,6 @@ a UNIX/GNU/Linux time as an integer."
   "Find the given ENTRY-NAME and return the buffer holding its contents."
   (let ((fname "cpio-dired--find-entry")
 	(target-buffer))
-    ;; (error "%s() is not yet implemented" fname)
     (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
 	(error "%s(): Could not get a buffer for entry [[%s]]." fname))
     (cab-register target-buffer *cab-parent*)
@@ -1330,7 +1320,6 @@ a UNIX/GNU/Linux time as an integer."
 	 (checksum 0)
 
 	 (result (make-vector 14 nil)))
-    ;; (error "%s() is not yet implemented" fname)
     (aset result *cpio-ino-parsed-idx*        ino)
     (aset result *cpio-mode-parsed-idx*       mode)
     (aset result *cpio-uid-parsed-idx*        uid)
@@ -1401,14 +1390,12 @@ many are simply invented."
   "Return non-nil if there's already an entry called NAME
 in the current archive."
   (let ((fname "cpio-entry-exists-p"))
-    ;; (error "%s() is not yet implemented" fname)
     (assoc name (cpio-catalog))))
 
 (defun cpio-move-to-entry (entry-name)
   "Move the point to ENTRY-NAME."
   (let ((fname "cpio-move-to-entry")
 	(where nil))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (save-excursion
@@ -1475,7 +1462,6 @@ since either the beginning or the last save.")
   "Return non-NIL if the catalog has been modified
 and, thus, the archive can be saved."
   (let ((fname "cpio-dired-modified-p"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): only makes sense in a cpio-dired buffer."))
     *cpio-dired-modified*))
@@ -1483,7 +1469,6 @@ and, thus, the archive can be saved."
 (defun cpio-dired-set-modified ()
   "Flag the catalog as modified."
   (let ((fname "cpio-dired-set-modified"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): only makes sense in a cpio-dired buffer."))
     (setq *cpio-dired-modified* t)))
@@ -1491,7 +1476,6 @@ and, thus, the archive can be saved."
 (defun cpio-dired-set-unmodified ()
   "Flag the catalog as not modified."
   (let ((fname "cpio-dired-set-unmodified"))
-    ;; (error "%s() is not yet implemented" fname)
     ;; HEREHERE There's probably more to this than just the following.
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): only makes sense in a cpio-dired buffer."))

@@ -50,7 +50,6 @@ Keep any preceding comments."
 	(start)
 	(end)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward "^(defun \\([[:graph:]]+\\) " (point-max) t)
@@ -73,7 +72,6 @@ Keep any preceding comments."
 	(sortable-list)
 	(sorted-list)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (setq sortable-list
 	  (mapcar (lambda (d)
 		    (let ((defun-name (and (string-match "(defun \\([[:graph:]]+\\) " d)
@@ -92,7 +90,6 @@ Keep any preceding comments."
   (let ((fname "sort-defuns-in-buffer")
 	(defuns (sort-defuns (snarf-defuns)))
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (delete-region (point-min) (point-max))
     (mapc (lambda (d)
 	    (insert d "\n"))
@@ -511,7 +508,6 @@ Run more than one instance of emacs to avoid such collisions."
   "Toggle cpio-dired-hide-details-mode."
   (let ((fname "cpio-dired-hide-details-update-invisibility-spec")
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (funcall (if cpio-dired-hide-details-mode
 		 'add-to-invisibility-spec
 	       'remove-from-invisibility-spec)
@@ -533,7 +529,6 @@ Run more than one instance of emacs to avoid such collisions."
   (let ((fname "cpio-dired-find-entry-noselect")
 	(target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name)))
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (cond ((and target-buffer (buffer-live-p target-buffer))
 	   target-buffer)
 	  (target-buffer
@@ -549,7 +544,6 @@ Run more than one instance of emacs to avoid such collisions."
   (let ((fname "cpio-internal-do-deletions")
 	)
     ;; HEREHERE Debug this.
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-internal-do-deletions l))
@@ -565,7 +559,6 @@ CONTRACT: You're in that archive's buffer."
 	 (end-marker)
 	 (entry-attrs)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-internal-do-deletion entry-name))
@@ -588,7 +581,6 @@ if none are so marked, then the next ARG entries."
 	(files ())
 	(i 0)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward (format "^\\%c" char) (point-max) t)
@@ -616,7 +608,6 @@ to make the recursive call this function inside the archive buffer sensible."
 	(header-start-marker)
 	(contents-start-marker)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-dired-add-contents attrs contents cpio-dired-buffer))
@@ -729,7 +720,6 @@ CONTRACT: TARGET is the actual TARGET name, not an implied directory entry."
   (let ((fname "cpio-dired-internal-do-copy")
 	(attrs (copy-sequence (cpio-entry-attrs entry)))
 		   (contents (cpio-contents entry)))
-    ;; (error "%s() is not yet implemented" fname)
     (cpio-set-entry-name attrs target)
     (cpio-dired-add-contents attrs contents)))
 
@@ -744,7 +734,6 @@ CONTRACT:
 	(attrs (cpio-entry-attrs entry-name))
 	;;; (contents (cpio-contents entry-name)))
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (cpio-set-entry-name attrs target)
@@ -792,7 +781,6 @@ with information from the current catalog."
 	(attrs (cpio-entry-attrs entry-name))
 	(mark)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (save-excursion
       (cpio-move-to-entry entry-name)
       (setq mark (string-to-char (buffer-substring (line-beginning-position) (1+ (line-beginning-position)))))
@@ -806,7 +794,6 @@ with information from the current catalog."
   "Delete the line of ENTRY-NAME not including the new line."
   (let ((fname "cpio-dired-delete-dired-line")
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired-buffer." fname))
     (cpio-move-to-entry entry-name)
@@ -849,7 +836,6 @@ then use the current buffer."
 	 (header-string)
 	 (cpio-dired-buffer (or cpio-dired-buffer (current-buffer)))
 	 )
-    ;; (error "%s() is not yet implemented" fname)
     (if (string-match "^~/" filename)
 	(setq filename (expand-file-name filename)))
     (cond (*cab-parent*
@@ -895,7 +881,6 @@ OLD and NEW are both characters used to mark entries."
 				  (read-char))))
 		 (list (char-to-string old) (char-to-string new))))
   (let ((fname "cpio-dired-change-marks"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio dired buffer." fname))
     (save-excursion
@@ -939,7 +924,6 @@ You can then feed the entry name(s) to other commands with C-y."
   (let ((fname "cpio-dired-copy-entry-name-as-kill")
 	(names (reverse (cpio-dired-get-marked-entries arg)))
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio dired buffer." fname))
     (if names
@@ -970,7 +954,6 @@ This respects umask(1) as available through (default-file-modes)."
 	(header-string)
 	(cat-entry)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (cond (*cab-parent*
 	   (unless (eq major-mode 'cpio-dired-mode)
 	     (error "%s(): You're not in a cpio dired buffer." fname))
@@ -1203,7 +1186,6 @@ into the minibuffer."
 		 "Change mode of %s to: "
 		 nil 'chmod arg entries default))
 	 )
-    ;; (error "%s() is not yet implemented" fname)))
     (cond ((or (equal mode-string "")
 	       (equal mode-string default-mode-value))
 	   (error "%s(): No entry mode specified." fname))
@@ -1245,7 +1227,6 @@ into the minibuffer."
 	(entry)
 	(attrs)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (or (eq major-mode 'cpio-dired-mode)
 		(eq major-mode 'cpio-mode))
       (error "%s(): You're in neither a cpio-dired buffer nor a buffer in cpio-mode ." fname))
@@ -1324,7 +1305,6 @@ that that target should be a directory."
 	(target)
 	(target-attrs)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (setq target (read-from-minibuffer "Target? "
 				       nil
 				       nil
@@ -1382,7 +1362,6 @@ Marks win over ARG."
 	(entries (cpio-dired-marked-entries cpio-dired-marker-char arg))
 	(i 0)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     ;; OK, which of these two approaches do I prefer?
@@ -1411,7 +1390,6 @@ non-empty directories is allowed."
   (let ((fname "cpio-dired-do-flagged-delete")
 	(entries (cpio-dired-marked-entries cpio-dired-del-marker 1))
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (if (and (null entries)
@@ -1546,7 +1524,6 @@ of `dired-dwim-target', which see."
 	(target)
 	(target-attrs)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (setq target (read-from-minibuffer "Target? "
 				       nil
 				       nil
@@ -1767,7 +1744,6 @@ into the minibuffer."
   (interactive)
   (let ((fname "cpio-dired-extract-all")
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (or (eq major-mode 'cpio-dired-mode)
 		(eq major-mode 'cpio-mode))
       (error "%s() only makes sense in a cpio-dired buffer." fname))
@@ -1784,7 +1760,6 @@ into the minibuffer."
 	(files (or (cpio-dired-get-marked-entries)
 		   (list (cpio-dired-get-entry-name))))
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (or (eq major-mode 'cpio-dired-mode)
 		(eq major-mode 'cpio-mode))
       (error "%s() only makes sense in a cpio-dired buffer." fname))
@@ -1829,7 +1804,6 @@ A prefix argument says to unmark or unflag those files instead."
   (interactive)
   (let ((fname "cpio-dired-flag-auto-save-entries")
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired style buffer." fname))
     (save-excursion
@@ -1873,7 +1847,6 @@ in the active region."
   (interactive "p")
   (let ((fname "cpio-dired-flag-entry-deletion")
 	(cpio-dired-marker-char cpio-dired-del-marker))
-    ;; (error "%s() is not yet implemented" fname)
     (cpio-dired-mark arg)))
 
 ;; 
@@ -1889,7 +1862,6 @@ in the active region."
   (let ((fname "cpio-dired-flag-garbage-entries")
 	(entry-name)
 	)
-    ;; (error "%s() is not yet implemented" fname)))
     (save-excursion
       (cpio-dired-move-to-first-entry)
       (save-match-data
@@ -1906,7 +1878,6 @@ in the active region."
   (let ((fname "cpio-dired-goto-entry")
 	(this-entry)
 	)
-    ;; (error "%s() is not yet implemented" fname)))
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (unless (cpio-entry-exists-p entry)
@@ -1958,7 +1929,6 @@ and any affiliated buffers thereof."
   (interactive)
   (let ((fname "cpio-dired-kill")
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(cond ((buffer-live-p *cab-parent*)
 	       (if (and (called-interactively-p)
@@ -2040,7 +2010,6 @@ object entries--just `.o' will mark more than you might think."
   (let ((fname "cpio-dired-mark-entries-regexp")
 	(cpio-dired-marker-char (or marker-char cpio-dired-marker-char))
 	(entry-name))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (save-excursion
@@ -2061,7 +2030,6 @@ object files--just `.o' will mark more than you might think."
   (let ((fname "cpio-dired-mark-entries-regexp")
 	(entry-name)
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (save-excursion
@@ -2081,7 +2049,6 @@ With prefix argument, unmark or unflag all those entries."
   (let ((fname "cpio-dired-mark-executables")
 	(this-mode)
 	)
-    ;; (error "%s() is not yet implemented" fname)))
     (save-excursion
       (cpio-dired-move-to-first-entry)
       (while (< (point) (point-max))
@@ -2101,7 +2068,6 @@ If the Dired buffer shows multiple directories, this command
 marks the entries listed in the subdirectory that point is in."
   (interactive)
   (let ((fname "cpio-dired-mark-subdir-entries"))
-    ;; (error "%s() is not yet implemented" fname)))
     (save-excursion
       (cpio-dired-move-to-first-entry)
       (while (< (point) (point-max))
@@ -2119,7 +2085,6 @@ With prefix argument, unmark or unflag all those entries."
   (let ((fname "cpio-dired-mark-symlinks")
 	(this-mode)
 	)
-    ;; (error "%s() is not yet implemented" fname)))
     (save-excursion
       (cpio-dired-move-to-first-entry)
       (while (< (point) (point-max))
@@ -2311,7 +2276,6 @@ one.  If non-nil, reset `quit-restore' parameter to nil."
   (interactive)
   (let ((fname "cpio-dired-save-archive")
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (or (eq major-mode 'cpio-dired-mode)
 		(eq major-mode 'cpio-mode))
       (error "%s(): You can only save an archive from a cpio-dired buffer." fname))
@@ -2477,7 +2441,6 @@ Type C-h at that time for help."
   (let ((fname "cpio-dired-unmark-all-entries")
 	entry
 	)
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (cond ((string-equal mark "")
@@ -2508,7 +2471,6 @@ Type C-h at that time for help."
   "Remove all marks from all entries in the Dired buffer."
   (interactive)
   (let ((fname "cpio-dired-unmark-all-marks"))
-    ;; (error "%s() is not yet implemented" fname)
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (save-excursion
@@ -2754,7 +2716,6 @@ The default function runs the hooks `before-revert-hook' and
 `after-revert-hook'."
   (interactive)
   (let ((fname "revert-buffer"))
-    ;; (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(if (buffer-live-p *cab-parent*)
 	    (with-current-buffer *cab-parent*

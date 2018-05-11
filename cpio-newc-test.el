@@ -27,7 +27,6 @@ a;; -*- coding: utf-8 -*-
 ;; Version: 0.01
 ;; Keywords: cpio, newc, test
 
-;; (error "You can't actually load cpio-newc-tests.el yet.")
 
 
 ;;; Commentary:

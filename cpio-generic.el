@@ -418,7 +418,6 @@ CAVEAT: This deletes any buffer holding /etc/passwd."
   (let ((fname "cpio-uid-for-owner")
 	(passwd-buffer (find-file-noselect "/etc/passwd"))
 	(uid nil))
-    ;; (error "%s() is not yet implemented" fname)
     (if (string-match "\\`[[:digit:]]+\\'" owner)
 	(setq uid owner)
       (with-current-buffer passwd-buffer
@@ -443,7 +442,6 @@ CAVEAT: This deletes any buffer holding /etc/group."
   (let ((fname "cpio-gid-for-group")
 	(group-buffer (find-file-noselect "/etc/group"))
 	(gid nil))
-    ;; (error "%s() is not yet implemented" fname)
     (cond ((null group)
 	   nil)
 	  ((stringp group)

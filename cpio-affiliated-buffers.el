@@ -101,7 +101,6 @@
   "Return non-NIL if BUFFER is already registered to PARENT.
 CONTRACT: BUFFER and PARENT are buffers."
   (let ((fname "cab-registered-p"))
-    ;; (error "%s() is not yet implemented" fname)
     (with-current-buffer parent
       (not (member buffer *cab-subordinates*)))))
 

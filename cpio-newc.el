@@ -912,7 +912,6 @@ once the TRAILER is written and padded."
 	 (base-trailer "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0")
 	 (base-len (length base-trailer))
 	 (len))
-    ;; (error "%s() is not yet implemented" fname)
     ;; ...and insert the new trailer...
     (setq buffer-read-only nil)
     (insert base-trailer)
@@ -926,7 +925,6 @@ once the TRAILER is written and padded."
 (defun cpio-newc-delete-trailer ()
   "Delete the trailer in the current cpio newc archive."
   (let ((fname "cpio-newc-delete-trailer"))
-    ;; (error "%s() is not yet implemented" fname)
     ;; First, get to the end of the last entry in the archive.
     (goto-char (point-min))
     (mapc (lambda (e)

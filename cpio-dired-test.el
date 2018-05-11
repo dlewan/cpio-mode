@@ -6535,7 +6535,6 @@ If MAKE is non-nil, then run 'make newc' as part of the reset."
 	(archive-name)
 	(archive-names (list *cdmt-small-archive*
 			     *cdmt-large-archive*)))
-    ;; (error "%s() is not yet implemented" fname)
     (cd run-dir)
     (mapc (lambda (an)
 	    (setq cpio-archive-buffer (find-file-noselect an))
@@ -6585,7 +6584,6 @@ then those will also be reformatted.
 So, if NULLs have been converted to printable characters,
 then the entry names will be incorrect."
   (let ((fname "cdmt-reformat-newc-headers"))
-    ;; (error "%s() is not yet implemented" fname)
     (while (string-match *cpio-newc-header-re* archive-contents)
       (setq archive-contents (concat (substring archive-contents 0 (match-beginning 0))
 				     (concat (match-string *cpio-newc-magic-re-idx*    archive-contents) "\t(( magic    ))\n")
@@ -6611,7 +6609,6 @@ then the entry names will be incorrect."
   "Globally substitute TO-STR for FROM-STR in STRING and return the new string.
 In principal, FROM-STR can be a regular expression."
   (let ((fname "cdmt-global-sub"))
-    ;; (error "%s() is not yet implemented" fname)
     (while (string-match from-str string)
       (setq string (replace-match to-str nil t string 0)))
     string))
