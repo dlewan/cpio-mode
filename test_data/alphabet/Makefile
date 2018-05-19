@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile,v 1.1.2.4 2018/03/24 20:50:10 doug Exp $	
+#	$Id: Makefile,v 1.4 2018/05/18 23:55:31 doug Exp $	
 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018
 # Douglas Lewan, d.lewan2000@gmail.com.
@@ -119,14 +119,15 @@ CFLAGS	=
 default:	check_gnu
 	@echo "This Makefile has no defaults."
 	@echo "Please type one of the archive format targets:"
+	@echo "    ${MAKE} all"
 	@echo "    ${MAKE} bin"
-	@echo "    ${MAKE} odc"
-	@echo "    ${MAKE} newc"
 	@echo "    ${MAKE} crc"
-	@echo "    ${MAKE} tar"
-	@echo "    ${MAKE} ustar"
 	@echo "    ${MAKE} hpbin"
 	@echo "    ${MAKE} hpodc"
+	@echo "    ${MAKE} newc"
+	@echo "    ${MAKE} odc"
+	@echo "    ${MAKE} tar"
+	@echo "    ${MAKE} ustar"
 	@echo "instead."
 
 help:	check_gnu	default
@@ -412,27 +413,42 @@ z:
 #
 # Cpio formats
 #
-.PHONY: bin odc newc crc tar ustar hpbin hpodc
+.PHONY: all bin crc hpbin hpodc newc odc tar ustar
+all: bin crc hpbin hpodc newc odc tar ustar
 # Yes, these regular expressions are a little brittle,
 # but they work in this directory.
 bin:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
-odc:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
-newc:	alphabet 
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
 crc:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
-tar:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
-ustar:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
 hpbin:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
 hpodc:	alphabet
-	ls -1 ? ?? ??? ???? ????? | ${HOME}/local/bin/cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+newc:	alphabet 
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+odc:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+tar:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+ustar:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
 
 ################################
 # 
