@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other.
-;	$Id: cpio-affiliated-buffers.el,v 1.1.2.14 2018/05/11 20:13:12 doug Exp $	
+;	$Id: cpio-affiliated-buffers.el,v 1.2 2018/05/12 16:36:00 doug Exp $	
 
 ;; COPYRIGHT
 

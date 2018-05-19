@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-;; $Id: cpio-tar.el,v 1.3.2.1 2018/03/08 06:10:14 doug Exp $
+;; $Id: cpio-tar.el,v 1.4 2018/05/12 16:36:03 doug Exp $
 
-;; OOPYRIGHT
+;; COPYRIGHT
 ;; 
 ;; Copyright © 2015 Douglas Lewan, d.lewan2000@gmail.com.
 ;; All rights reserved.

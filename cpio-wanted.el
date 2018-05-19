@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-wanted.el --- Stuff cpio-mode wants from emacs lisp, but that isn't there.
-;	$Id: cpio-wanted.el,v 1.1.4.5 2018/04/26 14:15:33 doug Exp $	
+;	$Id: cpio-wanted.el,v 1.2 2018/05/12 16:36:04 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

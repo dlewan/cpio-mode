@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.1.4.6 2018/05/11 20:13:13 doug Exp $	
+;	$Id: cpio-generic.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -79,6 +79,24 @@
 	  (setq hex-digit-ct (1+ hex-digit-ct)))
 	(setq *integer-hex-digits* hex-digit-ct)))
   *integer-hex-digits*)
+
+(defun hex-format-pair (pair)
+  "Return a hex formatted representation of PAIR."
+  (let ((fname "hex-format-pair")
+	(hex-digit-count (integer-hex-digits))
+	(formatter))
+    (setq formatter (format "%%0%dx" hex-digit-count))
+    (setq formatter (concat formatter formatter))
+    (format formatter (car pair) (cdr pair))))
+
+(defun hex-format-triple (triple)
+  "Return a hex formatted representation of TRIPLE."
+  (let ((fname "hex-format-triple")
+	(hex-digit-count (integer-hex-digits))
+	(formatter))
+    (setq formatter (format "%%0%dx" hex-digit-count))
+    (setq formatter (concat formatter formatter formatter))
+    (format formatter (car triple) (cadr triple) (cddr triple))))
 
 (defun round-up (number modulus)
   "Round NUMBER up to the next multiple of MODULUS.

@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-;; $Id: cpio-ustar.el,v 1.3.2.1 2018/03/08 06:10:15 doug Exp $
+;; $Id: cpio-ustar.el,v 1.4 2018/05/12 16:36:03 doug Exp $
 
 ;; COPYRIGHT
 ;; 

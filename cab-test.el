@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.1.2.15 2018/05/11 20:13:12 doug Exp $	
+;	$Id: cab-test.el,v 1.2 2018/05/12 16:36:00 doug Exp $	
 
 ;; COPYRIGHT
 

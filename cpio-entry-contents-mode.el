@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.1.4.4 2018/05/11 20:13:13 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -28,11 +28,67 @@
 ;;; Commentary:
 
 ;; This file contains code for editing and saving
-;; the contents of entris in a cpio-archive.
+;; the contents of entries in a cpio-archive.
 
 ;;; Documentation:
 
 ;;; Code:
+
+;;
+;; Hacks
+;;
+
+(defun entry-setup (arg &optional name depth)
+  "Set up buffers and windows for working on entry NAME.
+If NAME is not given, then use 'aa'."
+  (interactive "P")
+  (if (and (interactive-p) 
+	   arg)
+      (setq name (read-string "Name? ")))
+  (unless name (setq name "aa"))
+  (unless depth (setq depth 0))
+  (let* ((fname "entry-setup")
+	 (short-archive-name "alphabet_small.crc.cpio")
+	 (archive-name (if (string-match "alphabet/" default-directory)
+			   (concat default-directory short-archive-name)
+			 (concat default-directory "test_data/alphabet/" short-archive-name)))
+	 (cpio-archive-buffer)
+	 (cpio-dired-buffer)
+	 (cpio-entry-contents-buffer)
+	 (cpio-dired-contents-mode-buffer))
+    ;; Make sure we have a clean copy of the archive.
+    (with-current-buffer (find-file-noselect archive-name)
+      (shell-command "make crc" nil nil)
+      (kill-buffer))
+    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name))
+      (cpio-mode)
+      (setq cpio-dired-buffer (current-buffer)))
+    (unless (with-current-buffer cpio-archive-buffer (cpio-entry-exists-p name))
+      (if (> depth 1)
+	  (error "%s(): Going too deep." fname)
+	(entry-setup nil name (1+ depth)))
+      (setq cpio-dired-buffer (current-buffer)))
+
+    ;; Get the entry
+    (switch-to-buffer cpio-dired-buffer)
+    (cpio-dired-goto-entry name)
+    (cpio-dired-find-entry)
+    (setq cpio-entry-contents-buffer (current-buffer))
+    (switch-to-buffer cpio-dired-buffer)
+
+    ;; Set up windows.
+    (delete-other-windows)
+    (split-window-right)
+    (split-window)
+    (other-window 1)
+    (switch-to-buffer cpio-archive-buffer)
+    (other-window 1)
+    (split-window)
+    (switch-to-buffer cpio-entry-contents-buffer)
+    (other-window 1)
+    (setq cpio-dired-contents-mode-buffer (switch-to-buffer "cpio-entry-contents-mode.el"))
+    (other-window 2)))
+
 
 ;;
 ;; Dependencies
@@ -52,9 +108,9 @@
 ;; 
 ;; Commands
 ;; 
-(defun cpio-entry-contents-save (&optional arg)
+(defun cpio-entry-contents-save ()
   "Save the contents of the current buffer in it's cpio archive."
-  (interactive "p")
+  (interactive)
   (let ((fname "cpio-entry-contents-save")
 	(name cpio-entry-name)
 	(entry (cpio-entry cpio-entry-name))
@@ -62,30 +118,33 @@
 	(header-string)
 	(size (buffer-size))
 	(new-contents (buffer-string)))
+    (unless (catch 'minor-mode-check
+	      (mapc (lambda (m)
+		      (if (eq m 'cpio-entry-contents-mode)
+			  (throw 'minor-mode-check t)))
+		    minor-mode-list))
+      (error "%s(): You're not in a cpio entry contents buffer." fname))
     (with-current-buffer *cab-parent*
-      ;; 0. Make sure the archive is writeable.
-      (setq buffer-read-only nil)
       ;; 1. Delete the entry's head and contents (plus padding) in the parent buffer.
       (cpio-delete-archive-entry entry)
       ;; 2. Update the entry size in the entry.
       (cpio-set-entry-size attrs size)
-      ;; 3. Build the entry header.
-      (setq header-string (cpio-make-header-string attrs))
-      ;; 4. Write the header in the archive buffer (plus padding).
-      (goto-char (cpio-entry-header-start entry))
-      (insert header-string)
-      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker))
-      ;; 5. Write the new contents in the archive buffer (plus padding).
+      ;; 3. Write the new contents in the archive buffer (plus padding).
+      (goto-char (cpio-contents-start name))
       (cpio-insert-padded-contents new-contents)
-      ;; 6. Adjust the trailer.
-      (cpio-adjust-trailer)
-      ;; 7. Save the archive buffer.
-      (basic-save-buffer)
-      ;; 8. Mark the buffer saved.
-      (setq buffer-read-only t))
-    ;; 9. Mark the contents buffer as unmodified.
+      ;; 4. Build the entry header.
+      (setq header-string (cpio-make-header-string attrs))
+      ;; 5. Write the header in the archive buffer (plus padding).
+      (goto-char (cpio-entry-header-start entry))
+      (setq buffer-read-only nil)
+      (insert header-string)
+      (setq buffer-read-only t)
+      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker)))
+    ;; 6. Mark the contents buffer as unmodified.
     (set-buffer-modified-p nil)
-    ;; 10. Update the dired-like interface.
+    ;; 6a. But mark the entry in the archive modified.
+    (cpio-set-entry-modified entry)
+    ;; 7. Update the dired-like interface.
     (with-current-buffer *cab-parent*
 	(cpio-present-ala-dired (current-buffer)))))
 

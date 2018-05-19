@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic-tests.el --- tests of cpio-generic.el
-;	$Id: cpio-generic-tests.el,v 1.1.4.5 2018/05/11 20:13:13 doug Exp $	
+;	$Id: cpio-generic-tests.el,v 1.2 2018/05/12 16:36:01 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

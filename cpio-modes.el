@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes.el --- handle modes.
-;	$Id: cpio-modes.el,v 1.1.4.6 2018/05/11 20:13:13 doug Exp $	
+;	$Id: cpio-modes.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -96,6 +96,19 @@
   (= (logand m s-ifmt) s-ififo))
 (defun s-issock (m)
   (= (logand m s-ifmt) s-ifsock))
+
+(defun cpio-special-file (attrs)
+  "Return non-NIL if the mode in ATTRS is as special file:
+fmt, sock, link, block, character, fifo."
+  (let ((fname "cpio-special-file")
+	(mode (cpio-mode-value attrs)))
+    (or (= s-ifmt   (logand s-ifmt   mode))
+	(= s-ifsock (logand s-ifsock mode))
+	(= s-iflnk  (logand s-iflnk  mode))	;Does this really belong here? I'm writing this to support (cpio-crc-make-checksum). Do links' checksums get calculated?
+	(= s-ifblk  (logand s-ifblk  mode))
+	(= s-ifdir  (logand s-ifdir  mode)) ;Is a directory a special file? Again, this has to do with calculating a check sum.
+	(= s-ifchr  (logand s-ifchr  mode))
+	(= s-ififo  (logand s-ififo  mode)))))
 
 (defun cpio-int-mode-to-mode-string (int-mode)
   "Convert an integer mode value to the corresponding ls -l version."

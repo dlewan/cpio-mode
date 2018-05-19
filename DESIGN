@@ -1,4 +1,4 @@
-#	$Id: DESIGN,v 1.3.4.2 2018/04/26 14:15:29 doug Exp $	
+#	$Id: DESIGN,v 1.5 2018/05/12 16:35:59 doug Exp $	
 
 A cpio entry basically looks like 
 an inode followed by contents of the specified length.

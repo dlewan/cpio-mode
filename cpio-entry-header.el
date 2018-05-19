@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-header.el --- handle cpio entry headers
-;	$Id: cpio-entry-header.el,v 1.3.2.2 2018/04/26 14:15:31 doug Exp $	
+;	$Id: cpio-entry-header.el,v 1.4 2018/05/12 16:36:01 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

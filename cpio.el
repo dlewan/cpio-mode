@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.2.4.10 2018/05/11 20:13:14 doug Exp $	
+;	$Id: cpio.el,v 1.4 2018/05/18 23:55:30 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -219,6 +219,13 @@
 ;; (require 'cpio-affiliated-buffers)
 (load (concat default-directory "cpio-affiliated-buffers"))
 (message "Loaded cpio-affiliated-buffers.el.")
+
+;; (require 'cpio-bin)
+(load (concat default-directory "cpio-bin"))
+(message "Loaded cpio-bin")
+;; (require 'cpio-crc)
+(load (concat default-directory "cpio-crc"))
+(message "Loaded cpio-crc.el.")
 ;; (require 'cpio-hpbin)
 (load (concat default-directory "cpio-hpbin"))
 (message "Loaded cpio-hpbin.el")
@@ -233,6 +240,7 @@
 (message "Loaded cpio-odc.el")
 ;; (require 'cpio-tar)
 ;; (require 'cpio-ustar)
+
 ;; (require 'cpio-wanted)
 (load (concat default-directory "cpio-wanted"))
 (message "Loaded cpio-wanted.el.")
@@ -261,10 +269,6 @@ Takes the values 'bin, 'newc, 'odc etc.")
   "RE to match odc format cpio archives.")
 (setq *cpio-odc-header-re* "nOt yEt iMpLeMeNtEd")
 
-(defvar *cpio-crc-header-re* "nOt yEt iMpLeMeNtEd"
-  "RE to match crc format cpio archives.")
-(setq *cpio-crc-header-re* "nOt yEt iMpLeMeNtEd")
-
 (defvar *cpio-tar-header-re* "nOt yEt iMpLeMeNtEd"
   "RE to match tar format cpio archives.")
 (setq *cpio-tar-header-re* "nOt yEt iMpLeMeNtEd")
@@ -281,26 +285,28 @@ Takes the values 'bin, 'newc, 'odc etc.")
   "RE to match hpodc format cpio archives.")
 (setq *cpio-hpodc-header-re* "nOt yEt iMpLeMeNtEd")
 
-(defvar *cpio-re-type-alist* (list (cons *cpio-bin-header-re* 'bin)
-				   (cons *cpio-newc-header-re* 'newc)
-				   (cons *cpio-odc-header-re* 'odc)
-				   (cons *cpio-crc-header-re* 'crc)
-				   (cons *cpio-tar-header-re* 'tar)
-				   (cons *cpio-ustar-header-re* 'ustar)
-				   (cons *cpio-hpbin-header-re* 'hpbin)
-				   (cons *cpio-hpodc-header-re* 'hpodc))
+(defvar *cpio-re-type-alist* (list
+			      (cons *cpio-bin-header-re*   'bin)
+			      (cons *cpio-crc-header-re*   'crc)
+			      (cons *cpio-hpbin-header-re* 'hpbin)
+			      (cons *cpio-hpodc-header-re* 'hpodc)
+			      (cons *cpio-newc-header-re*  'newc)
+			      (cons *cpio-odc-header-re*   'odc)
+			      (cons *cpio-tar-header-re*   'tar)
+			      (cons *cpio-ustar-header-re* 'ustar))
   "Association list matching REs defining cpio entry header types
 with their corresponding archive types.
 The archive types are symbols: 'bin, 'newc, 'odc, etc.
 See `cpio-discern-archive-type' for the full list.")
-(setq *cpio-re-type-alist* (list (cons *cpio-bin-header-re* 'bin)
-				 (cons *cpio-newc-header-re* 'newc)
-				 (cons *cpio-odc-header-re* 'odc)
-				 (cons *cpio-crc-header-re* 'crc)
-				 (cons *cpio-tar-header-re* 'tar)
-				 (cons *cpio-ustar-header-re* 'ustar)
-				 (cons *cpio-hpbin-header-re* 'hpbin)
-				 (cons *cpio-hpodc-header-re* 'hpodc)))
+(setq *cpio-re-type-alist* (list
+			    (cons *cpio-bin-header-re*   'bin)
+			    (cons *cpio-crc-header-re*   'crc)
+			    (cons *cpio-hpbin-header-re* 'hpbin)
+			    (cons *cpio-hpodc-header-re* 'hpodc)
+			    (cons *cpio-newc-header-re*  'newc)
+			    (cons *cpio-odc-header-re*   'odc)
+			    (cons *cpio-tar-header-re*   'tar)
+			    (cons *cpio-ustar-header-re* 'ustar)))
 
 (defvar cpio-build-catalog-func ()
   "The function for building the catalog of a specific archive format.")
@@ -383,30 +389,7 @@ See `cpio-discern-archive-type' for the full list.")
   "")
 (setq cpio-make-header-string-func ())
 
-(defvar *cpio-local-funcs* (list
-			    ;; Catalog management
-			    'cpio-build-catalog-func
-			    ;; Header parsing functions
-			    'cpio-parse-header-func
-			    'cpio-header-at-point-func
-			    'cpio-get-magic-func
-			    'cpio-get-dev-func
-			    'cpio-get-ino-func
-			    'cpio-get-mode-func
-			    'cpio-get-uid-func
-			    'cpio-get-gid-func
-			    'cpio-get-nlink-func
-			    'cpio-get-rdev-func
-			    'cpio-get-mtime-func
-			    'cpio-get-namesize-func
-			    'cpio-get-filesize-func
-			    'cpio-get-name-func
-			    'cpio-get-contents-func
-			    'cpio-end-of-archive
-			    'cpio-make-header-string-func
-			    ;; Archive manipulation functions.
-			    'cpio-adjust-trailer-func
-			    'cpio-delete-trailer-func)
+(defvar *cpio-local-funcs* ()
   "A list of variables peculiar to the different headers and their fields.
 The design here is that package-wide variables have the prefix `cpio-'
 and the corresponding functions for a specific format FMT have the form `cpio-FMT-'.
@@ -418,6 +401,7 @@ All of this can then be calculated via (symbol-name), etc.")
 			  'cpio-end-of-archive-func
 			  'cpio-start-of-trailer-func
 			  ;; Header making functions
+			  'cpio-make-chksum-func
 			  'cpio-make-header-string-func
 			  ;; Archive manipulation functions
 			  'cpio-adjust-trailer-func
@@ -431,12 +415,14 @@ Each entry has the following form:
     name
     [parsed-header
      header-start
-     content-start].
+     content-start
+     modified-flag].
 • name is the name of the entry
 • parsed-header has the description below.
 • header-start and content-start are markers,
   so they should be automatically updated
   with modifications to the buffer.
+• Don't use (aref) to get at these; use an accessor function.
 The last entry should is always be the TRAILER entry.
 
 A parsed header is a vector of the following form:
@@ -444,14 +430,17 @@ A parsed header is a vector of the following form:
      mode
      uid
      gid
+
      nlink
      mtime
      filesize
      dev-maj
+
      dev-min
      rdev-maj
      rdev-min
-     contents-size
+     name-size
+
      checksum
      name].")
 (make-variable-buffer-local '*cpio-catalog*)
@@ -469,7 +458,15 @@ A parsed header is a vector of the following form:
   
   (setq i (1+ i))
   (defvar *cpio-catalog-entry-contents-start-idx* i)
-  (setq *cpio-catalog-entry-contents-start-idx* i))
+  (setq *cpio-catalog-entry-contents-start-idx* i)
+
+  (setq i (1+ i))
+  (defvar *cpio-catalog-entry-modified-flag-idx* i)
+  (setq *cpio-catalog-entry-modified-flag-idx* i)
+
+  (setq i (1+ i))
+  (defvar *cpio-catalog-entry-length* i)
+  (setq *cpio-catalog-entry-length* i))
 
 (defvar *cpio-dired-buffer* ()
   "The [subordinate] buffer used to present the curent catalog
@@ -537,7 +534,12 @@ A parsed header is a vector of the following form:
 
   (setq i (1+ i))
   (defvar *cpio-name-parsed-idx* i)
-  (setq *cpio-name-parsed-idx* i))
+  (setq *cpio-name-parsed-idx* i)
+
+  (setq i (1+ i))
+  (defvar *cpio-parsed-header-length* i
+    "The length of a parsed header (attribute vector).")
+  (setq *cpio-parsed-header-length* i))
 
 (defvar *cpio-padding-modulus* ()
   "The modulus to be used for building padded strings.")
@@ -713,6 +715,17 @@ CAVEAT: See `cpio-magic'."
   (let ((fname "cpio-entry-start"))
     (aref entry *cpio-catalog-entry-contents-start-idx*)))
 
+(defun cpio-set-header-start (entry where)
+  "Set the header start marker in ENTRY to the location WHERE."
+  (let ((fname "cpio-set-header-start")
+	(where-marker (cond ((integerp where)
+			     (set-marker (make-marker) where))
+			    ((markerp where)
+			     where)
+			    (t
+			     (signal 'wrong-type-error (list where))))))
+    (aset entry *cpio-catalog-entry-header-start-idx* where-marker)))
+
 (defun cpio-set-contents-start (entry where)
   "Set the contents start marker in ENTRY to the location WHERE.
 WHERE can be an integer or marker."
@@ -722,7 +735,7 @@ WHERE can be an integer or marker."
 			    ((markerp where)
 			     where)
 			    (t
-			     (error 'wrong-type-error where)))))
+			     (signal 'wrong-type-error (list where))))))
     (aset entry *cpio-catalog-entry-contents-start-idx* where-marker)))
 
 (defun cpio-contents (entry-name &optional archive-buffer)
@@ -749,15 +762,18 @@ WHERE can be an integer or marker."
 (defun cpio-catalog ()
   "Return the catalog relevant to the current buffer."
   (let ((fname "cpio-catalog"))
+    (unless (or (eq major-mode 'cpio-dired-mode)
+		(eq major-mode 'cpio-mode))
+      (error "%s(): only makes sense in a cpio buffer." fname))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  *cpio-catalog*)
       *cpio-catalog*)))
 
-(defun cpio-make-header-string (parsed-header)
+(defun cpio-make-header-string (parsed-header &optional contents)
   "Build a padded cpio header string based on the given PARSED-HEADER."
   (let ((fname "cpio-make-header-string"))
-    (funcall cpio-make-header-string-func parsed-header)))
+    (funcall cpio-make-header-string-func parsed-header contents)))
 
 (defun cpio-set-entry-size (parsed-header size)
   "Set the entry-size element of PARSED-HEADER to SIZE."
@@ -1041,21 +1057,29 @@ ENTRY is a catalog entry."
 	(setq buffer-read-only t)))))
 
 (defun cpio-insert-padded-header (header-string)
-  "Insert an appropriately padded version of HEADER-STRING."
+  "Insert an appropriately padded version of HEADER-STRING.
+CONTRACT: You're at the point of insertion."
   (let ((fname "cpio-insert-padded-header")
 	(padding))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-insert-padded-header header-string))
-      (insert (cpio-padded header-string *cpio-padding-modulus* *cpio-padding-char*)))))
+      (setq buffer-read-only nil)
+      (insert (cpio-padded header-string *cpio-padding-modulus* *cpio-padding-char*))
+      (setq buffer-read-only t))))
 
 (defun cpio-insert-padded-contents (contents) ;HEREHERE Generic
-  "Insert an appropriately padded version of CONTENTS into the archive buffer."
+  "Insert an appropriately padded version of CONTENTS into the archive buffer.
+CONTRACT: Point is at the point of insertion."
   (let ((fname "cpio-insert-padded-contents"))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-insert-padded-contents contents))
-      (insert (cpio-padded contents *cpio-padding-modulus* *cpio-padding-char*)))))
+      (setq buffer-read-only nil)
+      ;; (cpio-set-contents-start (point))
+      (insert (cpio-padded contents *cpio-padding-modulus* *cpio-padding-char*))
+      (setq buffer-read-only t))))
+
 
 (defun cpio-dired-buffer-name (archive-name)
   "Return the name of the dired-style buffer for ARCHIVE-NAME."
@@ -1082,8 +1106,7 @@ This returns the buffer created."
 		(insert (concat line "\n"))))
 	    (cpio-sort-catalog))
       (setq buffer-read-only t)
-      (cpio-dired-mode)
-      (cpio-dired-move-to-first-entry))
+      (cpio-dired-mode))
     ;; No, I do not yet understand why this must be done
     ;; every time the presentation is updated.
     (cab-register buffer archive-buffer)
@@ -1234,7 +1257,7 @@ a UNIX/GNU/Linux time as an integer."
 	 (rdev-min 0)
 	 (namesize (length filename))
 
-	 (checksum 0)
+	 (checksum (cpio-make-checksum filename))
 
 	 (result (make-vector 14 nil)))
     (aset result *cpio-ino-parsed-idx*        ino)
@@ -1273,14 +1296,16 @@ many are simply invented."
 	 (gid (group-gid))
 	 
 	 (nlink 1)
-	 (mtime (current-time))
+	 (now (current-time))
+	 (mtime (list (nth 0 now) (nth 1 now)))
+
 	 (entry-size 0)
 	 (dev-maj 1)
 	 (dev-min 1)
 	 (rdev-maj 0)
 	 (rdev-min 0)
 	 (namesize (1+ (length name)))
-	 (checksum 0) 			;HEREHERE This will have to change.
+	 (checksum 0)			;Checksum for a direcory is always 0.
 	 (result (make-vector 14 nil)))
     (aset result *cpio-ino-parsed-idx* ino)
     (aset result *cpio-mode-parsed-idx* mode)
@@ -1322,6 +1347,56 @@ in the current archive."
 	  (setq where (point))))
     (if where
 	(goto-char where))))
+
+;;
+;; Functions about the modified state of a catalog entry.
+;; 
+(defun cpio-set-entry-unmodified (catalog-entry)
+  "Mark the given CATALOG-ENTRY as not modified."
+  (let ((fname "cpio-set-entry-unmodified"))
+    (cpio-validate-catalog-entry catalog-entry)
+    (aset catalog-entry *cpio-catalog-entry-modified-flag-idx* 'cpio-mode-entry-unmodified)))
+
+(defun cpio-set-entry-modified (catalog-entry)
+  "Mark the given CATALOG-ENTRY as modified."
+  (let ((fname "cpio-set-entry-modified"))
+    (cpio-validate-catalog-entry catalog-entry)
+    (aset catalog-entry *cpio-catalog-entry-modified-flag-idx* 'cpio-mode-entry-modified)))
+
+(defun cpio-entry-modified-p (catalog-entry)
+  "Return non-NIL if CATALOG-ENTRY is marked as modified."
+  (let ((fname "cpio-entry-modified-p")
+	(modified-flag))
+    (cpio-validate-catalog-entry catalog-entry)
+    (cond ((eq 'cpio-mode-modified 
+	       (setq modified-flag (aref catalog-entry *cpio-catalog-entry-modified-flag-idx*)))
+	   t)
+	  ((eq 'cpio-mode-unmodified catalog-entry)
+	   nil)
+	  (t
+	   (error "%s(): Invalid modified flag value [[%s]]." fname modified-flag)))))
+
+(defun cpio-validate-catalog-entry (catalog-entry)
+  "Verify that the given CATALOG-ENTRY is (could be) a valid catalog entry.
+Signal an error if it isn't."
+  (let ((fname "validate-catalog-entry")
+	(modified-flag))
+    (unless (vectorp catalog-entry)
+      (signal 'wrong-type-error (list catalog-entry)))
+    (unless (= *cpio-catalog-entry-length* (length catalog-entry))
+      (error "%(): The catalog entry [[%d]] is not the right length." fname *cpio-catalog-entry-length*))
+    (unless (vectorp (aref catalog-entry *cpio-catalog-entry-attrs-idx*))
+      (signal 'wrong-type-error (list catalog-entry)))
+    (unless (= *cpio-parsed-header-length* (length (aref catalog-entry *cpio-catalog-entry-attrs-idx*)))
+      (error "%s(): The parsed header in [[%s]] is not the right length." fname (aref catalog-entry *cpio-catalog-entry-attrs-idx*))
+      (sit-for 1)
+      (error "%s(): Found [[%d]], expected [[%d]]." fname (length (aref catalog-entry *cpio-catalog-entry-attrs-idx*)) *cpio-parsed-header-length*))
+    (unless (and (markerp (aref catalog-entry *cpio-catalog-entry-header-start-idx*))
+		 (markerp (aref catalog-entry *cpio-catalog-entry-contents-start-idx*)))
+      (error "%s(): The marker fields in [[%s]] are not markers." fname catalog-entry))
+    ;; The modified flag may not be set yet, so ignore it.
+
+    ))
 
 
 ;; 
@@ -1378,25 +1453,36 @@ since either the beginning or the last save.")
   "Return non-NIL if the catalog has been modified
 and, thus, the archive can be saved."
   (let ((fname "cpio-dired-modified-p"))
-    (unless (eq major-mode 'cpio-dired-mode)
-      (error "%s(): only makes sense in a cpio-dired buffer."))
-    *cpio-dired-modified*))
+    (unless (or (eq major-mode 'cpio-dired-mode)
+		(eq major-mode 'cpio-mode))
+      (error "%s(): only makes sense in a cpio-dired buffer." fname))
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (cpio-dired-modified-p))
+      *cpio-dired-modified*)))
 
 (defun cpio-dired-set-modified ()
   "Flag the catalog as modified."
   (let ((fname "cpio-dired-set-modified"))
-    (unless (eq major-mode 'cpio-dired-mode)
-      (error "%s(): only makes sense in a cpio-dired buffer."))
-    (setq *cpio-dired-modified* t)))
+    (unless (or (eq major-mode 'cpio-dired-mode)
+		(eq major-mode 'cpio-mode))
+      (error "%s(): only makes sense in a cpio-dired buffer." fname))
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (cpio-dired-set-modified))
+      (setq *cpio-dired-modified* t))))
 
 (defun cpio-dired-set-unmodified ()
   "Flag the catalog as not modified."
   (let ((fname "cpio-dired-set-unmodified"))
     ;; HEREHERE There's probably more to this than just the following.
-    (unless (eq major-mode 'cpio-dired-mode)
-      (error "%s(): only makes sense in a cpio-dired buffer."))
-    (setq *cpio-dired-modified* t)
-    (with-current-buffer *cab-parent*
+    (unless (or (eq major-mode 'cpio-dired-mode)
+		(eq major-mode 'cpio-mode))
+      (error "%s(): only makes sense in a cpio-dired buffer." fname))
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (cpio-dired-set-unmodified))
+      (setq *cpio-dired-modified* nil)
       (set-buffer-modified-p nil))))
 
 (defvar *cpio-have-made-keymap* nil
@@ -1522,7 +1608,6 @@ See *cpio-local-funcs* for more information."
 (defun cpio-set-local-newc-vars ()
   "Set buffer local variables appropriate for a NEWC format CPIO archive."
   (let ((fname "cpio-set-local-newc-vars"))
-    (cpio-set-local-newc-offset-vars)
     (make-local-variable '*cpio-padding-modulus*)
     (setq *cpio-padding-modulus* *cpio-newc-padding-modulus*)
     (make-local-variable '*cpio-padding-char*)
@@ -1530,50 +1615,6 @@ See *cpio-local-funcs* for more information."
     (make-local-variable '*cpio-padding-str*)
     (setq *cpio-padding-str* *cpio-newc-padding-str*)))
 
-;; 
-;; Assuming this has worked. (It runs without errors.)
-;; I think I now need to use (symbol-value) 
-;; to get the archive-specific information that I need.
-;; 
-(defun cpio-set-local-newc-offset-vars ()
-  "Set the variables that define the offset to the fields of a NEWC format CPIO archive.
-This also establishes those variables as buffer-local."
-  ;; There is an implicit contract that you are in the right buffer.
-  (let ((fname "cpio-set-local-newc-offset-vars")
-	(newc-offset-vars (list '*cpio-newc-magic-field-offset*
-				'*cpio-newc-ino-field-offset*
-				'*cpio-newc-mode-field-offset*
-				'*cpio-newc-uid-field-offset*
-				'*cpio-newc-gid-field-offset*
-				'*cpio-newc-nlink-field-offset*
-				'*cpio-newc-mtime-field-offset*
-				'*cpio-newc-filesize-field-offset*
-				'*cpio-newc-dev-maj-field-offset*
-				'*cpio-newc-dev-min-field-offset*
-				'*cpio-newc-rdev-maj-field-offset*
-				'*cpio-newc-rdev-min-field-offset*
-				'*cpio-newc-namesize-field-offset*
-				'*cpio-newc-chksum-field-offset*
-				'*cpio-newc-name-field-offset*))
-	(format-name "newc"))
-    (mapcar 'make-local-variable newc-offset-vars)
-    ;; We want a simple and consistent map
-    ;; between the global [meta-]variable's name
-    ;; and the format-specific variable's name.
-    ;; We know the format-specific names,
-    ;; so start with them.
-    ;; Here's the process:
-    ;;     *newc-magic-field-offset*
-    ;;     --> *cpio-magic-field-offset*
-    (mapcar (lambda (fsv)		;format-specific-variable
-	      (let* ((fs-name (symbol-name fsv))
-		     (general-name (save-match-data
-				     (or (string-match (concat "\\`\\*cpio-\\(" format-name "-\\)") fs-name)
-					 (error "%s(): Some FSV isn't playing by the rules! [[%s]]" fname fsv))
-				     (replace-match "" t t fs-name 1)))
-		     (general-var (make-symbol general-name)))
-		(set general-var fsv)))
-	    newc-offset-vars)))
 
 (defun cpio-set-local-odc-vars ()
   "Set buffer local variables appropriate for a ODC format CPIO archive."
@@ -1583,7 +1624,12 @@ This also establishes those variables as buffer-local."
 (defun cpio-set-local-crc-vars ()
   "Set buffer local variables appropriate for a CRC format CPIO archive."
   (let ((fname "cpio-set-local-crc-vars"))
-    (error "%s() is not yet implemented" fname)))
+    (make-local-variable '*cpio-padding-modulus*)
+    (setq *cpio-padding-modulus* *cpio-crc-padding-modulus*)
+    (make-local-variable '*cpio-padding-char*)
+    (setq *cpio-padding-char* *cpio-crc-padding-char*)
+    (make-local-variable '*cpio-padding-str*)
+    (setq *cpio-padding-str* *cpio-crc-padding-str*)))
 
 (defun cpio-set-local-tar-vars ()
   "Set buffer local variables appropriate for a TAR format CPIO archive."

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-hpodc.el --- handle hpodc cpio entry header formats
-;	$Id: cpio-hpodc.el,v 1.3.2.3 2018/04/26 14:15:32 doug Exp $	
+;	$Id: cpio-hpodc.el,v 1.4 2018/05/12 16:36:02 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

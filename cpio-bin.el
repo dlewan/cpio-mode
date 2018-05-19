@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-bin.el --- handle bin cpio entry header formats
-;	$Id: cpio-bin.el,v 1.3.2.2 2018/04/26 14:15:30 doug Exp $	
+;	$Id: cpio-bin.el,v 1.4 2018/05/12 16:36:00 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

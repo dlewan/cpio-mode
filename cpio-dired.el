@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired.el --- UI definition à la dired.
-;	$Id: cpio-dired.el,v 1.1.4.7 2018/05/11 20:13:12 doug Exp $	
+;	$Id: cpio-dired.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -341,12 +341,7 @@ Important: the match ends just after the marker.")
    ;; Explicitly put the default face on entry names ending in a colon to
    ;; avoid fontifying them as directory header.
    (list (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size cpio-dired-re-perms ".*:$")
-	 '(".+" (cpio-dired-move-to-entry-name) nil (0 'default)))
-   ;;
-   ;; Directory headers.
-   ;;;; (list cpio-dired-subdir-regexp '(1 cpio-dired-header-face))
-   
-   )
+	 '(".+" (cpio-dired-move-to-entry-name) nil (0 'default))))
   "Additional expressions to highlight in cpio-dired mode.")
 
 (defvar cpio-entry-name ()
@@ -596,10 +591,10 @@ to make the recursive call this function inside the archive buffer sensible."
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-dired-add-contents attrs contents cpio-dired-buffer))
-      (setq new-catalog-entry (make-vector 3 nil))
+      (setq new-catalog-entry (make-vector *cpio-catalog-entry-length* nil))
 
       (cpio-delete-trailer)
-      (setq header-string (cpio-make-header-string attrs))
+      (setq header-string (cpio-make-header-string attrs contents))
       
       (setq buffer-read-only nil)
       
@@ -616,6 +611,8 @@ to make the recursive call this function inside the archive buffer sensible."
       (aset new-catalog-entry *cpio-catalog-entry-attrs-idx* attrs)
       (aset new-catalog-entry *cpio-catalog-entry-header-start-idx* header-start-marker)
       (aset new-catalog-entry *cpio-catalog-entry-contents-start-idx* contents-start-marker)
+      (cpio-set-entry-unmodified new-catalog-entry)
+
       ;; HEREHERE Is there an appropriate abstraction for the following?
       ;; Perhaps including the above?
       (add-to-list '*cpio-catalog* (cons entry-name new-catalog-entry) 'append)
@@ -654,11 +651,11 @@ to make the recursive call this function inside the archive buffer sensible."
 	(list (cpio-dired-get-entry-name)))))
 
 (defun cpio-dired-internal-do-copy (entry target) ;✓
-  "Copy the ENTRIES to the TARGET entry.
+  "Copy the ENTRY to the TARGET entry.
 CONTRACT: TARGET is the actual TARGET name, not an implied directory entry."
   (let ((fname "cpio-dired-internal-do-copy")
 	(attrs (copy-sequence (cpio-entry-attrs entry)))
-		   (contents (cpio-contents entry)))
+	(contents (cpio-contents entry)))
     (cpio-set-entry-name attrs target)
     (cpio-dired-add-contents attrs contents)))
 
@@ -709,13 +706,16 @@ CONTRACT:
 
 (defun cpio-dired-replace-dired-line (entry-name)
   "Replace the entry for the given ENTRY-NAME
-with information from the current catalog."
+with information from the current catalog.
+CONTRACT: You're on the line to be replaced."
   (let ((fname "cpio-dired-replace-dired-line")
 	(attrs (cpio-entry-attrs entry-name))
 	(mark))
     (save-excursion
       (cpio-move-to-entry entry-name)
-      (setq mark (string-to-char (buffer-substring (line-beginning-position) (1+ (line-beginning-position)))))
+      (setq mark (if (= (line-beginning-position) (line-end-position))
+		     ?\s
+		   (string-to-char (buffer-substring (line-beginning-position) (1+ (line-beginning-position))))))
       (cpio-dired-delete-dired-line entry-name)
       (setq buffer-read-only nil)
       (insert (cpio-dired-format-entry attrs mark))
@@ -868,39 +868,51 @@ You can then feed the entry name(s) to other commands with C-y."
   "Create a directory entry called DIRECTORY.
 If DIRECTORY already exists, signal an error.
 This respects umask(1) as available through (default-file-modes)."
-  (interactive (list (read-string "Create directory: " default-directory nil default-directory)))
+  (interactive (list (read-string "Create directory: " "" nil "")))
   (let ((fname "cpio-dired-create-directory")
 	(new-catalog-entry)
 	(attrs)
 	(header-string)
+	(header-start)
+	(contents-start)
 	(cat-entry))
     (cond (*cab-parent*
 	   (unless (eq major-mode 'cpio-dired-mode)
 	     (error "%s(): You're not in a cpio dired buffer." fname))
 	   (with-current-buffer *cab-parent*
 	     (cpio-dired-create-directory directory))
+	   (save-excursion
+	     (goto-char (point-max))
+	     (setq buffer-read-only nil)
+	     (insert (concat (cpio-dired-format-entry (cpio-entry-attrs directory)) "\n"))
+	     (setq buffer-read-only t))
 	   (cpio-dired-set-modified))
 	  (t
 	   (unless (eq major-mode 'cpio-mode)
 	     (error "%s(): The parent buffer was not a cpio-mode buffer." fname))
 	   (unless (stringp directory)
-	     (signal 'wrong-type-error directory))
+	     (signal 'wrong-type-error (list directory)))
+	   (unless (< 0 (length directory))
+	     (error "%s(): Cannot create an entry with a zero-length name." directory))
 	   (if (cpio-entry-exists-p directory)
 	       (error "%s(): Entry %s already exists." fname directory))
-	   (setq new-catalog-entry (make-vector 3 nil))
-	   
 	   (setq namesize (1+ (length directory)))
 	   (setq attrs (cpio-create-faux-directory-attrs directory))
 	   (cpio-set-mode attrs (logior s-ifdir (default-file-modes)))
-	   (setq header-string (cpio-make-header-string attrs))
-	   
 	   (cpio-delete-trailer)
-	   
+	   (setq header-start (point-max-marker))
+	   (setq header-string (cpio-make-header-string attrs))
 	   (goto-char (point-max))
 	   (setq buffer-read-only nil)
 	   (insert header-string)
 	   (setq buffer-read-only t)
-	   (cpio-mode)))))
+	   (setq contents-start (point-max-marker))
+	   (push (cons directory
+		       (vector attrs
+			       header-start
+			       contents-start
+			       'cpio-mode-entry-unmodified))
+		 *cpio-catalog*)))))
 
 ;; =		dired-diff
 (defun cpio-dired-diff (entry &optional switches) ;✓
@@ -1066,7 +1078,8 @@ in the buffer containing the archive."
 				      (line-end-position))
 		       (insert (cpio-dired-format-entry attrs))
 		       (setq buffer-read-only t))))
-		 entry-names)))))
+		 entry-names)
+	  (cpio-dired-set-modified)))))
 
 ;; M		dired-do-chmod
 (defun cpio-dired-do-chmod (&optional arg)	;✓✓✓
@@ -1184,7 +1197,8 @@ into the minibuffer."
 				      (line-end-position))
 		       (insert (cpio-dired-format-entry attrs))
 		       (setq buffer-read-only t))))
-		 entry-names)))))
+		 entry-names)
+	  (cpio-dired-set-modified)))))
 
 ;; Z		dired-do-compress
 (defun cpio-dired-do-compress (arg)	;×
@@ -1469,7 +1483,8 @@ With a zero prefix arg, renaming by regexp affects the absolute entry name.
 Normally, only the non-directory part of the entry name is used and changed."
   (interactive (cpio-dired-mark-read-regexp "Rename"))
   (let ((fname "cpio-dired-do-rename-regexp"))
-    (error "%s() is not yet implemented" fname)))
+    (error "%s() is not yet implemented" fname)
+    (cpio-dired-set-modified)))
 
 ;; A
 (defun cpio-dired-do-search (regexp)	;✓
@@ -1612,8 +1627,8 @@ into the minibuffer."
   (interactive "p")
   (let* ((fname "cpio-dired-do-touch")
 	 (names (cpio-dired-get-marked-entries arg)))
-    (error "%s() is not yet implemented" fname)))
-
+    (error "%s() is not yet implemented" fname)
+    (cpio-dired-set-modified)))
 
 ;; % l		dired-downcase
 (defun cpio-dired-downcase (arg)	;×
@@ -2129,6 +2144,9 @@ one.  If non-nil, reset `quit-restore' parameter to nil."
     (cond (*cab-parent*
 	   (with-current-buffer *cab-parent*
 	     (cpio-dired-save-archive))
+	   (mapc (lambda (cen)
+		   (cpio-dired-replace-dired-line (car cen)))
+		 (cpio-catalog))
 	   (cpio-dired-set-unmodified))
 	  (t
 	   (cpio-delete-trailer)
@@ -2156,10 +2174,11 @@ one.  If non-nil, reset `quit-restore' parameter to nil."
 		 (reverse *cpio-catalog*))
 	   ;; Adjust all the entry padding.
 	   (mapcar (lambda (cen)
-	     (let* ((entry-info (cdr cen))
-	   	    (attrs                         (aref entry-info *cpio-catalog-entry-attrs-idx*))
-	   	    (header-start (marker-position (aref entry-info *cpio-catalog-entry-header-start-idx*)))
-	   	    (entry-start  (marker-position (aref entry-info *cpio-catalog-entry-contents-start-idx*)))
+	     (let* ((entry (cdr cen))
+	   	    (attrs                         (aref entry *cpio-catalog-entry-attrs-idx*))
+	   	    (header-start (marker-position (aref entry *cpio-catalog-entry-header-start-idx*)))
+	   	    (entry-start  (marker-position (aref entry *cpio-catalog-entry-contents-start-idx*)))
+		    (cpio-set-entry-unmodified entry)
 	   	    (header-string (cpio-make-header-string attrs))
 		    (local-where)
 		    (padding-length))
@@ -2173,9 +2192,9 @@ one.  If non-nil, reset `quit-restore' parameter to nil."
 	       (insert (make-string padding-length ?\0))))
 	   *cpio-catalog*)
 	   (cpio-adjust-trailer)
-	   (setq buffer-read-only t))
-	   (basic-save-buffer)
-	   (cpio-mode))))
+	   (setq buffer-read-only t)
+	   (basic-save-buffer)))))
+
 
 ;; y		dired-show-file-type
 (defun cpio-dired-show-entry-type (entry &optional deref-symlinks) ;×
@@ -2621,7 +2640,8 @@ If ARG is the atom `-', scroll upward by nearly full screen."
   (cond ((re-search-forward *cpio-dired-entry-regexp* (point-max) t)
 	 (cpio-dired-move-to-entry-name)
 	 (make-local-variable 'revert-buffer-function)
-	 (setq revert-buffer-function 'cpio-revert-buffer))
+	 (setq revert-buffer-function 'cpio-revert-buffer)
+	 (set-buffer-modified-p nil))
 	(t t)))
 
 (defun cpio-dired-make-keymap ()

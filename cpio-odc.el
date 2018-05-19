@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.3.2.4 2018/04/26 14:15:33 doug Exp $	
+;	$Id: cpio-odc.el,v 1.4 2018/05/12 16:36:03 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

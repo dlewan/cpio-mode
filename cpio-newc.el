@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.3.2.8 2018/05/11 20:13:13 doug Exp $	
+;	$Id: cpio-newc.el,v 1.5 2018/05/18 23:55:30 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -70,71 +70,71 @@
 ;; 
 
 ;; MAINTENANCE The following must remain in synch with *cpio-newc-header-re*.
-(defvar *cpio-newc-magic-re* "070701"
+(defconst *cpio-newc-magic-re* "070701"
   "RE to match the magic number of a newc archive.")
 (setq *cpio-newc-magic-re* "070701")
 
-(defvar *cpio-newc-ino-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-ino-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_ino field in a newc header.")
 (setq *cpio-newc-ino-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-mode-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-mode-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_mode field in a newc header.")
 (setq *cpio-newc-mode-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-uid-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-uid-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_uid field in a newc header.")
 (setq *cpio-newc-uid-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-gid-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-gid-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_gid field in a newc header.")
 (setq *cpio-newc-gid-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-nlink-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-nlink-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_nlink field in a newc header.")
 (setq *cpio-newc-nlink-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-mtime-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-mtime-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_mtime field in a newc header.")
 (setq *cpio-newc-mtime-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-filesize-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-filesize-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_filesize field in a newc header.")
 (setq *cpio-newc-filesize-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-dev-maj-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-dev-maj-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_dev field in a newc header.")
 (setq *cpio-newc-dev-maj-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-dev-min-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-dev-min-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_dev field in a newc header.")
 (setq *cpio-newc-dev-min-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-rdev-maj-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-rdev-maj-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_rdev field in a newc header.")
 (setq *cpio-newc-rdev-maj-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_rdev field in a newc header.")
 (setq *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_rdev field in a newc header.")
 (setq *cpio-newc-rdev-min-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-namesize-re* "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-namesize-re* "[[:xdigit:]]\\{8\\}"
   "RE to match the c_namesize field in a newc header.")
 (setq *cpio-newc-namesize-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-chksum-re*  "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-chksum-re*  "[[:xdigit:]]\\{8\\}"
   "RE to match the CRC checksum in a newc header.")
 (setq *cpio-newc-chksum-re* "[[:xdigit:]]\\{8\\}")
 
-(defvar *cpio-newc-filename-re* "[[:print:]]+"
+(defconst *cpio-newc-filename-re* "[[:print:]]+"
   "RE to match the c_filename field in a newc header.")
 (setq *cpio-newc-filename-re* "[[:print:]]+")
 
-(defvar *cpio-newc-header-re* ()
+(defconst *cpio-newc-header-re* ()
   "RE to match newc header format cpio archives.")
 (setq *cpio-newc-header-re* (concat "\\(" *cpio-newc-magic-re*    "\\)"
 				    "\\(" *cpio-newc-ino-re*      "\\)"
@@ -156,63 +156,63 @@
 				    "\0"))
 
 (let ((i 0))
-  (defvar *cpio-newc-magic-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-magic-re-idx* 0	; (setq i (1+ i))
     "RE to match the magic number in a newc header.")
   (setq *cpio-newc-magic-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-ino-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-ino-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the inode.")
   (setq *cpio-newc-ino-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-mode-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-mode-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the mode.")
   (setq *cpio-newc-mode-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-uid-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-uid-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the UID.")
   (setq *cpio-newc-uid-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-gid-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-gid-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the GID.")
   (setq *cpio-newc-gid-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-nlink-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-nlink-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the nlink.")
   (setq *cpio-newc-nlink-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-mtime-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-mtime-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the mtime.")
   (setq *cpio-newc-mtime-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-filesize-re-idx* 0 ; (setq i (1+ i))
+  (defconst *cpio-newc-filesize-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the filesize.")
   (setq *cpio-newc-filesize-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-dev-maj-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-dev-maj-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the dev.")
   (setq *cpio-newc-dev-maj-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-dev-min-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-dev-min-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the dev.")
   (setq *cpio-newc-dev-min-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-rdev-maj-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-rdev-maj-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the rdev.")
   (setq *cpio-newc-rdev-maj-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-rdev-min-re-idx* 0	; (setq i (1+ i))
+  (defconst *cpio-newc-rdev-min-re-idx* 0	; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the rdev.")
   (setq *cpio-newc-rdev-min-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-namesize-re-idx* 0 ; (setq i (1+ i))
+  (defconst *cpio-newc-namesize-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the namesize.")
   (setq *cpio-newc-namesize-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-chksum-re-idx* 0 ; (setq i (1+ i))
+  (defconst *cpio-newc-chksum-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the chksum.")
   (setq *cpio-newc-chksum-re-idx* (setq i (1+ i)))
 
-  (defvar *cpio-newc-filename-re-idx* 0 ; (setq i (1+ i))
+  (defconst *cpio-newc-filename-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the namesize.")
   (setq *cpio-newc-filename-re-idx* (setq i (1+ i)))
 
@@ -223,24 +223,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; *cpio-newc-magic-re*
-(defvar *cpio-newc-magic* *cpio-newc-magic-re*
+(defconst *cpio-newc-magic* *cpio-newc-magic-re*
   "The string that identifies an entry as a NEWC style cpio(1) entry.")
 (setq *cpio-newc-magic* *cpio-newc-magic-re*)
 
-(defvar *cpio-newc-field-width* 8
+(defconst *cpio-newc-field-width* 8
   "The width of all of the fields in a newc header.")
 (setq *cpio-newc-field-width* 8)
 
-(defvar *cpio-newc-padding-modulus* 4
+(defconst *cpio-newc-padding-modulus* 4
   "The modulus to which some things are padded in a NEWC cpio archive.")
 (setq *cpio-newc-padding-modulus* 4)
 
-(defvar *cpio-newc-padding-char* ?\0
+(defconst *cpio-newc-padding-char* ?\0
   "A character to be used for padding headers and entry contents
 in a newc cpio archive.")
 (setq *cpio-newc-padding-char* ?\0)
 
-(defvar *cpio-newc-padding-str* "\0"
+(defconst *cpio-newc-padding-str* "\0"
   "A single character string of the character
 to be used for padding headers and entry contents
 in a newc cpio archive.")
@@ -301,10 +301,6 @@ in a newc cpio archive.")
 Taken from cpio-2.12/src/global.c."
   :type 'integer
   :group 'cpio)
-
-(defvar *cpio-newc-magic* ()
-  "The magic string for a newc formatted header string.")
-(setq *cpio-newc-magic* "070701")
 
 ;; 
 ;; Library
@@ -336,7 +332,6 @@ CAVEATS:
 			 (not (setq found (looking-at *cpio-newc-header-re*)))))
 	     (if found 
 		 (match-string 0)))))))
-(setq cpio-header-at-point-func 'cpio-newc-header-at-point)
 
 ;;;;;;;;;;;;;;;;
 ;; 
@@ -365,23 +360,23 @@ This function does NOT get the contents."
 		    (cpio-newc-parse-mode     header-string)
 		    (cpio-newc-parse-uid      header-string)
 		    (cpio-newc-parse-gid      header-string)
+
 		    (cpio-newc-parse-nlink    header-string)
 		    (cpio-newc-parse-mtime    header-string)
 		    (setq filesize (cpio-newc-parse-filesize header-string))
 		    (cpio-newc-parse-dev-maj  header-string)
+
 		    (cpio-newc-parse-dev-min  header-string)
 		    (cpio-newc-parse-rdev-maj header-string)
 		    (cpio-newc-parse-rdev-min header-string)
 		    (setq namesize (cpio-newc-parse-namesize header-string))
+
 		    (cpio-newc-parse-chksum   header-string)
-		    (cpio-newc-parse-name     header-string namesize)
-		    (cpio-newc-parse-chksum   header-string)
-		    (cpio-newc-header-size    header-string namesize))))
+		    (cpio-newc-parse-name     header-string namesize))))
+    ;; (cpio-newc-header-size    header-string namesize))))
     (if (cpio-entry-name result)
 	result
       nil)))
-
-(setq cpio-parse-header-func 'cpio-newc-parse-header)
 
 (defun cpio-newc-header-size (header-string namesize)
   "Determine the length of the header implied by the given HEADER-STRING."
@@ -505,12 +500,6 @@ N.B. When called with the correct namesize, this includes the terminating \0."
 	nil
       tmp-string)))
 
-(defun cpio-newc-parse-chksum (header-string)
-  "Return the checksum in the given HEADER-STRING.
-For a newc header it is always nil."
-  (let ((fname "cpio-newc-parse-chksum"))
-    nil))
-
 ;; Is this not M-x cpio-dired-find-entry?
 (defun cpio-newc-parse-contents (header-string where namesize filesize)
   "Return the contents implied by point and HEADER-STRING.
@@ -526,10 +515,10 @@ After all that's where the contents are, not in the header."
 ;; Header construction
 ;; 
 
-(defun cpio-newc-make-header-string (attrs)
+(defun cpio-newc-make-header-string (attrs &optional contents)
   "Make a NEWC style padded cpio header for the given ATTRibuteS.
 This function does NOT include the contents."
-  (let ((fname "cpio-newc-parse-header")
+  (let ((fname "cpio-newc-make-header-string")
 	(name (cpio-entry-name attrs))
 	(header-string))
     (setq header-string (concat  (cpio-newc-make-magic    attrs)
@@ -553,13 +542,11 @@ This function does NOT include the contents."
     (if (string-match-p *cpio-newc-header-re* header-string)
 	header-string
       (error "%s(): I built a bad header: [[%s]]" fname header))))
-(setq cpio-make-header-string-func 'cpio-newc-make-header-string)
 
 (defun cpio-newc-make-magic (attrs)
   "Return the NEWC magic header string"
   (let ((fname "cpio-newc-make-magic"))
     *cpio-newc-magic*))
-(setq cpio-make-magic-func 'cpio-newc-make-magic)
 
 (defun cpio-newc-make-ino (attrs)
   "Return a string value for the inode from the file attributes ATTRS."
@@ -574,7 +561,6 @@ This function does NOT include the contents."
 		  (cpio-newc-big-inode-to-string))
 		 (t (error "Bad inode value: [[%s]]." ino))))
 	  (t (error "Bad inode value: [[%s]]." ino)))))
-(setq cpio-make-ino-func 'cpio-newc-make-ino)
 
 (defun cpio-newc-BIG-inode-to-string (ino)
   "Convert the BIG inode format (HIGH MIDDLE . LOW) to a printable integer.
@@ -637,7 +623,6 @@ I likely won't need this, but someone might."
   "Return an 8 digit hex string for the filesize attribute among the given ATTRs."
   (let ((fname "cpio-newc-make-filesize"))
     (format "%08X" (aref attrs *cpio-entry-size-parsed-idx*))))
-(setq cpio-make-filesize-function 'cpio-newc-make-filesize)
 
 (defun cpio-newc-make-dev-maj (attrs)
   "Return a string value for the WWWW from the file attributes ATTRS."
@@ -681,7 +666,6 @@ I likely won't need this, but someone might."
     ;; That's apparently the case for all file types except char and block special.
     ;; And, yes, I have to figure out those calculations yet.
     "00000000"))
-;; (setq cpio-make-rdev-function 'cpio-newc-make-rdev)
 
 (defun cpio-newc-make-rdev-min (attrs)
   "Return a string value for the WWWW from the file attributes ATTRS."
@@ -728,7 +712,6 @@ This sets match-data for the entire header and each field."
 	   (setq header-string (match-string 0))
 	   (cons (point-marker) header-string))
 	  (t nil))))
-(setq cpio-goto-next-header-function 'cpio-newc-goto-next-header)
 
 (defun cpio-newc-build-catalog ()
   "Build an internal structure reflecting the contents of the newc cpio archive in the current buffer.
@@ -755,7 +738,7 @@ CAVEAT: This respects neither narrowing nor the point."
 	     (setq filesize (cpio-entry-size parsed-header))
 	     (forward-char (length that-header-string))
 	     (setq header-end (point))
-	     ;; A little bit of arithmetic gymnastics here
+	     ;; A little bit of arithmétic gymnastics here
 	     ;; because cpio, being written in C, starts counting at 0, but
 	     ;; emacs' points start at 1.
 	     (goto-char (1+ (round-up (1- header-end) *cpio-padding-modulus*)))
@@ -769,7 +752,8 @@ CAVEAT: This respects neither narrowing nor the point."
 			  (vector
 			   parsed-header
 			   header-start
-			   contents-start))
+			   contents-start
+			   'cpio-mode-entry-unmodified))
 		   catalog)
 	     (setq contents-end (+ contents-start filesize -1))
 	     (goto-char contents-end))

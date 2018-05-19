@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#	$Id: QUESTIONS,v 1.1.4.3 2018/05/11 13:16:59 doug Exp $	
+#	$Id: QUESTIONS,v 1.2 2018/05/12 16:35:59 doug Exp $	
 
 cpio(1) related questions:
 • cpio(1) accepts block size on its command line.
