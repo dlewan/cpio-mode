@@ -341,7 +341,12 @@ Important: the match ends just after the marker.")
    ;; Explicitly put the default face on entry names ending in a colon to
    ;; avoid fontifying them as directory header.
    (list (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size cpio-dired-re-perms ".*:$")
-	 '(".+" (cpio-dired-move-to-entry-name) nil (0 'default))))
+	 '(".+" (cpio-dired-move-to-entry-name) nil (0 'default)))
+   ;;
+   ;; Directory headers.
+   ;;;; (list cpio-dired-subdir-regexp '(1 cpio-dired-header-face))
+   
+   )
   "Additional expressions to highlight in cpio-dired mode.")
 
 (defvar cpio-entry-name ()

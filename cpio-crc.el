@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.5 2018/05/18 23:55:29 doug Exp $	
+;	$Id: cpio-crc.el,v 1.6 2018/05/21 21:21:16 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -261,7 +261,7 @@ This function does NOT include the contents."
     ;; Check (at least during development).
     (if (string-match-p *cpio-crc-header-re* header-string)
 	header-string
-      (error "%s(): I built a bad header: [[%s]]" fname header))))
+      (error "%s(): I built a bad header: [[%s]]" fname header-string))))
 
 (defun cpio-crc-make-magic (attrs)
   "Return the magic string for a CRC archive."
@@ -286,11 +286,13 @@ This function does NOT include the contents."
 	(result 0)
 	(contents (if (cpio-entry-exists-p entry-name-or-contents)
 		      (cpio-contents entry-name-or-contents)
-		    entry-name-or-contents)))
+		    entry-name-or-contents))
+	)
     ;; According to the info this is only populated for crc archives.
     ;; It has always been 00000000 for my concrete newc examples.
     ;; And, indeed, it's only set in crc archives.
     ;; See copyout.c->writeout-defered-file() and nowhere else.
+    ;; (error "%s(): is not yet implemented." fname)))
     (mapc (lambda (c)
 	    (setq result (+ result c)))
 	  contents)

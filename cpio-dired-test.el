@@ -6988,6 +6988,1799 @@ cpio-dired-isearch-entry-names-regexp is not yet implemented -- expect an error.
   (should-error (cpio-dired-isearch-entry-names-regexp)
      :type 'error))
 
+;;;;;;;; This gets an end-of-buffer error under ERT.
+;;;;;;;; (ert-deftest cdmt-cpio-dired-save-archive-0 () ;✓
+;;;;;;;;   "Test the function of M-x cpio-dired-save-archive."
+;;;;;;;;   (let ((test-name "cdmt-cpio-dired-save-archive")
+;;;;;;;;         (cpio-archive-buffer)
+;;;;;;;; 	(cpio-archive-buffer-contents-before)
+;;;;;;;;         (cpio-archive-buffer-contents)
+;;;;;;;;         (cpio-dired-buffer)
+;;;;;;;;         (cpio-dired-buffer-contents-before)
+;;;;;;;;         (cpio-dired-buffer-contents)
+;;;;;;;;         )
+;;;;;;;;     (cdmt-reset 'make)
+
+;;;;;;;;     (progn (goto-char (point-min))
+;;;;;;;; 	   (re-search-forward " aa$" (point-max))
+;;;;;;;; 	   (cpio-dired-do-delete 1)
+;;;;;;;; 	   (setq cpio-archive-buffer-contents-before
+;;;;;;;; 		 (cdmt-filter-archive-contents (with-current-buffer cpio-archive-buffer
+;;;;;;;; 						 (buffer-substring-no-properties (point-min) (point-max)))))
+;;;;;;;; 	   (setq cpio-dired-buffer-contents-before (with-current-buffer cpio-dired-buffer
+;;;;;;;; 						     (buffer-substring-no-properties (point-min) (point-max)))))
+    
+;;;;;;;;     (should (and "Archive buffer should be modified."
+;;;;;;;; 		 (buffer-modified-p cpio-archive-buffer)))
+;;;;;;;;     (should (and "Archive buffer should be missing exactly the entry for aa."
+;;;;;;;; 		 (string-equal "070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; a	(( filename ))
+
+;;;;;;;; a
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaa	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; aaa
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaa	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; aaaa
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa	(( filename ))
+
+;;;;;;;; aaaaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; b	(( filename ))
+
+;;;;;;;; b
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bb	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; bb
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbb	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; bbb
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbb	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; bbbb
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb	(( filename ))
+
+;;;;;;;; bbbbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; c	(( filename ))
+
+;;;;;;;; c
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cc	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; cc
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccc	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; ccc
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cccc	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; cccc
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc	(( filename ))
+
+;;;;;;;; ccccc
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 00000000	(( mode     ))
+;;;;;;;; 00000000	(( uid      ))
+;;;;;;;; 00000000	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 0000000B	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; TRAILER!!!	(( filename ))
+;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents-before)))
+;;;;;;;;     (should (and "Checking dired-style buffer before saving."
+;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
+
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
+;;;;;;;; " cpio-dired-buffer-contents-before)))
+
+;;;;;;;;     (progn (cpio-dired-save-archive)
+;;;;;;;; 	   (setq cpio-archive-buffer-contents
+;;;;;;;; 		 (cdmt-filter-archive-contents 
+;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
+;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
+;;;;;;;; 	   (setq cpio-dired-buffer-contents
+;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
+;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
+    
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min)(point)) (file-name-nondirectory *cdmt-small-archive*))
+    
+;;;;;;;;     (should (and "Archive buffer should no longer be modified."
+;;;;;;;; 		 (not (buffer-modified-p cpio-archive-buffer))))
+;;;;;;;;     (should (and "Checking the archive buffer after saving."
+;;;;;;;; 		 (string-equal "070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; a	(( filename ))
+
+;;;;;;;; a
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaa	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; aaa
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaa	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; aaaa
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa	(( filename ))
+
+;;;;;;;; aaaaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; b	(( filename ))
+
+;;;;;;;; b
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bb	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; bb
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbb	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; bbb
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbb	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; bbbb
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb	(( filename ))
+
+;;;;;;;; bbbbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; c	(( filename ))
+
+;;;;;;;; c
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cc	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; cc
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccc	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; ccc
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cccc	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; cccc
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc	(( filename ))
+
+;;;;;;;; ccccc
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 00000000	(( mode     ))
+;;;;;;;; 00000000	(( uid      ))
+;;;;;;;; 00000000	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 0000000B	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; TRAILER!!!	(( filename ))
+;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
+
+;;;;;;;;     (should (and "Checking the dired-style buffer after saving."
+;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
+
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
+;;;;;;;; " cpio-dired-buffer-contents)))
+
+;;;;;;;;     ;; The archive strings should be identical up to the TRAILER!!! padding.
+;;;;;;;;     ;; NO! Padding after any added, deleted or changed entry will also change.
+;;;;;;;;     ;; (string-match "TRAILER!!!" cpio-archive-buffer-contents-before)
+;;;;;;;;     ;; (setq cpio-archive-buffer-contents-before (substring cpio-archive-buffer-contents-before 0 (match-end 0)))
+;;;;;;;;     ;; (string-match "TRAILER!!!" cpio-archive-buffer-contents)
+;;;;;;;;     ;; (setq cpio-archive-buffer-contents (substring cpio-archive-buffer-contents 0 (match-end 0)))
+;;;;;;;;     ;; (should (string-equal cpio-archive-buffer-contents-before cpio-archive-buffer-contents))
+
+;;;;;;;;     (should (and "The dired style buffer should not have changed."
+;;;;;;;; 		 (string-equal cpio-dired-buffer-contents-before cpio-dired-buffer-contents)))
+
+;;;;;;;;     (cdmt-reset)
+
+;;;;;;;;     (progn (goto-char (point-min))
+;;;;;;;; 	   (re-search-forward " aaaa$" (point-max))
+;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "dddd\n"))
+;;;;;;;; 	   (cpio-dired-do-rename 1)
+;;;;;;;; 	   (cpio-dired-save-archive)
+;;;;;;;; 	   (setq cpio-archive-buffer-contents
+;;;;;;;; 		 (cdmt-filter-archive-contents
+;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
+;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
+;;;;;;;; 	   (setq cpio-dired-buffer-contents
+;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
+;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
+
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
+    
+;;;;;;;;     (should (and "Expecting the standard archive with aaaa moved to ddddd."
+;;;;;;;; 		 (string-equal "070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; a	(( filename ))
+
+;;;;;;;; a
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaa	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; aaa
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa	(( filename ))
+
+;;;;;;;; aaaaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; b	(( filename ))
+
+;;;;;;;; b
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bb	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; bb
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbb	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; bbb
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbb	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; bbbb
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb	(( filename ))
+
+;;;;;;;; bbbbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; c	(( filename ))
+
+;;;;;;;; c
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cc	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; cc
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccc	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; ccc
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cccc	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; cccc
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc	(( filename ))
+
+;;;;;;;; ccccc
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; dddd	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; aaaa
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 00000000	(( mode     ))
+;;;;;;;; 00000000	(( uid      ))
+;;;;;;;; 00000000	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 0000000B	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; TRAILER!!!	(( filename ))
+;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
+
+;;;;;;;;     (should (and "Expecting a dired style buffer without aaaa."
+;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
+
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
+;;;;;;;; " cpio-dired-buffer-contents)))
+    
+;;;;;;;;     (cdmt-reset)
+    
+;;;;;;;;     (progn (goto-char (point-min))
+;;;;;;;; 	   (re-search-forward " b$" (point-max))
+;;;;;;;; 	   (cpio-dired-mark 4)
+;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "d\n"))
+;;;;;;;; 	   (cpio-dired-do-rename 1)
+;;;;;;;; 	   (cpio-dired-save-archive)
+;;;;;;;; 	   (setq cpio-archive-buffer-contents
+;;;;;;;; 		 (cdmt-filter-archive-contents
+;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
+;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
+;;;;;;;; 	   (setq cpio-dired-buffer-contents
+;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
+;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
+
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
+
+;;;;;;;;     (should (and "Expecting a small archive with d/b, d/bb, d/bbb, d/bbbb."
+;;;;;;;; 		 (string-equal "070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; a	(( filename ))
+
+;;;;;;;; a
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaa	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; aaa
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa	(( filename ))
+
+;;;;;;;; aaaaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb	(( filename ))
+
+;;;;;;;; bbbbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; c	(( filename ))
+
+;;;;;;;; c
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cc	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; cc
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccc	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; ccc
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cccc	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; cccc
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc	(( filename ))
+
+;;;;;;;; ccccc
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; dddd	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; aaaa
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000007	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; d/bbbb	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; bbbb
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; d/bbb	(( filename ))
+
+;;;;;;;; bbb
+
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; d/bb	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; bb
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000004	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; d/b	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; b
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 00000000	(( mode     ))
+;;;;;;;; 00000000	(( uid      ))
+;;;;;;;; 00000000	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 0000000B	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; TRAILER!!!	(( filename ))
+;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
+
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
+
+;;;;;;;;     (should (and "Looking for a small dired-style buffer with d/b, d/bb, d/bbb, d/bbbb"
+;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
+
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bbbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/b
+;;;;;;;; " cpio-dired-buffer-contents)))
+
+;;;;;;;;     (cdmt-reset)
+
+;;;;;;;;     (progn (cpio-dired-mark-entries-regexp "\\`...\\'")
+;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "newDirectory\n"))
+;;;;;;;; 	   ;; HEREHERE This rename does something wrong.
+;;;;;;;; 	   (cpio-dired-do-rename 1)
+;;;;;;;; 	   (cpio-dired-save-archive)
+;;;;;;;; 	   (setq cpio-archive-buffer-contents
+;;;;;;;; 		 (cdmt-filter-archive-contents
+;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
+;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
+;;;;;;;; 	   (setq cpio-dired-buffer-contents
+;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
+;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
+
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
+
+;;;;;;;;     (should (string-equal "070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; a	(( filename ))
+
+;;;;;;;; a
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa	(( filename ))
+
+;;;;;;;; aaaaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; aaaaa.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb	(( filename ))
+
+;;;;;;;; bbbbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; bbbbb.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000002	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; c	(( filename ))
+
+;;;;;;;; c
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000003	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cc	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; cc
+
+;;;;;;;; \\0\\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; cccc	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; cccc
+
+;;;;;;;; \\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000008	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000006	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc	(( filename ))
+
+;;;;;;;; ccccc
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000041ED	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000002	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000008	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; ccccc.d	(( filename ))
+;;;;;;;; \\0\\0070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000005	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; dddd	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; aaaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000007	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000012	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; newDirectory/bbbb	(( filename ))
+
+;;;;;;;; bbbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000011	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; newDirectory/bbb	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; bbb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000005	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000010	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; newDirectory/bb	(( filename ))
+;;;;;;;; \\0\\0
+;;;;;;;; bb
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000004	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 0000000F	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; newDirectory/b	(( filename ))
+;;;;;;;; \\0\\0\\0
+;;;;;;;; b
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000011	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; newDirectory/ccc	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; ccc
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 000081A4	(( mode     ))
+;;;;;;;; 000003E8	(( uid      ))
+;;;;;;;; 000003E8	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000006	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 00000011	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; newDirectory/aaa	(( filename ))
+;;;;;;;; \\0
+;;;;;;;; aaa
+
+;;;;;;;; 070701	(( magic    ))
+;;;;;;;; DEADBEEF	(( ino      ))
+;;;;;;;; 00000000	(( mode     ))
+;;;;;;;; 00000000	(( uid      ))
+;;;;;;;; 00000000	(( gid      ))
+;;;;;;;; 00000001	(( nlink    ))
+;;;;;;;; DEADBEEF	(( mtime    ))
+;;;;;;;; 00000000	(( filesize ))
+;;;;;;;; DEADBEEF	(( dev maj  ))
+;;;;;;;; DEADBEEF	(( dev min  ))
+;;;;;;;; DEADBEEF	(( rdev maj ))
+;;;;;;;; DEADBEEF	(( rdev min ))
+;;;;;;;; 0000000B	(( namesize ))
+;;;;;;;; 00000000	(( chksum   ))
+;;;;;;;; TRAILER!!!	(( filename ))
+;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents))
+
+;;;;;;;;     (should (= 0 1))
+
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
+
+;;;;;;;;     (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
+;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bbbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bbb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bb
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/b
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/ccc
+;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaa
+;;;;;;;; " cpio-dired-buffer-contents))
+
+;;;;;;;;     (should (= 0 1))
+
+;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
+
+;;;;;;;;     ))
 
 (ert-deftest cdmt-cpio-describe-mode ()
   "Test cpio-describe-mode.
@@ -15592,6 +17385,32 @@ cpio-mouse-face is not yet implemented -- expect an error."
   (should-error (cpio-mouse-face)
      :type 'error))
 
+;;;;;;;; (ert-deftest cdmt-cpio-quit-window () ;✓
+;;;;;;;;   "Test cpio-quit-window.
+;;;;;;;; cpio-quit-window is not yet implemented -- expect an error."
+;;;;;;;;   (let ((test-name "cdmt-cpio-dired-quit-window")
+;;;;;;;;         (cpio-archive-buffer)
+;;;;;;;;         (cpio-archive-buffer-contents)
+;;;;;;;;         (cpio-dired-buffer)
+;;;;;;;;         (cpio-dired-buffer-contents)
+;;;;;;;; 	(cpio-archive-window)
+;;;;;;;; 	(cpio-dired-window)
+;;;;;;;;         )
+;;;;;;;;     (cdmt-reset 'make)
+
+;;;;;;;;     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
+;;;;;;;;     (should (window-live-p cpio-dired-window))
+;;;;;;;;     (setq cpio-archive-window (get-buffer-window (get-buffer cpio-archive-buffer)))
+;;;;;;;;     ;; (should (not (window-live-p cpio-dired-window)))
+;;;;;;;;     (should (eq nil cpio-archive-window))
+
+;;;;;;;; This causes an error under ERT.
+;;;;;;;;     (cpio-quit-window)
+
+;;;;;;;;     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
+;;;;;;;;     (should (eq nil cpio-dired-window))
+;;;;;;;;     (setq cpio-archive-window (get-buffer-window (get-buffer cpio-archive-buffer)))
+;;;;;;;;     (should (eq nil cpio-archive-window))))
 
 (ert-deftest cdmt-revert-buffer ()
   "Test revert-buffer.

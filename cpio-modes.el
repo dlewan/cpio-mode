@@ -101,14 +101,17 @@
   "Return non-NIL if the mode in ATTRS is as special file:
 fmt, sock, link, block, character, fifo."
   (let ((fname "cpio-special-file")
-	(mode (cpio-mode-value attrs)))
+	(mode (cpio-mode-value attrs))
+	)
+    ;; (error "%s() is not yet implemented" fname)
     (or (= s-ifmt   (logand s-ifmt   mode))
 	(= s-ifsock (logand s-ifsock mode))
 	(= s-iflnk  (logand s-iflnk  mode))	;Does this really belong here? I'm writing this to support (cpio-crc-make-checksum). Do links' checksums get calculated?
 	(= s-ifblk  (logand s-ifblk  mode))
 	(= s-ifdir  (logand s-ifdir  mode)) ;Is a directory a special file? Again, this has to do with calculating a check sum.
 	(= s-ifchr  (logand s-ifchr  mode))
-	(= s-ififo  (logand s-ififo  mode)))))
+	(= s-ififo  (logand s-ififo  mode)))
+    ))
 
 (defun cpio-int-mode-to-mode-string (int-mode)
   "Convert an integer mode value to the corresponding ls -l version."

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
+;	$Id: cpio-generic.el,v 1.4 2018/05/21 21:21:16 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -278,11 +278,11 @@ This function respects narrowing."
 ;;
 ;; Hacks
 ;; 
-(defun aaa ()
+(defun create-general-cpio-mode-function ()
   "Create a general cpio-mode function set to the next cpio-newc function.
 Well, that's the intent, but, really, it's a hack."
   (interactive)
-  (let ((fname "aaa")
+  (let ((fname "create-general-cpio-mode-function")
 	(cpio-newc-function-name)
 	(cpio-function-definition)
 	(start -1)

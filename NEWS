@@ -1,6 +1,9 @@
 # -*- outline -*-
 #	$Id: NEWS,v 1.4 2018/05/18 23:55:29 doug Exp $	
 
+* Version 0.06
+** Support for the ODC archive format.
+
 * Version 0.05
 ** Support for the CRC archive format.
 

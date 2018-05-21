@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.4 2018/05/18 23:55:30 doug Exp $	
+;	$Id: cpio.el,v 1.5 2018/05/21 21:21:16 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -264,10 +264,6 @@ Takes the values 'bin, 'newc, 'odc etc.")
 (defvar *cpio-bin-header-re* "nOt yEt iMpLeMeNtEd"
   "RE to match BIN format cpio archives.")
 (setq *cpio-bin-header-re* "nOt yEt iMpLeMeNtEd")
-
-(defvar *cpio-odc-header-re* "nOt yEt iMpLeMeNtEd"
-  "RE to match odc format cpio archives.")
-(setq *cpio-odc-header-re* "nOt yEt iMpLeMeNtEd")
 
 (defvar *cpio-tar-header-re* "nOt yEt iMpLeMeNtEd"
   "RE to match tar format cpio archives.")
@@ -724,6 +720,7 @@ CAVEAT: See `cpio-magic'."
 			     where)
 			    (t
 			     (signal 'wrong-type-error (list where))))))
+    ;; (error "%s() is not yet implemented" fname)
     (aset entry *cpio-catalog-entry-header-start-idx* where-marker)))
 
 (defun cpio-set-contents-start (entry where)
@@ -1353,20 +1350,26 @@ in the current archive."
 ;; 
 (defun cpio-set-entry-unmodified (catalog-entry)
   "Mark the given CATALOG-ENTRY as not modified."
-  (let ((fname "cpio-set-entry-unmodified"))
+  (let ((fname "cpio-set-entry-unmodified")
+	)
+    ;; (error "%s() is not yet implemented" fname)
     (cpio-validate-catalog-entry catalog-entry)
     (aset catalog-entry *cpio-catalog-entry-modified-flag-idx* 'cpio-mode-entry-unmodified)))
 
 (defun cpio-set-entry-modified (catalog-entry)
   "Mark the given CATALOG-ENTRY as modified."
-  (let ((fname "cpio-set-entry-modified"))
+  (let ((fname "cpio-set-entry-modified")
+	)
+    ;; (error "%s() is not yet implemented" fname)
     (cpio-validate-catalog-entry catalog-entry)
     (aset catalog-entry *cpio-catalog-entry-modified-flag-idx* 'cpio-mode-entry-modified)))
 
 (defun cpio-entry-modified-p (catalog-entry)
   "Return non-NIL if CATALOG-ENTRY is marked as modified."
   (let ((fname "cpio-entry-modified-p")
-	(modified-flag))
+	(modified-flag)
+	)
+    ;; (error "%s() is not yet implemented" fname)
     (cpio-validate-catalog-entry catalog-entry)
     (cond ((eq 'cpio-mode-modified 
 	       (setq modified-flag (aref catalog-entry *cpio-catalog-entry-modified-flag-idx*)))
@@ -1380,7 +1383,9 @@ in the current archive."
   "Verify that the given CATALOG-ENTRY is (could be) a valid catalog entry.
 Signal an error if it isn't."
   (let ((fname "validate-catalog-entry")
-	(modified-flag))
+	(modified-flag)
+	)
+    ;; (error "%s() is not yet implemented" fname)
     (unless (vectorp catalog-entry)
       (signal 'wrong-type-error (list catalog-entry)))
     (unless (= *cpio-catalog-entry-length* (length catalog-entry))
@@ -1395,7 +1400,6 @@ Signal an error if it isn't."
 		 (markerp (aref catalog-entry *cpio-catalog-entry-contents-start-idx*)))
       (error "%s(): The marker fields in [[%s]] are not markers." fname catalog-entry))
     ;; The modified flag may not be set yet, so ignore it.
-
     ))
 
 
@@ -1619,7 +1623,13 @@ See *cpio-local-funcs* for more information."
 (defun cpio-set-local-odc-vars ()
   "Set buffer local variables appropriate for a ODC format CPIO archive."
   (let ((fname "cpio-set-local-odc-vars"))
-    (error "%s() is not yet implemented" fname)))
+    (make-local-variable '*cpio-padding-modulus*)
+    (setq *cpio-padding-modulus* *cpio-odc-padding-modulus*)
+    (make-local-variable '*cpio-padding-char*)
+    (setq *cpio-padding-char* *cpio-odc-padding-char*)
+    (make-local-variable '*cpio-padding-str*)
+    (setq *cpio-padding-str* *cpio-odc-padding-str*)))
+
 
 (defun cpio-set-local-crc-vars ()
   "Set buffer local variables appropriate for a CRC format CPIO archive."

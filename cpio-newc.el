@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.5 2018/05/18 23:55:30 doug Exp $	
+;	$Id: cpio-newc.el,v 1.6 2018/05/21 21:21:16 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -54,10 +54,6 @@
 ;; Dependencies
 ;; 
 (require 'cpio-generic)
-
-
-
-
 
 
 ;; 
@@ -372,8 +368,9 @@ This function does NOT get the contents."
 		    (setq namesize (cpio-newc-parse-namesize header-string))
 
 		    (cpio-newc-parse-chksum   header-string)
-		    (cpio-newc-parse-name     header-string namesize))))
-    ;; (cpio-newc-header-size    header-string namesize))))
+		    (cpio-newc-parse-name     header-string namesize)
+		    )))
+      ;; (cpio-newc-header-size    header-string namesize))))
     (if (cpio-entry-name result)
 	result
       nil)))
@@ -776,7 +773,7 @@ for the current cpio archive."
 once the TRAILER is written and padded."
   (let ((fname "cpio-newc-end-of-archive")
 	(end-of-contents (cpio-newc-start-of-trailer)))
-    (round-up (+ end-of-contents (length *cpio-newc-trailer*)) 512)))
+    (round-up (+ end-of-contents (length *cpio-newc-trailer*)) *cpio-newc-blocksize*)))
 
 (defun cpio-newc-adjust-trailer ()
   "Replace thed current trailer in the current cpio newc archive."
