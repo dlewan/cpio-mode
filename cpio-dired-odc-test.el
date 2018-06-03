@@ -1,7 +1,7 @@
-;	$Id: cpio-dired-odc-test.el,v 1.2 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio-dired-odc-test.el,v 1.3 2018/06/03 14:01:55 doug Exp $	
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-test.el --- Tests of cpio-dired-mode.
-;	$Id: cpio-dired-odc-test.el,v 1.2 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio-dired-odc-test.el,v 1.3 2018/06/03 14:01:55 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -6627,7 +6627,7 @@ If MAKE is non-nil, then run 'make odc' as part of the reset."
 			     *cdmt-odc-large-archive*)))
     (cd run-dir)
     (mapc (lambda (an)
-	    (setq cpio-archive-buffer (find-file-noselect an))
+	    (setq cpio-archive-buffer (find-file-noselect an 'no-warn))
 	    (if (and (file-exists-p an)
 		     (buffer-live-p (get-buffer cpio-archive-buffer)))
 		(with-current-buffer cpio-archive-buffer
@@ -6647,7 +6647,7 @@ If MAKE is non-nil, then run 'make odc' as part of the reset."
 			 *cdmt-odc-small-archive*))
 
     (delete-other-windows)
-    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name))
+    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name 'no-warn))
       (if (string-match "/test_data/.+/test_data/" (buffer-file-name))
 	  (error "Bogus archive!"))
       (cpio-mode))
@@ -6676,22 +6676,22 @@ then the entry names will be incorrect."
   (let ((fname "cdmt-odc-reformat-odc-headers"))
     (while (string-match *cpio-odc-header-re* archive-contents)
       (setq archive-contents (concat (substring archive-contents 0 (match-beginning 0))
-				     (concat (match-string *cpio-odc-magic-re-idx*    archive-contents) "\t(( magic    ))\n")
+				     (concat (match-string-no-properties *cpio-odc-magic-re-idx*    archive-contents) "\t(( magic    ))\n")
 				     (concat "DEADBE"                                                   "\t(( ino      ))\n")
-				     (concat (match-string *cpio-odc-mode-re-idx*     archive-contents) "\t(( mode     ))\n")
-				     (concat (match-string *cpio-odc-uid-re-idx*      archive-contents) "\t(( uid      ))\n")
-				     (concat (match-string *cpio-odc-gid-re-idx*      archive-contents) "\t(( gid      ))\n")
-				     (concat (match-string *cpio-odc-nlink-re-idx*    archive-contents) "\t(( nlink    ))\n")
+				     (concat (match-string-no-properties *cpio-odc-mode-re-idx*     archive-contents) "\t(( mode     ))\n")
+				     (concat (match-string-no-properties *cpio-odc-uid-re-idx*      archive-contents) "\t(( uid      ))\n")
+				     (concat (match-string-no-properties *cpio-odc-gid-re-idx*      archive-contents) "\t(( gid      ))\n")
+				     (concat (match-string-no-properties *cpio-odc-nlink-re-idx*    archive-contents) "\t(( nlink    ))\n")
 				     ;; Note that the mod time can change.
 				     (concat "DEADBE"                                                   "\t(( mtime    ))\n")
-				     (concat (match-string *cpio-odc-filesize-re-idx* archive-contents) "\t(( filesize ))\n")
+				     (concat (match-string-no-properties *cpio-odc-filesize-re-idx* archive-contents) "\t(( filesize ))\n")
 				     (concat "DEADBE"                                                   "\t(( dev maj  ))\n")
 				     (concat "DEADBE"                                                   "\t(( dev min  ))\n")
 				     (concat "DEADBE"                                                   "\t(( rdev maj ))\n")
 				     (concat "DEADBE"                                                   "\t(( rdev min ))\n")
-				     (concat (match-string *cpio-odc-namesize-re-idx* archive-contents) "\t(( namesize ))\n")
+				     (concat (match-string-no-properties *cpio-odc-namesize-re-idx* archive-contents) "\t(( namesize ))\n")
 				     (concat "000000"                                                   "\t(( chksum   ))\n")
-				     (concat (match-string *cpio-odc-filename-re-idx* archive-contents) "\t(( filename ))\n")
+				     (concat (match-string-no-properties *cpio-odc-filename-re-idx* archive-contents) "\t(( filename ))\n")
 				     (substring archive-contents (match-end 0)))))
     (concat archive-contents "\n")))
 
@@ -7032,16 +7032,13 @@ to check that the saved archive seems sane."
   (interactive)
   (let ((fname "cdmt-odc-sweep-hex")
 	(value)
-	(replacement)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(replacement))
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward "[[:xdigit:]]\\{8\\}" (point-max) t)
 	(setq value (string-to-number (match-string 0) 16))
 	(setq replacement (format "%06o" value))
-	(replace-match replacement)))
-    ))
+	(replace-match replacement)))))
 
 
 ;; 
@@ -7095,1799 +7092,6 @@ cpio-dired-isearch-entry-names-regexp is not yet implemented -- expect an error.
   (should-error (cpio-dired-isearch-entry-names-regexp)
      :type 'error))
 
-;;;;;;;; This gets an end-of-buffer error under ERT.
-;;;;;;;; (ert-deftest cdmt-odc-cpio-dired-save-archive-0 () ;✓
-;;;;;;;;   "Test the function of M-x cpio-dired-save-archive."
-;;;;;;;;   (let ((test-name "cdmt-odc-cpio-dired-save-archive")
-;;;;;;;;         (cpio-archive-buffer)
-;;;;;;;; 	(cpio-archive-buffer-contents-before)
-;;;;;;;;         (cpio-archive-buffer-contents)
-;;;;;;;;         (cpio-dired-buffer)
-;;;;;;;;         (cpio-dired-buffer-contents-before)
-;;;;;;;;         (cpio-dired-buffer-contents)
-;;;;;;;;         )
-;;;;;;;;     (cdmt-odc-reset 'make)
-
-;;;;;;;;     (progn (goto-char (point-min))
-;;;;;;;; 	   (re-search-forward " aa$" (point-max))
-;;;;;;;; 	   (cpio-dired-do-delete 1)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents-before
-;;;;;;;; 		 (cdmt-odc-filter-archive-contents (with-current-buffer cpio-archive-buffer
-;;;;;;;; 						 (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents-before (with-current-buffer cpio-dired-buffer
-;;;;;;;; 						     (buffer-substring-no-properties (point-min) (point-max)))))
-    
-;;;;;;;;     (should (and "Archive buffer should be modified."
-;;;;;;;; 		 (buffer-modified-p cpio-archive-buffer)))
-;;;;;;;;     (should (and "Archive buffer should be missing exactly the entry for aa."
-;;;;;;;; 		 (string-equal "070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaa	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-00000;;;;;;;; 000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-00000;;;;;;;; 000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-00000;;;;;;;; 000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; b	(( filename ))
-
-;;;;;;;; b
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-00000;;;;;;;; 000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-00000;;;;;;;; 000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 000000	(( mode     ))
-;;;;;;;; 000000	(( uid      ))
-;;;;;;;; 000000	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000013	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents-before)))
-;;;;;;;;     (should (and "Checking dired-style buffer before saving."
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.odc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;; " cpio-dired-buffer-contents-before)))
-
-;;;;;;;;     (progn (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-odc-filter-archive-contents 
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-    
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min)(point)) (file-name-nondirectory *cdmt-odc-small-archive*))
-    
-;;;;;;;;     (should (and "Archive buffer should no longer be modified."
-;;;;;;;; 		 (not (buffer-modified-p cpio-archive-buffer))))
-;;;;;;;;     (should (and "Checking the archive buffer after saving."
-;;;;;;;; 		 (string-equal "070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaa	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; b	(( filename ))
-
-;;;;;;;; b
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 000000	(( mode     ))
-;;;;;;;; 000000	(( uid      ))
-;;;;;;;; 000000	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000013	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
-
-;;;;;;;;     (should (and "Checking the dired-style buffer after saving."
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.odc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;; " cpio-dired-buffer-contents)))
-
-;;;;;;;;     ;; The archive strings should be identical up to the TRAILER!!! padding.
-;;;;;;;;     ;; NO! Padding after any added, deleted or changed entry will also change.
-;;;;;;;;     ;; (string-match "TRAILER!!!" cpio-archive-buffer-contents-before)
-;;;;;;;;     ;; (setq cpio-archive-buffer-contents-before (substring cpio-archive-buffer-contents-before 0 (match-end 0)))
-;;;;;;;;     ;; (string-match "TRAILER!!!" cpio-archive-buffer-contents)
-;;;;;;;;     ;; (setq cpio-archive-buffer-contents (substring cpio-archive-buffer-contents 0 (match-end 0)))
-;;;;;;;;     ;; (should (string-equal cpio-archive-buffer-contents-before cpio-archive-buffer-contents))
-
-;;;;;;;;     (should (and "The dired style buffer should not have changed."
-;;;;;;;; 		 (string-equal cpio-dired-buffer-contents-before cpio-dired-buffer-contents)))
-
-;;;;;;;;     (cdmt-odc-reset)
-
-;;;;;;;;     (progn (goto-char (point-min))
-;;;;;;;; 	   (re-search-forward " aaaa$" (point-max))
-;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "dddd\n"))
-;;;;;;;; 	   (cpio-dired-do-rename 1)
-;;;;;;;; 	   (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-odc-filter-archive-contents
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-odc-small-archive*))
-    
-;;;;;;;;     (should (and "Expecting the standard archive with aaaa moved to ddddd."
-;;;;;;;; 		 (string-equal "070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; b	(( filename ))
-
-;;;;;;;; b
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; dddd	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 000000	(( mode     ))
-;;;;;;;; 000000	(( uid      ))
-;;;;;;;; 000000	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000013	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
-
-;;;;;;;;     (should (and "Expecting a dired style buffer without aaaa."
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.odc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
-;;;;;;;; " cpio-dired-buffer-contents)))
-    
-;;;;;;;;     (cdmt-odc-reset)
-    
-;;;;;;;;     (progn (goto-char (point-min))
-;;;;;;;; 	   (re-search-forward " b$" (point-max))
-;;;;;;;; 	   (cpio-dired-mark 4)
-;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "d\n"))
-;;;;;;;; 	   (cpio-dired-do-rename 1)
-;;;;;;;; 	   (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-odc-filter-archive-contents
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-odc-small-archive*))
-
-;;;;;;;;     (should (and "Expecting a small archive with d/b, d/bb, d/bbb, d/bbbb."
-;;;;;;;; 		 (string-equal "070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; dddd	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000007	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; d/bbbb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; d/bbb	(( filename ))
-
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; d/bb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000004	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; d/b	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; b
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 000000	(( mode     ))
-;;;;;;;; 000000	(( uid      ))
-;;;;;;;; 000000	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000013	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
-
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-odc-small-archive*))
-
-;;;;;;;;     (should (and "Looking for a small dired-style buffer with d/b, d/bb, d/bbb, d/bbbb"
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.odc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/b
-;;;;;;;; " cpio-dired-buffer-contents)))
-
-;;;;;;;;     (cdmt-odc-reset)
-
-;;;;;;;;     (progn (cpio-dired-mark-entries-regexp "\\`...\\'")
-;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "newDirectory\n"))
-;;;;;;;; 	   ;; HEREHERE This rename does something wrong.
-;;;;;;;; 	   (cpio-dired-do-rename 1)
-;;;;;;;; 	   (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-odc-filter-archive-contents
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-odc-small-archive*))
-
-;;;;;;;;     (should (string-equal "070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000002	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000003	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000010	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000006	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 040755	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000002	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000010	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000005	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; dddd	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000007	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000022	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; newDirectory/bbbb	(( filename ))
-
-;;;;;;;; bbbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000021	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; newDirectory/bbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000005	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000020	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; newDirectory/bb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bb
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000004	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000017	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; newDirectory/b	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; b
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000021	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; newDirectory/ccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; ccc
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 100644	(( mode     ))
-;;;;;;;; 001750	(( uid      ))
-;;;;;;;; 001750	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000006	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000021	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; newDirectory/aaa	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaa
-
-;;;;;;;; 070707	(( magic    ))
-;;;;;;;; DEADBE	(( ino      ))
-;;;;;;;; 000000	(( mode     ))
-;;;;;;;; 000000	(( uid      ))
-;;;;;;;; 000000	(( gid      ))
-;;;;;;;; 000001	(( nlink    ))
-;;;;;;;; DEADBE	(( mtime    ))
-;;;;;;;; 00000000000	(( filesize ))
-;;;;;;;; DEADBE	(( dev maj  ))
-;;;;;;;; DEADBE	(( dev min  ))
-;;;;;;;; DEADBE	(( rdev maj ))
-;;;;;;;; DEADBE	(( rdev min ))
-;;;;;;;; 000013	(( namesize ))
-;;;;;;;; 000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents))
-
-;;;;;;;;     (should (= 0 1))
-
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-odc-small-archive*))
-
-;;;;;;;;     (should (string-match "CPIO archive: alphabet_small.odc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaa
-;;;;;;;; " cpio-dired-buffer-contents))
-
-;;;;;;;;     (should (= 0 1))
-
-;;;;;;;;     ;; (cdmt-odc-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-odc-small-archive*))
-
-;;;;;;;;     ))
 
 (ert-deftest cdmt-odc-cpio-describe-mode ()
   "Test cpio-describe-mode.
@@ -9113,98 +7317,99 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 9999 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+    (should (and "Expecting a catalog with the firwat entry having group 9999."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 9999 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 "
- cpio-catalog-contents-after))
+ cpio-catalog-contents-after)))
 
     (cdmt-odc-reset)
     
@@ -9244,97 +7449,98 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-match"((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting an archive with 4 entries having group 8888."
+		 (string-match"((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-reset)
 
@@ -9377,95 +7583,95 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 " cpio-dired-buffer-contents)))
     (should (and "Expecting \`...\' to have group 7777."
 		 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 7777 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 7777 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ 7777 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 7777 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 7777 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 7777 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
     
     (cdmt-odc-test-save)))
@@ -9852,95 +8058,95 @@ TRAILER!!!	(( filename ))
 
         (should (and "Expecting a mode of 0755 (33261) on the first entry."
 		     (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
@@ -9986,95 +8192,95 @@ TRAILER!!!	(( filename ))
     (should (and "Expecting aaa, aaaa, aaaaa to have mode 0100600 (33152)."
 		 "Expecting aaaaa.d to have mode 040600 (16768)."
 		 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16768 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16768 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
 	
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
@@ -10118,95 +8324,95 @@ TRAILER!!!	(( filename ))
 
     (should (and "Expecting ... to have mode 0100660 (33200)."
 		 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16768 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16768 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
@@ -10581,103 +8787,103 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting all the above mode changes in the catalog."
-;;		 "• a has mode 33261."
-;;		 "• aaa, aaaa, aaaaa have mode 33152."
-;;		 "• aaaaa.d has mode 16768."
-;;		 "• ... have mode 33200 for files."
-;;		 "                16816 for directories."
-	(should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16768 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting all the above mode changes in the catalog."
+		 "• a has mode 33261."
+		 "• aaa, aaaa, aaaaa have mode 33152."
+		 "• aaaaa.d has mode 16768."
+		 "• ... have mode 33200 for files."
+		 "                16816 for directories."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33152 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16768 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33200 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -10732,95 +8938,95 @@ TRAILER!!!	(( filename ))
 " cpio-dired-buffer-contents)))
     (should (and "The owner of 'a' should be 9999."
 		 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 9999 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33188 9999 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
     (cdmt-odc-reset)
     
@@ -10862,97 +9068,98 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 8888 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 8888 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 335 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 8888 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 8888 [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting a catalog with 4 entries owned by 8888."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 8888 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 8888 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 335 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 8888 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 8888 [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-reset)
 
@@ -10995,95 +9202,95 @@ TRAILER!!!	(( filename ))
 " cpio-dired-buffer-contents)))
     (should (and "Expecting ... to be owned by 7777."
 		 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 7777 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 7777 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 7777 [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 7777 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 7777 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 7777 [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
@@ -11111,7 +9318,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
+    (should (and "Expect an untouched archive. (18063)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
 
     (should (and "Expecting entry 'a' to have owner 9999 and group 1111."
 		 (string-match "CPIO archive: alphabet_small.odc.cpio:
@@ -11135,98 +9343,98 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting entry 'a' to have owner 9999 and group 1111."
-    (should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 9999 1111 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting entry 'a' to have owner 9999 and group 1111."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 9999 1111 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-reset)
     
@@ -11267,98 +9475,98 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting 4 entries with owner 8888 and group 2222."
-    (should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 8888 2222 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 8888 2222 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 335 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 8888 2222 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 8888 2222 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting 4 entries with owner 8888 and group 2222."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 8888 2222 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 8888 2222 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 335 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 8888 2222 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 8888 2222 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-reset)
 
@@ -11399,98 +9607,98 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting ... to have owner 7777 and group 3333."
-    (should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 7777 3333 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 7777 3333 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 7777 3333 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting ... to have owner 7777 and group 3333."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 7777 3333 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 7777 3333 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 7777 3333 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -11880,105 +10088,105 @@ a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting to see an entry »d«."
-	(should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"d\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
-   #<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1621 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting to see an entry »d«."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"d\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
+\\s-+#<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1621 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -12444,7 +10652,8 @@ aaa
 
 
 " cpio-archive-buffer-contents)))
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expecting a cpio-dired bufffer with ... copied to newDirectory-1."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -12464,117 +10673,117 @@ aaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/ccc
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/bbb
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/aaa
-" cpio-dired-buffer-contents))
-;;    (should (and "Expecting to see ... entries in newDirectory-1."
-	(should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/ccc\"]
-   #<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1638 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/bbb\"]
-   #<marker at 1644 in alphabet_small.odc.cpio> #<marker at 1739 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/aaa\"]
-   #<marker at 1745 in alphabet_small.odc.cpio> #<marker at 1840 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/ccc
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/bbb
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/aaa
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting to see ... entries in newDirectory-1."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/ccc\"]
+\\s-+#<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1638 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/bbb\"]
+\\s-+#<marker at 1644 in alphabet_small.odc.cpio> #<marker at 1739 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/aaa\"]
+\\s-+#<marker at 1745 in alphabet_small.odc.cpio> #<marker at 1840 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -13150,171 +11359,171 @@ aaa
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/cccc
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccc
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbb
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbb
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaa
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaa
+C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc.d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/cccc
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccc
+C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb.d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbb
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbb
+C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa.d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaa
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaa
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting all entries named with at least 3 letters to have copies in newDirectory-3."
-	(should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 23 0 \"newDirectory-3/ccccc\.d\"]
-   #<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1642 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory-3/ccccc\"]
-   #<marker at 1642 in alphabet_small.odc.cpio> #<marker at 1739 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 20 0 \"newDirectory-3/cccc\"]
-   #<marker at 1747 in alphabet_small.odc.cpio> #<marker at 1843 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-3/ccc\"]
-   #<marker at 1851 in alphabet_small.odc.cpio> #<marker at 1946 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 23 0 \"newDirectory-3/bbbbb\.d\"]
-   #<marker at 1952 in alphabet_small.odc.cpio> #<marker at 2051 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory-3/bbbbb\"]
-   #<marker at 2051 in alphabet_small.odc.cpio> #<marker at 2148 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 20 0 \"newDirectory-3/bbbb\"]
-   #<marker at 2156 in alphabet_small.odc.cpio> #<marker at 2252 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-3/bbb\"]
-   #<marker at 2260 in alphabet_small.odc.cpio> #<marker at 2355 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 23 0 \"newDirectory-3/aaaaa\.d\"]
-   #<marker at 2361 in alphabet_small.odc.cpio> #<marker at 2460 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory-3/aaaaa\"]
-   #<marker at 2460 in alphabet_small.odc.cpio> #<marker at 2557 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 20 0 \"newDirectory-3/aaaa\"]
-   #<marker at 2565 in alphabet_small.odc.cpio> #<marker at 2661 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-3/aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-3/aaa\"]
-   #<marker at 2669 in alphabet_small.odc.cpio> #<marker at 2764 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting all entries named with at least 3 letters to have copies in newDirectory-3."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 23 0 \"newDirectory-3/ccccc\.d\"]
+\\s-+#<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1642 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory-3/ccccc\"]
+\\s-+#<marker at 1642 in alphabet_small.odc.cpio> #<marker at 1739 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 20 0 \"newDirectory-3/cccc\"]
+\\s-+#<marker at 1747 in alphabet_small.odc.cpio> #<marker at 1843 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-3/ccc\"]
+\\s-+#<marker at 1851 in alphabet_small.odc.cpio> #<marker at 1946 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 23 0 \"newDirectory-3/bbbbb\.d\"]
+\\s-+#<marker at 1952 in alphabet_small.odc.cpio> #<marker at 2051 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory-3/bbbbb\"]
+\\s-+#<marker at 2051 in alphabet_small.odc.cpio> #<marker at 2148 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 20 0 \"newDirectory-3/bbbb\"]
+\\s-+#<marker at 2156 in alphabet_small.odc.cpio> #<marker at 2252 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-3/bbb\"]
+\\s-+#<marker at 2260 in alphabet_small.odc.cpio> #<marker at 2355 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 23 0 \"newDirectory-3/aaaaa\.d\"]
+\\s-+#<marker at 2361 in alphabet_small.odc.cpio> #<marker at 2460 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory-3/aaaaa\"]
+\\s-+#<marker at 2460 in alphabet_small.odc.cpio> #<marker at 2557 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 20 0 \"newDirectory-3/aaaa\"]
+\\s-+#<marker at 2565 in alphabet_small.odc.cpio> #<marker at 2661 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-3/aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-3/aaa\"]
+\\s-+#<marker at 2669 in alphabet_small.odc.cpio> #<marker at 2764 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -13685,90 +11894,90 @@ TRAILER!!!	(( filename ))
 " cpio-dired-buffer-contents)))
     (should (and "Expecting a catalog with entry »a« deleted."
 		 (string-match "((\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 80 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 85 in alphabet_small.odc.cpio> #<marker at 165 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 171 in alphabet_small.odc.cpio> #<marker at 252 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 259 in alphabet_small.odc.cpio> #<marker at 341 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 349 in alphabet_small.odc.cpio> #<marker at 433 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 433 in alphabet_small.odc.cpio> #<marker at 511 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 594 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 599 in alphabet_small.odc.cpio> #<marker at 679 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 685 in alphabet_small.odc.cpio> #<marker at 766 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 773 in alphabet_small.odc.cpio> #<marker at 855 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 863 in alphabet_small.odc.cpio> #<marker at 947 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 947 in alphabet_small.odc.cpio> #<marker at 1025 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1108 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1113 in alphabet_small.odc.cpio> #<marker at 1193 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1199 in alphabet_small.odc.cpio> #<marker at 1280 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1287 in alphabet_small.odc.cpio> #<marker at 1369 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1377 in alphabet_small.odc.cpio> #<marker at 1461 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 80 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 85 in alphabet_small.odc.cpio> #<marker at 165 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 171 in alphabet_small.odc.cpio> #<marker at 252 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 259 in alphabet_small.odc.cpio> #<marker at 341 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 349 in alphabet_small.odc.cpio> #<marker at 433 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 433 in alphabet_small.odc.cpio> #<marker at 511 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 594 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 599 in alphabet_small.odc.cpio> #<marker at 679 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 685 in alphabet_small.odc.cpio> #<marker at 766 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 773 in alphabet_small.odc.cpio> #<marker at 855 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 863 in alphabet_small.odc.cpio> #<marker at 947 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 947 in alphabet_small.odc.cpio> #<marker at 1025 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1108 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1113 in alphabet_small.odc.cpio> #<marker at 1193 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1199 in alphabet_small.odc.cpio> #<marker at 1280 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1287 in alphabet_small.odc.cpio> #<marker at 1369 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1377 in alphabet_small.odc.cpio> #<marker at 1461 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
@@ -14029,7 +12238,8 @@ TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
 " cpio-archive-buffer-contents))
 
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expecting a cpio-dired buffer with 4 entries deleted."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
@@ -14044,76 +12254,76 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-;;    (should (and "Expecting a catalog with entries"
-;;		 "    »aaaa«, »aaaaa«, »aaaaa.d« and »b« deleted."
-	(should	 (string-match "((\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 80 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 85 in alphabet_small.odc.cpio> #<marker at 165 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 171 in alphabet_small.odc.cpio> #<marker at 250 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 255 in alphabet_small.odc.cpio> #<marker at 335 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 422 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 429 in alphabet_small.odc.cpio> #<marker at 511 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 519 in alphabet_small.odc.cpio> #<marker at 603 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 603 in alphabet_small.odc.cpio> #<marker at 681 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 685 in alphabet_small.odc.cpio> #<marker at 764 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 769 in alphabet_small.odc.cpio> #<marker at 849 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 936 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 943 in alphabet_small.odc.cpio> #<marker at 1025 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1033 in alphabet_small.odc.cpio> #<marker at 1117 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting a catalog with entries"
+		 "    »aaaa«, »aaaaa«, »aaaaa.d« and »b« deleted."
+		 (string-match "((\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 80 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 85 in alphabet_small.odc.cpio> #<marker at 165 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 171 in alphabet_small.odc.cpio> #<marker at 250 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 255 in alphabet_small.odc.cpio> #<marker at 335 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 422 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 429 in alphabet_small.odc.cpio> #<marker at 511 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 519 in alphabet_small.odc.cpio> #<marker at 603 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 603 in alphabet_small.odc.cpio> #<marker at 681 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 685 in alphabet_small.odc.cpio> #<marker at 764 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 769 in alphabet_small.odc.cpio> #<marker at 849 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 936 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 943 in alphabet_small.odc.cpio> #<marker at 1025 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1033 in alphabet_small.odc.cpio> #<marker at 1117 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 "
-cpio-catalog-contents-after))
+cpio-catalog-contents-after)))
 
   (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-mark-entries-regexp "\\`...\\'")
@@ -14320,7 +12530,8 @@ TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
 " cpio-archive-buffer-contents))
 
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expecting a cpio-dired buffer with 4 entries deleted."
+		  (string-match "CPIO archive: alphabet_small.odc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
@@ -14332,59 +12543,59 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-;;    (should (and "Expecting a catalog with further entries \`...\' deleted."
-	(should	 (string-match "((\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 80 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 85 in alphabet_small.odc.cpio> #<marker at 164 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 169 in alphabet_small.odc.cpio> #<marker at 250 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 257 in alphabet_small.odc.cpio> #<marker at 339 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 347 in alphabet_small.odc.cpio> #<marker at 431 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 509 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 513 in alphabet_small.odc.cpio> #<marker at 592 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 678 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 685 in alphabet_small.odc.cpio> #<marker at 767 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 775 in alphabet_small.odc.cpio> #<marker at 859 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting a catalog with further entries \`...\' deleted."
+		 (string-match "((\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 80 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 85 in alphabet_small.odc.cpio> #<marker at 164 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 169 in alphabet_small.odc.cpio> #<marker at 250 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 257 in alphabet_small.odc.cpio> #<marker at 339 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 347 in alphabet_small.odc.cpio> #<marker at 431 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 509 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 513 in alphabet_small.odc.cpio> #<marker at 592 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 678 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 685 in alphabet_small.odc.cpio> #<marker at 767 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 775 in alphabet_small.odc.cpio> #<marker at 859 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -14480,99 +12691,98 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
     
-;;    (should (and "Expecting catalog with first entry »d«."
-    (should	 (string-match "((\"d\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-"
- cpio-catalog-contents-after))
+    (should (and "Expecting catalog with first entry »d«."
+		 (string-match "((\"d\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 2)
@@ -14613,99 +12823,99 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
 	
-;;    (should (and "Expecting a catalog with the above changes."
-    (should (string-match "((\"d\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 17 0 \"newDirectory/aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 18 0 \"newDirectory/aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory/aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory/aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
-
+    (should (and "Expecting a catalog with the above changes."
+		 (string-match "((\"d\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 17 0 \"newDirectory/aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 18 0 \"newDirectory/aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory/aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory/aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
+    
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-mark-entries-regexp "\\`...\\'")
 	   (setq unread-command-events (listify-key-sequence "newDirectory-1\n"))
@@ -14744,98 +12954,98 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting a catalog with \`...\' entries in newDirectory-1."
-		 (should		 (string-match "((\"d\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 17 0 \"newDirectory/aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 18 0 \"newDirectory/aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory/aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory/aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory/aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting a catalog with \`...\' entries in newDirectory-1."
+		 (string-match "((\"d\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"d\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 17 0 \"newDirectory/aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 18 0 \"newDirectory/aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory/aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory/aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 21 0 \"newDirectory/aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -14929,13 +13139,15 @@ They reflect an outstanding bug in cpio-affiliated buffers."
 
 
     (with-current-buffer cpio-dired-buffer
-      (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
+      (should (and "Expect an untouched archive. (18064)"
+		  (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
       (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
       (should (not (null cpio-contents-buffer)))
       (should (buffer-live-p cpio-contents-buffer))
       (should (string-equal cpio-contents-buffer-string (concat "\n" entry-name "\n\n")))
       (should (window-live-p cpio-contents-window))
-      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+      (should (and "Expecting an unchanged catalog. (18038)"
+		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
     (push entry-name past-entries)
     
@@ -14960,13 +13172,15 @@ They reflect an outstanding bug in cpio-affiliated buffers."
 		     (buffer-substring-no-properties (point-min) (point-max))))))
 
     (with-current-buffer cpio-dired-buffer
-      (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
+      (should (and "Expect an untouched archive. (18065)"
+		  (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
       (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
       (should (not (null cpio-contents-buffer)))
       (should (buffer-live-p cpio-contents-buffer))
       (should (string-equal cpio-contents-buffer-string "\nccc\n\n"))
       (should (window-live-p cpio-contents-window))
-      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+      (should (and "Expecting an unchanged catalog. (18039)"
+		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
     ;; Now make sure that any past entries are still there.
     (mapc (lambda (en)
@@ -15395,7 +13609,8 @@ c
 
 " cpio-archive-buffer-contents))
 
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expecting a cpio-dired-buffer with autosave files for single character entries."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15418,114 +13633,115 @@ c
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #a
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #b
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #c
-" cpio-dired-buffer-contents))
+" cpio-dired-buffer-contents)))
 
-    (should (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"#a\" .
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 64768 0 0 0 3 0 \"#a\"]
-   #<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1622 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"#b\" .
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 64768 0 0 0 3 0 \"#b\"]
-   #<marker at 1626 in alphabet_small.odc.cpio> #<marker at 1705 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"#c\" .
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 64768 0 0 0 3 0 \"#c\"]
-   #<marker at 1709 in alphabet_small.odc.cpio> #<marker at 1788 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))))
+    (should (and "Expecting to seee catalog entries for auto-save files for single character entries."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"#a\" .
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 64768 0 0 0 3 0 \"#a\"]
+\\s-+#<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1622 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"#b\" .
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 64768 0 0 0 3 0 \"#b\"]
+\\s-+#<marker at 1626 in alphabet_small.odc.cpio> #<marker at 1705 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"#c\" .
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 64768 0 0 0 3 0 \"#c\"]
+\\s-+#<marker at 1709 in alphabet_small.odc.cpio> #<marker at 1788 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-flag-backup-entries ()
   "Test cpio-dired-flag-backup-entries.
@@ -15561,8 +13777,10 @@ cpio-dired-flag-entries-regexp is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expect an untouched archive. (18066)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with one entry flagged for deletion."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15582,8 +13800,9 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18040)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 2)
@@ -15597,8 +13816,10 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expect an untouched archive. (18067)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with 4 more entries flagged for deletion."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15618,8 +13839,9 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18041)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-flag-garbage-entries ()
   "Test cpio-dired-flag-garbage-entries."
@@ -16126,134 +14348,134 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa.rej
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa.toc
 " cpio-dired-buffer-contents)))
-;;    (should (and "Expecting a catalog with entries with the suffixes"
-;; 		 "    aux bak dvi log orig reg toc."
-    (should	 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.aux\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.aux\"]
-   #<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1626 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.bak\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.bak\"]
-   #<marker at 1632 in alphabet_small.odc.cpio> #<marker at 1715 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.dvi\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.dvi\"]
-   #<marker at 1721 in alphabet_small.odc.cpio> #<marker at 1804 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.log\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.log\"]
-   #<marker at 1810 in alphabet_small.odc.cpio> #<marker at 1893 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.orig\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aa\.orig\"]
-   #<marker at 1899 in alphabet_small.odc.cpio> #<marker at 1983 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.rej\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.rej\"]
-   #<marker at 1989 in alphabet_small.odc.cpio> #<marker at 2072 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\.toc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.toc\"]
-   #<marker at 2078 in alphabet_small.odc.cpio> #<marker at 2161 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+    (should (and "Expecting a catalog with entries with the suffixes"
+ 		 "    aux bak dvi log orig reg toc."
+		 (string-match "((\"a\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.aux\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.aux\"]
+\\s-+#<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1626 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.bak\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.bak\"]
+\\s-+#<marker at 1632 in alphabet_small.odc.cpio> #<marker at 1715 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.dvi\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.dvi\"]
+\\s-+#<marker at 1721 in alphabet_small.odc.cpio> #<marker at 1804 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.log\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.log\"]
+\\s-+#<marker at 1810 in alphabet_small.odc.cpio> #<marker at 1893 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.orig\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aa\.orig\"]
+\\s-+#<marker at 1899 in alphabet_small.odc.cpio> #<marker at 1983 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.rej\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.rej\"]
+\\s-+#<marker at 1989 in alphabet_small.odc.cpio> #<marker at 2072 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\.toc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 0 \"aa\.toc\"]
+\\s-+#<marker at 2078 in alphabet_small.odc.cpio> #<marker at 2161 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-test-save)))
 
@@ -16303,8 +14525,10 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
     
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expect an untouched archive. (18068)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with the first entry marked."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16324,8 +14548,9 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18042)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 2)
@@ -16340,7 +14565,8 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (string-equal cpio-archive-buffer-contents *cdmt-odc-untouched-small-archive*))
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expecing a cpio-dired buffer with 4 more entries marked."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16360,8 +14586,9 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18043)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-mark-directories ()
   "Test cpio-dired-mark-directories.
@@ -16396,8 +14623,10 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.odc.cpio:
+    (should (and "Expect an untouched archive. (18069)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with ... marked."
+		 (string-match "CPIO archive: alphabet_small.odc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16417,8 +14646,9 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18044)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-mark-executables ()
   "Test cpio-dired-mark-executables.
@@ -16470,8 +14700,8 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 
     (should (and "The current entry should be aaaaa.d"
 		 (string-equal "aaaaa.d" entry-name)))
-    ;;(should (and "Expecting an untouched large archive buffer."
-	(should	 (string-equal *cdmt-odc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (should (and "Expecting an untouched large archive buffer."
+		 (string-equal *cdmt-odc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
     (should (and "The dired style buffer should be untouched."
 		 (string-match *cdmt-odc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
     (should (and "Expecting an unchanged catalog."
@@ -16607,8 +14837,10 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
     
     (should (string-equal "a" entry-name))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expect an untouched archive. (18070)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18045)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 2)
@@ -16624,7 +14856,8 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 
     (should (string-equal "aaa" entry-name))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
+    (should (and "Expect an untouched archive. (18071)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 4)
@@ -16640,8 +14873,10 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 
     (should (string-equal "b" entry-name))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expect an untouched archive. (18072)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18046)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 100)
@@ -16657,8 +14892,10 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 
     (should (equal nil entry-name))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expect an untouched archive. (18073)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (18047)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-next-marked-entry ()
   "Test cpio-dired-next-marked-entry.
@@ -16721,7 +14958,8 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
     (should (= where 1155))
     (should (string-match *cdmt-odc-untouched-small-archive-buffer* cpio-archive-buffer-contents))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18048)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-previous-line 2)
@@ -16738,7 +14976,8 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
     (should (= where 1019))
     (should (string-match *cdmt-odc-untouched-small-archive-buffer* cpio-archive-buffer-contents))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18049)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-previous-line 4)
@@ -16755,7 +14994,8 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
     (should (= where 774))
     (should (string-match *cdmt-odc-untouched-small-archive-buffer* cpio-archive-buffer-contents))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (18050)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-previous-line ()
   "Test cpio-dired-previous-line.
@@ -16877,7 +15117,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18051)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 2)
@@ -16915,7 +15156,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18052)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 4)
@@ -16953,7 +15195,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18053)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 4)
@@ -16991,7 +15234,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (18054)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-unmark-all-entries ()
   "Test cpio-dired-unmark-all-entries."
@@ -17046,7 +15290,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18055)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-entries "" nil)
@@ -17083,7 +15328,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18056)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-mark-entries-regexp ".")
@@ -17128,7 +15374,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
     
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18057)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-entries "B" nil)
@@ -17166,7 +15413,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
 
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18058)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-entries "F" nil)
@@ -17203,7 +15451,8 @@ E -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (18059)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-unmark-all-marks ()
   "Test cpio-dired-unmark-all-marks."
@@ -17258,7 +15507,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (18060)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
   
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-marks)
@@ -17295,7 +15545,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (18061)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-unmark-all-marks () ;✓
   "Test the function of M-x cpio-unmark-all-marks."
@@ -17328,9 +15579,11 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents))
+    (should (and "Expect an untouched archive. (18074)"
+		(string-equal *cdmt-odc-untouched-small-archive* cpio-archive-buffer-contents)))
     (should (string-match *cdmt-odc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (18062)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-odc-cpio-dired-unmark-backward ()
   "Test cpio-dired-unmark-backward.
@@ -17498,33 +15751,6 @@ cpio-image-dired-tag-entries is not yet implemented -- expect an error."
 cpio-mouse-face is not yet implemented -- expect an error."
   (should-error (cpio-mouse-face)
      :type 'error))
-
-;;;;;;;; (ert-deftest cdmt-odc-cpio-quit-window () ;✓
-;;;;;;;;   "Test cpio-quit-window.
-;;;;;;;; cpio-quit-window is not yet implemented -- expect an error."
-;;;;;;;;   (let ((test-name "cdmt-odc-cpio-dired-quit-window")
-;;;;;;;;         (cpio-archive-buffer)
-;;;;;;;;         (cpio-archive-buffer-contents)
-;;;;;;;;         (cpio-dired-buffer)
-;;;;;;;;         (cpio-dired-buffer-contents)
-;;;;;;;; 	(cpio-archive-window)
-;;;;;;;; 	(cpio-dired-window)
-;;;;;;;;         )
-;;;;;;;;     (cdmt-odc-reset 'make)
-
-;;;;;;;;     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
-;;;;;;;;     (should (window-live-p cpio-dired-window))
-;;;;;;;;     (setq cpio-archive-window (get-buffer-window (get-buffer cpio-archive-buffer)))
-;;;;;;;;     ;; (should (not (window-live-p cpio-dired-window)))
-;;;;;;;;     (should (eq nil cpio-archive-window))
-
-;;;;;;;; This causes an error under ERT.
-;;;;;;;;     (cpio-quit-window)
-
-;;;;;;;;     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
-;;;;;;;;     (should (eq nil cpio-dired-window))
-;;;;;;;;     (setq cpio-archive-window (get-buffer-window (get-buffer cpio-archive-buffer)))
-;;;;;;;;     (should (eq nil cpio-archive-window))))
 
 (ert-deftest cdmt-odc-revert-buffer ()
   "Test revert-buffer.
@@ -17915,100 +16141,100 @@ newDirectory	(( filename ))
 " cpio-dired-buffer-contents)))
     (should (and "Expecting a catalog with a new directory called »newDirectory«."
 		 (string-match "((\"newDirectory\" \\.
-  [[1 16877 [[:digit:]]+ [[:digit:]]+ 1
-      ([[:digit:]]+ [[:digit:]]+)
-      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 13 0 \"newDirectory\"]
-   #<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1632 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"a\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\\.d\" \\.
-  [[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\\.d\"]
-   #<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"b\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\\.d\" \\.
-  [[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\\.d\"]
-   #<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"c\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \\.
-  [[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	 ([[:digit:]]+ [[:digit:]]+)
-	 8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\\.d\" \\.
-  [[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	 ([[:digit:]]+ [[:digit:]]+)
-	 0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\\.d\"]
-   #<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+[[1 16877 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 13 0 \"newDirectory\"]
+\\s-+#<marker at 1543 in alphabet_small.odc.cpio> #<marker at 1632 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"a\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 79 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 83 in alphabet_small.odc.cpio> #<marker at 162 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 167 in alphabet_small.odc.cpio> #<marker at 247 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 253 in alphabet_small.odc.cpio> #<marker at 334 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 341 in alphabet_small.odc.cpio> #<marker at 423 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\\.d\" \\.
+\\s-+[[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\\.d\"]
+\\s-+#<marker at 431 in alphabet_small.odc.cpio> #<marker at 515 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 515 in alphabet_small.odc.cpio> #<marker at 593 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 597 in alphabet_small.odc.cpio> #<marker at 676 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 681 in alphabet_small.odc.cpio> #<marker at 761 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 767 in alphabet_small.odc.cpio> #<marker at 848 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 855 in alphabet_small.odc.cpio> #<marker at 937 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\\.d\" \\.
+\\s-+[[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\\.d\"]
+\\s-+#<marker at 945 in alphabet_small.odc.cpio> #<marker at 1029 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1029 in alphabet_small.odc.cpio> #<marker at 1107 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1111 in alphabet_small.odc.cpio> #<marker at 1190 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1195 in alphabet_small.odc.cpio> #<marker at 1275 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1281 in alphabet_small.odc.cpio> #<marker at 1362 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \\.
+\\s-+[[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1369 in alphabet_small.odc.cpio> #<marker at 1451 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\\.d\" \\.
+\\s-+[[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\\.d\"]
+\\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 " cpio-catalog-contents-after)))
     
     (cdmt-odc-test-save)))

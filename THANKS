@@ -1,7 +1,8 @@
-#	$Id: THANKS,v 1.2 2018/05/12 16:36:00 doug Exp $	
+#	$Id: THANKS,v 1.3 2018/06/03 14:01:54 doug Exp $	
 
 Thanks to the following people for helping me
 get cpio-mode up and running.
 
 Michael Albinus <michael.albinus@gmx.de>, for pointing out similar functions now available in TRAMP.
 Sergey Poznyakoff <gray@gnu.org>, for consultation about the structure of cpio archives.
+Sebastrian Kremer <sk@thp.uni-koeln.de> et al., for providing the dired code that has guided me on occasion and performed fontification for me outright.

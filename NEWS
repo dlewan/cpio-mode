@@ -1,8 +1,16 @@
 # -*- outline -*-
-#	$Id: NEWS,v 1.4 2018/05/18 23:55:29 doug Exp $	
+#	$Id: NEWS,v 1.6 2018/06/03 14:01:54 doug Exp $	
+
+* Version 0.07
+** Fontification (from dired).
+** Dired-like commands:
+   + cpio-dired-flag-backup-entries ("~")
 
 * Version 0.06
 ** Support for the ODC archive format.
+   Note that hpodc = odc if the archive contains no devices,
+   and cpio-mode doesn't handle devices yes.
+   (And it may never.)
 
 * Version 0.05
 ** Support for the CRC archive format.
@@ -12,11 +20,11 @@
 
 * Version 0.03
 ** More dired-like commands:
-   + cpio-dired-flag-garbage-entries
-   + cpio-dired-goto-entry
-   + cpio-dired-mark-executables
-   + cpio-dired-marek-subdir-entries
-   + cpio-dired-mark-symlinks
+   + cpio-dired-flag-garbage-entries ("%&")
+   + cpio-dired-goto-entry ("j")
+   + cpio-dired-mark-executables ("**")
+   + cpio-dired-mark-subdir-entries ("*s")
+   + cpio-dired-mark-symlinks ("*@")
 ** Fixes to saving an archive.
 ** Fixes to cpio-dired-do-chgrp/own/mod.
 ** Automated test updates:

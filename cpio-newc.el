@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.6 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio-newc.el,v 1.7 2018/06/03 14:01:55 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -321,13 +321,13 @@ CAVEATS:
 	(found nil))
     (save-match-data
       (cond ((looking-at *cpio-newc-header-re*)
-	     (match-string 0))
+	     (match-string-no-properties 0))
 	    (t
 	     (forward-char (length *cpio-newc-magic-re*))
 	     (while (and (re-search-backward *cpio-newc-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-newc-header-re*)))))
 	     (if found 
-		 (match-string 0)))))))
+		 (match-string-no-properties 0)))))))
 
 ;;;;;;;;;;;;;;;;
 ;; 
@@ -368,8 +368,7 @@ This function does NOT get the contents."
 		    (setq namesize (cpio-newc-parse-namesize header-string))
 
 		    (cpio-newc-parse-chksum   header-string)
-		    (cpio-newc-parse-name     header-string namesize)
-		    )))
+		    (cpio-newc-parse-name     header-string namesize))))
       ;; (cpio-newc-header-size    header-string namesize))))
     (if (cpio-entry-name result)
 	result
@@ -706,7 +705,7 @@ This sets match-data for the entire header and each field."
 	(header-string))
     (cond ((re-search-forward *cpio-newc-header-re* (point-max) t)
 	   (setq header-start (goto-char (match-beginning 0)))
-	   (setq header-string (match-string 0))
+	   (setq header-string (match-string-no-properties 0))
 	   (cons (point-marker) header-string))
 	  (t nil))))
 
@@ -777,7 +776,7 @@ once the TRAILER is written and padded."
 
 (defun cpio-newc-adjust-trailer ()
   "Replace thed current trailer in the current cpio newc archive."
-  (let* ((fname "cpio-newc-adjust-trailer"))
+  (let ((fname "cpio-newc-adjust-trailer"))
     (cpio-newc-delete-trailer)
     (cpio-newc-insert-trailer)))
 

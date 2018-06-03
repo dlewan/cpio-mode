@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.2 2018/05/12 16:36:00 doug Exp $	
+;	$Id: cab-test.el,v 1.3 2018/06/03 14:01:54 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -193,19 +193,20 @@
 (ert-deftest cab-test-deregister-1 ()
   "Test deregistering the registry established in (cab-test-registry-1)."
   (let ((fname "cab-test-registry-1")
-	(parent (get-buffer-create "p1"))
-	(buffer (get-buffer-create "b2")))
+	(parent (find-file-noselect "p1"))
+	(buffer (find-file-noselect "b2")))
     (message "%s(): Entering." fname)
 
     (cab-register buffer parent)
     (cab-deregister buffer)
 
-    (should (progn (message "%s(): 203" fname)
-		   (equal (with-current-buffer parent
-			    *cab-subordinates*)
-			  ())))
+    (message "%s(): 203" fname)
+    (with-current-buffer parent 
+      (mapc (lambda (sb)
+	      (should (null (buffer-live-p sb))))
+	    *cab-subordinates*))
 
-    (setq buffer (get-buffer-create "b2"))
+    (setq buffer (find-file-noselect "b2"))
     (cab-register buffer parent)
     (cab-deregister parent)
     (should (progn (message "%s(): 211" fname)
@@ -217,9 +218,9 @@
 (ert-deftest cab-test-deregister-2 ()
   "Test deregistering the registry established in (cab-test-registry-2)."
   (let ((fname "cab-test-registry-2")
-	(parent (get-buffer-create "p2"))
-	(buffer-1 (get-buffer-create "b21"))
-	(buffer-2 (get-buffer-create "b22")))
+	(parent (find-file-noselect "p2"))
+	(buffer-1 (find-file-noselect "b21"))
+	(buffer-2 (find-file-noselect "b22")))
     (message "%s(): Entering." fname)
 
     (cab-register buffer-1 parent)
@@ -239,8 +240,8 @@
 			(length *cab-subordinates*))
 		      0)))
 
-    (setq buffer-1 (get-buffer-create "b21"))
-    (setq buffer-2 (get-buffer-create "b22"))
+    (setq buffer-1 (find-file-noselect "b21"))
+    (setq buffer-2 (find-file-noselect "b22"))
     (cab-register buffer-1 parent)
     (cab-register buffer-2 parent)
     (cab-deregister parent)
@@ -253,14 +254,14 @@
 (ert-deftest cab-test-deregister-3 ()
   "Test deregistering the registry established in (cab-test-registry-3)."
   (let ((fname "cab-test-deregister-3")
-	(grandparent    (get-buffer-create "gp3"))
-	(parent-1       (get-buffer-create "p31"))
-	(parent-2       (get-buffer-create "p32"))
-	(grandchild-311 (get-buffer-create "b311"))
-	(grandchild-312 (get-buffer-create "b312"))
-	(grandchild-313 (get-buffer-create "b313"))
-	(grandchild-321 (get-buffer-create "b321"))
-	(grandchild-322 (get-buffer-create "b322")))
+	(grandparent    (find-file-noselect "gp3"))
+	(parent-1       (find-file-noselect "p31"))
+	(parent-2       (find-file-noselect "p32"))
+	(grandchild-311 (find-file-noselect "b311"))
+	(grandchild-312 (find-file-noselect "b312"))
+	(grandchild-313 (find-file-noselect "b313"))
+	(grandchild-321 (find-file-noselect "b321"))
+	(grandchild-322 (find-file-noselect "b322")))
     (message "%s(): Entering." fname)
 
     (cab-register parent-1       grandparent)
@@ -308,8 +309,8 @@
   "Tests killing in the hierarchy created in (cab-test-registry-1)."
 
   (let ((fname "cab-test-kill-1")
-	(parent (get-buffer-create "p1"))
-	(child (get-buffer-create "b2")))
+	(parent (find-file-noselect "p1"))
+	(child (find-file-noselect "b2")))
     (message "%s(): Entering." fname)
 
     (should (cond ((buffer-live-p parent)
@@ -342,7 +343,7 @@
 		   (message "    Testing if killed child [[%s]] is still a member of parent [[%s]]." child parent)
 		   (member child (with-current-buffer parent *cab-subordinates*))))
 
-    (setq child (get-buffer-create "b2"))
+    (setq child (find-file-noselect "b2"))
     (cab-register child parent)
 
     (should (progn (message "%s(): 349" fname)
@@ -362,9 +363,9 @@
 (ert-deftest cab-test-kill-2 ()
   "Tests killing in the hierarchy established in (cab-test-registry-2)."
   (let ((fname "cab-test-kill-2")
-	(parent (get-buffer-create "p2"))
-	(child-1 (get-buffer-create "b21"))
-	(child-2 (get-buffer-create "b22")))
+	(parent (find-file-noselect "p2"))
+	(child-1 (find-file-noselect "b21"))
+	(child-2 (find-file-noselect "b22")))
     (message "%s(): Entering." fname)
 
     (cab-register child-1 parent)
@@ -426,14 +427,14 @@
 (ert-deftest cab-test-kill-3 ()
   "Test killing a 3 level hierarchy."
   (let ((fname "cab-test-kill-3")
-	(grandparent    (get-buffer-create "gp3"))
-	(parent-1       (get-buffer-create "p31"))
-	(parent-2       (get-buffer-create "p32"))
-	(grandchild-311 (get-buffer-create "b311"))
-	(grandchild-312 (get-buffer-create "b312"))
-	(grandchild-313 (get-buffer-create "b313"))
-	(grandchild-321 (get-buffer-create "b321"))
-	(grandchild-322 (get-buffer-create "b322")))
+	(grandparent    (find-file-noselect "gp3"))
+	(parent-1       (find-file-noselect "p31"))
+	(parent-2       (find-file-noselect "p32"))
+	(grandchild-311 (find-file-noselect "b311"))
+	(grandchild-312 (find-file-noselect "b312"))
+	(grandchild-313 (find-file-noselect "b313"))
+	(grandchild-321 (find-file-noselect "b321"))
+	(grandchild-322 (find-file-noselect "b322")))
     (message "%s(): Entering." fname)
 
     (cab-register parent-1       grandparent)

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.5 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio-odc.el,v 1.6 2018/06/03 14:01:55 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -175,8 +175,7 @@
 
   (defconst *cpio-odc-filename-re-idx* 0
     "Index of the sub RE from *cpio-odc-header-re* to parse the filename.")
-  (setq *cpio-odc-filename-re-idx* (setq i (1+ i)))
-  )
+  (setq *cpio-odc-filename-re-idx* (setq i (1+ i))))
 ;; 
 ;; EO odc header variables.
 ;; 
@@ -278,13 +277,13 @@ CAVEATS:
 	(found nil))
     (save-match-data
       (cond ((looking-at *cpio-odc-header-re*)
-	     (match-string 0))
+	     (match-string-no-properties 0))
 	    (t
 	     (forward-char (length *cpio-odc-magic-re*))
 	     (while (and (re-search-backward *cpio-odc-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-odc-header-re*)))))
 	     (if found 
-		 (match-string 0)))))))
+		 (match-string-no-properties 0)))))))
 
 ;;;;;;;;;;;;;;;;
 ;; 
@@ -590,7 +589,7 @@ This sets match-data for the entire header and each field."
 	(header-string))
     (cond ((re-search-forward *cpio-odc-header-re* (point-max) t)
 	   (setq header-start (goto-char (match-beginning 0)))
-	   (setq header-string (match-string 0))
+	   (setq header-string (match-string-no-properties 0))
 	   (cons (point-marker) header-string))
 	  (t nil))))
 
@@ -661,7 +660,7 @@ once the TRAILER is written and padded."
 
 (defun cpio-odc-adjust-trailer ()
   "Replace thed current trailer in the current cpio odc archive."
-  (let* ((fname "cpio-odc-adjust-trailer"))
+  (let ((fname "cpio-odc-adjust-trailer"))
     (cpio-odc-delete-trailer)
     (cpio-odc-insert-trailer)))
 

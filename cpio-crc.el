@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.6 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio-crc.el,v 1.7 2018/06/03 14:01:55 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -161,13 +161,13 @@ CAVEATS:
 	(found nil))
     (save-match-data
       (cond ((looking-at *cpio-newc-header-re*)
-	     (match-string 0))
+	     (match-string-no-properties 0))
 	    (t
 	     (forward-char (length *cpio-newc-magic-re*))
 	     (while (and (re-search-backward *cpio-newc-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-newc-header-re*)))))
 	     (if found 
-		 (match-string 0)))))))
+		 (match-string-no-properties 0)))))))
 (setq cpio-header-at-point-func 'cpio-newc-header-at-point)
 
 ;;;;;;;;;;;;;;;;
@@ -286,13 +286,11 @@ This function does NOT include the contents."
 	(result 0)
 	(contents (if (cpio-entry-exists-p entry-name-or-contents)
 		      (cpio-contents entry-name-or-contents)
-		    entry-name-or-contents))
-	)
+		    entry-name-or-contents)))
     ;; According to the info this is only populated for crc archives.
     ;; It has always been 00000000 for my concrete newc examples.
     ;; And, indeed, it's only set in crc archives.
     ;; See copyout.c->writeout-defered-file() and nowhere else.
-    ;; (error "%s(): is not yet implemented." fname)))
     (mapc (lambda (c)
 	    (setq result (+ result c)))
 	  contents)
@@ -324,7 +322,7 @@ This sets match-data for the entire header and each field."
 	(header-string))
     (cond ((re-search-forward *cpio-crc-header-re* (point-max) t)
 	   (setq header-start (goto-char (match-beginning 0)))
-	   (setq header-string (match-string 0))
+	   (setq header-string (match-string-no-properties 0))
 	   (cons (point-marker) header-string))
 	  (t nil))))
 
@@ -384,7 +382,7 @@ CAVEAT: This respects neither narrowing nor the point."
 
 (defun cpio-crc-adjust-trailer ()
   "Replace thed current trailer in the current cpio crc archive."
-  (let* ((fname "cpio-crc-adjust-trailer"))
+  (let ((fname "cpio-crc-adjust-trailer"))
     (cpio-crc-delete-trailer)
     (cpio-crc-insert-trailer)))
 

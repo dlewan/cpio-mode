@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.5 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio.el,v 1.7 2018/06/03 14:01:56 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -281,6 +281,7 @@ Takes the values 'bin, 'newc, 'odc etc.")
   "RE to match hpodc format cpio archives.")
 (setq *cpio-hpodc-header-re* "nOt yEt iMpLeMeNtEd")
 
+;; MAINTENTANCE Order matters; hpodc must precede odc.
 (defvar *cpio-re-type-alist* (list
 			      (cons *cpio-bin-header-re*   'bin)
 			      (cons *cpio-crc-header-re*   'crc)
@@ -464,12 +465,6 @@ A parsed header is a vector of the following form:
   (defvar *cpio-catalog-entry-length* i)
   (setq *cpio-catalog-entry-length* i))
 
-(defvar *cpio-dired-buffer* ()
-  "The [subordinate] buffer used to present the curent catalog
-à la dired.")
-(setq *cpio-dired-buffer* ())
-(make-variable-buffer-local '*cpio-dired-buffer*)
-
 (defvar *cpio-archive-name* ()
   "The name of the cpio archive being processed.")
 (setq *cpio-archive-name* ())
@@ -555,12 +550,6 @@ A parsed header is a vector of the following form:
   "The default cpio format to use for a new or empty archive."
   :type 'string
   :group 'cpio)
-
-;; N.B. This is here because this file is where the cpio-dired lines are created.
-(defcustom cpio-try-names t
-  "Non-nil means that GIDs and UIDs are displayed as integers."
-  :group 'cpio
-  :type 'boolean)
 
 
 ;; 
@@ -689,8 +678,8 @@ CAVEAT: See `cpio-magic'."
 
 (defun cpio-contents-start (entry-name)
   "Return the contents start for ENTRY-NAME."
-  (let* ((fname "cpio-contents-start")
-	 (catalog-entry (cpio-entry entry-name)))
+  (let ((fname "cpio-contents-start")
+	(catalog-entry (cpio-entry entry-name)))
     (aref catalog-entry *cpio-catalog-entry-contents-start-idx*)))
 
 (defun cpio-entry-attrs (entry-name)
@@ -720,7 +709,6 @@ CAVEAT: See `cpio-magic'."
 			     where)
 			    (t
 			     (signal 'wrong-type-error (list where))))))
-    ;; (error "%s() is not yet implemented" fname)
     (aset entry *cpio-catalog-entry-header-start-idx* where-marker)))
 
 (defun cpio-set-contents-start (entry where)
@@ -825,7 +813,7 @@ MTIME is an emacs time."
 	(with-current-buffer *cab-parent*
 	  (cpio-extract-all))
       (mapc (lambda (e)
-	      (let* ((entry-name (car e)))
+	      (let ((entry-name (car e)))
 		(cpio-extract-entry entry-name)))
 	    *cpio-catalog*))))
 
@@ -875,9 +863,9 @@ will create a conflict.
 CONTRACT: This can only be invoked in a cpio archive under cpio-mode
 or a buffer affiliated with such a buffer."
   (interactive "sName: \nP")
-  (let* ((fname "cpio-extract-entry")
-	 (attrs (cpio-entry-attrs entry-name))
-	 (entry-type (cpio-entry-type entry-name)))
+  (let ((fname "cpio-extract-entry")
+	(attrs (cpio-entry-attrs entry-name))
+	(entry-type (cpio-entry-type entry-name)))
     (cond ((string-equal entry-type *cpio-modes-link*)
 	   (warn "%s(): Link extraction is not yet implemented." fname))
 	  ((string-equal entry-type *cpio-modes-reg*)
@@ -942,9 +930,9 @@ in the initial mode slot of 'ls -l'.
 That is, 'l' is a link, '-' is a regular file, etc.
 See (cpio-int-mode-to-file-type) in cpio-modes.el for more detail.
 If ENTRY-NAME is not in the current archive, then return NIL."
-  (let* ((fname "cpio-entry-type")
-	 (entry-attrs)
-	 (entry-mode))
+  (let ((fname "cpio-entry-type")
+	(entry-attrs)
+	(entry-mode))
     (cond ((and entry-name
 		(setq entry-attrs (cpio-entry-attrs entry-name))
 		(setq entry-mode (cpio-mode-value entry-attrs)))
@@ -1013,7 +1001,7 @@ Touch understands times of the form YYYYMMDDhhmm.ss."
 (defun cpio-adjust-trailer ()
   "Replace the trailer in the current buffer
 with one with the correct size fot its contents."
-  (let* ((fname "cpio-adjust-trailer"))
+  (let ((fname "cpio-adjust-trailer"))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (funcall cpio-adjust-trailer-func))
@@ -1078,45 +1066,6 @@ CONTRACT: Point is at the point of insertion."
       (setq buffer-read-only t))))
 
 
-(defun cpio-dired-buffer-name (archive-name)
-  "Return the name of the dired-style buffer for ARCHIVE-NAME."
-  (let ((fname "cpio-dired-buffer-name"))
-    (concat "CPIO archive: " (file-name-nondirectory archive-name))))
-
-(defun cpio-present-ala-dired (archive-buffer)
-  "Create a buffer with a ls -l format reflecting the contents of the current cpio archive.
-This returns the buffer created."
-  (let* ((fname "cpio-present-ala-dired")
-	 (archive-name (with-current-buffer archive-buffer
-			 (file-name-nondirectory (buffer-file-name))))
-	 (buffer-name (cpio-dired-buffer-name archive-name))
-	 (buffer (get-buffer-create buffer-name)) ;Is this not archive-buffer?
-	 (entry-string)
-	 (catalog (cpio-catalog)))
-    (with-current-buffer buffer
-      (setq *cpio-catalog* catalog)
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (insert "CPIO archive: " archive-name ":\n\n")
-      (mapc (lambda (e)
-	      (let ((line (cpio-dired-format-entry (aref (cdr e) 0))))
-		(insert (concat line "\n"))))
-	    (cpio-sort-catalog))
-      (setq buffer-read-only t)
-      (cpio-dired-mode))
-    ;; No, I do not yet understand why this must be done
-    ;; every time the presentation is updated.
-    (cab-register buffer archive-buffer)
-    buffer))
-
-(defun cpio-dired-move-to-first-entry ()
-  "Move the point to the first entry in a cpio-dired style buffer."
-  (let ((fname "cpio-dired-move-to-first-entry"))
-    (unless (eq major-mode 'cpio-dired-mode)
-      (error "%s(): You're not in a cpio-dired buffer." fname))
-    (goto-char (point-min))
-    (cpio-dired-next-line *cpio-dired-head-offset*)))
-
 (defun cpio-sort-catalog ()
   "Return a copy of the catalog sorted by entry name (car cpio-catalog-entry)."
   (let ((fname "cpio-sort-catalog"))
@@ -1128,34 +1077,6 @@ CONTRACT: L and R should be entries:
         (entry-name [inode mode uid ...] entry-start entry-end)."
   (let ((fname "cpio-entry-less-p"))
     (string-lessp (car l) (car r))))
-
-(defun cpio-dired-format-entry (attrs &optional mark)
-  "Create a dired-style line for ATTRS.
-If the optional MARK is given,
-then it is a character and used as the mark on the generated line.
-The line does not include a trailing <new line>."
-  (let* ((fname "cpio-dired-format-entry")
-	 (mode-string       (cpio-int-mode-to-mode-string         (cpio-mode-value attrs)))
-	 (uid-string        (cpio-uid-to-uid-string               (cpio-uid        attrs)))
-	 (gid-string        (cpio-gid-to-gid-string               (cpio-gid        attrs)))
-	 (nlink-string      (cpio-nlink-to-nlink-string           (cpio-nlink      attrs)))
-	 (mtime-string      (cpio-mtime-to-mtime-string           (cpio-mtime      attrs)))
-	 (filesize-string   (cpio-filesize-to-filesize-string     (cpio-entry-size attrs)))
-	 (dev-maj-string    (cpio-dev-maj-to-dev-maj-string       (cpio-dev-maj    attrs)))
-	 (dev-min-string    (cpio-dev-min-to-dev-min-string       (cpio-dev-min    attrs)))
-	 (entry-name-string (cpio-entry-name-to-entry-name-string (cpio-entry-name attrs)))
-	 (fmt (if entry-name-string
-		  (if cpio-try-names
-		      (format "%%c %%s %%3s %%8s %%8s %%8s %%7s %%s")
-		    (format   "%%c %%s %%3s %%5s %%5s %%8s %%7s %%s"))
-		nil)))
-    (unless mark (setq mark ?\s))
-    (unless (characterp mark)
-      (signal 'wrong-type-error (list 'characterp mark)))
-    (if fmt
-	(format fmt mark 
-		mode-string nlink-string uid-string gid-string 
-		filesize-string mtime-string entry-name-string))))
 
 (defun cpio-uid-to-uid-string (uid)
   "Convert the given UID, an integer, to a string."
@@ -1215,7 +1136,7 @@ a UNIX/GNU/Linux time as an integer."
 
 (defun cpio-find-entry (entry-name)
   "Find the given ENTRY-NAME and return the buffer holding its contents."
-  (let ((fname "cpio-dired--find-entry")
+  (let ((fname "cpio-find-entry")
 	(target-buffer))
     (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
 	(error "%s(): Could not get a buffer for entry [[%s]]." fname))
@@ -1350,26 +1271,20 @@ in the current archive."
 ;; 
 (defun cpio-set-entry-unmodified (catalog-entry)
   "Mark the given CATALOG-ENTRY as not modified."
-  (let ((fname "cpio-set-entry-unmodified")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-set-entry-unmodified"))
     (cpio-validate-catalog-entry catalog-entry)
     (aset catalog-entry *cpio-catalog-entry-modified-flag-idx* 'cpio-mode-entry-unmodified)))
 
 (defun cpio-set-entry-modified (catalog-entry)
   "Mark the given CATALOG-ENTRY as modified."
-  (let ((fname "cpio-set-entry-modified")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-set-entry-modified"))
     (cpio-validate-catalog-entry catalog-entry)
     (aset catalog-entry *cpio-catalog-entry-modified-flag-idx* 'cpio-mode-entry-modified)))
 
 (defun cpio-entry-modified-p (catalog-entry)
   "Return non-NIL if CATALOG-ENTRY is marked as modified."
   (let ((fname "cpio-entry-modified-p")
-	(modified-flag)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(modified-flag))
     (cpio-validate-catalog-entry catalog-entry)
     (cond ((eq 'cpio-mode-modified 
 	       (setq modified-flag (aref catalog-entry *cpio-catalog-entry-modified-flag-idx*)))
@@ -1383,9 +1298,7 @@ in the current archive."
   "Verify that the given CATALOG-ENTRY is (could be) a valid catalog entry.
 Signal an error if it isn't."
   (let ((fname "validate-catalog-entry")
-	(modified-flag)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(modified-flag))
     (unless (vectorp catalog-entry)
       (signal 'wrong-type-error (list catalog-entry)))
     (unless (= *cpio-catalog-entry-length* (length catalog-entry))
@@ -1589,19 +1502,19 @@ See *cpio-local-funcs* for more information."
     ;; Now for the format-specific variables.
     (cond ((eq archive-type 'bin)
 	   (cpio-set-local-bin-vars))
-	  ((eq archive-type'newc)
+	  ((eq archive-type 'newc)
 	   (cpio-set-local-newc-vars))
-	  ((eq archive-type'odc)
+	  ((eq archive-type 'odc)
 	   (cpio-set-local-odc-vars))
-	  ((eq archive-type'crc)
+	  ((eq archive-type 'crc)
 	   (cpio-set-local-crc-vars))
-	  ((eq archive-type'tar)
+	  ((eq archive-type 'tar)
 	   (cpio-set-local-tar-vars))
-	  ((eq archive-type'ustar)
+	  ((eq archive-type 'ustar)
 	   (cpio-set-local-ustar-vars))
-	  ((eq archive-type'hpbin)
+	  ((eq archive-type 'hpbin)
 	   (cpio-set-local-hpbin-vars))
-	  ((eq archive-type'hpodc)
+	  ((eq archive-type 'hpodc)
 	   (cpio-set-local-hpodc-vars))
 	  (t (error "%s(): Unknown archive type [[%s]]" fname archive-type)))))
 
@@ -1619,7 +1532,6 @@ See *cpio-local-funcs* for more information."
     (make-local-variable '*cpio-padding-str*)
     (setq *cpio-padding-str* *cpio-newc-padding-str*)))
 
-
 (defun cpio-set-local-odc-vars ()
   "Set buffer local variables appropriate for a ODC format CPIO archive."
   (let ((fname "cpio-set-local-odc-vars"))
@@ -1629,7 +1541,6 @@ See *cpio-local-funcs* for more information."
     (setq *cpio-padding-char* *cpio-odc-padding-char*)
     (make-local-variable '*cpio-padding-str*)
     (setq *cpio-padding-str* *cpio-odc-padding-str*)))
-
 
 (defun cpio-set-local-crc-vars ()
   "Set buffer local variables appropriate for a CRC format CPIO archive."

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.4 2018/06/03 14:01:55 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -55,8 +55,7 @@ If NAME is not given, then use 'aa'."
 	 (cpio-archive-buffer)
 	 (cpio-dired-buffer)
 	 (cpio-entry-contents-buffer)
-	 (cpio-dired-contents-mode-buffer)
-	 )
+	 (cpio-dired-contents-mode-buffer))
     ;; Make sure we have a clean copy of the archive.
     (with-current-buffer (find-file-noselect archive-name)
       (shell-command "make crc" nil nil)
@@ -88,8 +87,7 @@ If NAME is not given, then use 'aa'."
     (switch-to-buffer cpio-entry-contents-buffer)
     (other-window 1)
     (setq cpio-dired-contents-mode-buffer (switch-to-buffer "cpio-entry-contents-mode.el"))
-    (other-window 2)
-    ))
+    (other-window 2)))
 
 
 ;;
@@ -141,8 +139,7 @@ If NAME is not given, then use 'aa'."
       (setq buffer-read-only nil)
       (insert header-string)
       (setq buffer-read-only t)
-      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker))
-      )
+      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker)))
     ;; 6. Mark the contents buffer as unmodified.
     (set-buffer-modified-p nil)
     ;; 6a. But mark the entry in the archive modified.

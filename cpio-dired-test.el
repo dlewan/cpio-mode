@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-test.el --- Tests of cpio-dired-mode.
-;	$Id: cpio-dired-test.el,v 1.3 2018/05/18 23:55:30 doug Exp $	
+;	$Id: cpio-dired-test.el,v 1.4 2018/06/03 14:01:55 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -6537,7 +6537,7 @@ If MAKE is non-nil, then run 'make newc' as part of the reset."
 			     *cdmt-large-archive*)))
     (cd run-dir)
     (mapc (lambda (an)
-	    (setq cpio-archive-buffer (find-file-noselect an))
+	    (setq cpio-archive-buffer (find-file-noselect an 'nowarn))
 	    (if (and (file-exists-p an)
 		     (buffer-live-p (get-buffer cpio-archive-buffer)))
 		(with-current-buffer cpio-archive-buffer
@@ -6557,7 +6557,7 @@ If MAKE is non-nil, then run 'make newc' as part of the reset."
 			 *cdmt-small-archive*))
 
     (delete-other-windows)
-    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name))
+    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name 'no-warn))
       (if (string-match "/test_data/.+/test_data/" (buffer-file-name))
 	  (error "Bogus archive!"))
       (cpio-mode))
@@ -6586,22 +6586,22 @@ then the entry names will be incorrect."
   (let ((fname "cdmt-reformat-newc-headers"))
     (while (string-match *cpio-newc-header-re* archive-contents)
       (setq archive-contents (concat (substring archive-contents 0 (match-beginning 0))
-				     (concat (match-string *cpio-newc-magic-re-idx*    archive-contents) "\t(( magic    ))\n")
+				     (concat (match-string-no-properties *cpio-newc-magic-re-idx*    archive-contents) "\t(( magic    ))\n")
 				     (concat "DEADBEEF"                                                  "\t(( ino      ))\n")
-				     (concat (match-string *cpio-newc-mode-re-idx*     archive-contents) "\t(( mode     ))\n")
-				     (concat (match-string *cpio-newc-uid-re-idx*      archive-contents) "\t(( uid      ))\n")
-				     (concat (match-string *cpio-newc-gid-re-idx*      archive-contents) "\t(( gid      ))\n")
-				     (concat (match-string *cpio-newc-nlink-re-idx*    archive-contents) "\t(( nlink    ))\n")
+				     (concat (match-string-no-properties *cpio-newc-mode-re-idx*     archive-contents) "\t(( mode     ))\n")
+				     (concat (match-string-no-properties *cpio-newc-uid-re-idx*      archive-contents) "\t(( uid      ))\n")
+				     (concat (match-string-no-properties *cpio-newc-gid-re-idx*      archive-contents) "\t(( gid      ))\n")
+				     (concat (match-string-no-properties *cpio-newc-nlink-re-idx*    archive-contents) "\t(( nlink    ))\n")
 				     ;; Note that the mod time can change.
 				     (concat "DEADBEEF"                                                  "\t(( mtime    ))\n")
-				     (concat (match-string *cpio-newc-filesize-re-idx* archive-contents) "\t(( filesize ))\n")
+				     (concat (match-string-no-properties *cpio-newc-filesize-re-idx* archive-contents) "\t(( filesize ))\n")
 				     (concat "DEADBEEF"                                                  "\t(( dev maj  ))\n")
 				     (concat "DEADBEEF"                                                  "\t(( dev min  ))\n")
 				     (concat "DEADBEEF"                                                  "\t(( rdev maj ))\n")
 				     (concat "DEADBEEF"                                                  "\t(( rdev min ))\n")
-				     (concat (match-string *cpio-newc-namesize-re-idx* archive-contents) "\t(( namesize ))\n")
-				     (concat (match-string *cpio-newc-chksum-re-idx*   archive-contents) "\t(( chksum   ))\n")
-				     (concat (match-string *cpio-newc-filename-re-idx* archive-contents) "\t(( filename ))\n")
+				     (concat (match-string-no-properties *cpio-newc-namesize-re-idx* archive-contents) "\t(( namesize ))\n")
+				     (concat (match-string-no-properties *cpio-newc-chksum-re-idx*   archive-contents) "\t(( chksum   ))\n")
+				     (concat (match-string-no-properties *cpio-newc-filename-re-idx* archive-contents) "\t(( filename ))\n")
 				     (substring archive-contents (match-end 0)))))
     (concat archive-contents "\n")))
 
@@ -6845,7 +6845,7 @@ to help make tests pass correctly."
     (search-forward "filename")
     (beginning-of-line)
     (looking-at "[[:graph:]]+")
-    (setq entry-name (match-string 0))
+    (setq entry-name (match-string-no-properties 0))
     (other-window 2)
     (insert (format "%s:\t%06o\n" entry-name (string-to-number mode-hex-string 16)))
     (other-window 2)
@@ -6988,1799 +6988,6 @@ cpio-dired-isearch-entry-names-regexp is not yet implemented -- expect an error.
   (should-error (cpio-dired-isearch-entry-names-regexp)
      :type 'error))
 
-;;;;;;;; This gets an end-of-buffer error under ERT.
-;;;;;;;; (ert-deftest cdmt-cpio-dired-save-archive-0 () ;✓
-;;;;;;;;   "Test the function of M-x cpio-dired-save-archive."
-;;;;;;;;   (let ((test-name "cdmt-cpio-dired-save-archive")
-;;;;;;;;         (cpio-archive-buffer)
-;;;;;;;; 	(cpio-archive-buffer-contents-before)
-;;;;;;;;         (cpio-archive-buffer-contents)
-;;;;;;;;         (cpio-dired-buffer)
-;;;;;;;;         (cpio-dired-buffer-contents-before)
-;;;;;;;;         (cpio-dired-buffer-contents)
-;;;;;;;;         )
-;;;;;;;;     (cdmt-reset 'make)
-
-;;;;;;;;     (progn (goto-char (point-min))
-;;;;;;;; 	   (re-search-forward " aa$" (point-max))
-;;;;;;;; 	   (cpio-dired-do-delete 1)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents-before
-;;;;;;;; 		 (cdmt-filter-archive-contents (with-current-buffer cpio-archive-buffer
-;;;;;;;; 						 (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents-before (with-current-buffer cpio-dired-buffer
-;;;;;;;; 						     (buffer-substring-no-properties (point-min) (point-max)))))
-    
-;;;;;;;;     (should (and "Archive buffer should be modified."
-;;;;;;;; 		 (buffer-modified-p cpio-archive-buffer)))
-;;;;;;;;     (should (and "Archive buffer should be missing exactly the entry for aa."
-;;;;;;;; 		 (string-equal "070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaa	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; b	(( filename ))
-
-;;;;;;;; b
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 00000000	(( mode     ))
-;;;;;;;; 00000000	(( uid      ))
-;;;;;;;; 00000000	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 0000000B	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents-before)))
-;;;;;;;;     (should (and "Checking dired-style buffer before saving."
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;; " cpio-dired-buffer-contents-before)))
-
-;;;;;;;;     (progn (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-filter-archive-contents 
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-    
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min)(point)) (file-name-nondirectory *cdmt-small-archive*))
-    
-;;;;;;;;     (should (and "Archive buffer should no longer be modified."
-;;;;;;;; 		 (not (buffer-modified-p cpio-archive-buffer))))
-;;;;;;;;     (should (and "Checking the archive buffer after saving."
-;;;;;;;; 		 (string-equal "070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaa	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; b	(( filename ))
-
-;;;;;;;; b
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 00000000	(( mode     ))
-;;;;;;;; 00000000	(( uid      ))
-;;;;;;;; 00000000	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 0000000B	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
-
-;;;;;;;;     (should (and "Checking the dired-style buffer after saving."
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;; " cpio-dired-buffer-contents)))
-
-;;;;;;;;     ;; The archive strings should be identical up to the TRAILER!!! padding.
-;;;;;;;;     ;; NO! Padding after any added, deleted or changed entry will also change.
-;;;;;;;;     ;; (string-match "TRAILER!!!" cpio-archive-buffer-contents-before)
-;;;;;;;;     ;; (setq cpio-archive-buffer-contents-before (substring cpio-archive-buffer-contents-before 0 (match-end 0)))
-;;;;;;;;     ;; (string-match "TRAILER!!!" cpio-archive-buffer-contents)
-;;;;;;;;     ;; (setq cpio-archive-buffer-contents (substring cpio-archive-buffer-contents 0 (match-end 0)))
-;;;;;;;;     ;; (should (string-equal cpio-archive-buffer-contents-before cpio-archive-buffer-contents))
-
-;;;;;;;;     (should (and "The dired style buffer should not have changed."
-;;;;;;;; 		 (string-equal cpio-dired-buffer-contents-before cpio-dired-buffer-contents)))
-
-;;;;;;;;     (cdmt-reset)
-
-;;;;;;;;     (progn (goto-char (point-min))
-;;;;;;;; 	   (re-search-forward " aaaa$" (point-max))
-;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "dddd\n"))
-;;;;;;;; 	   (cpio-dired-do-rename 1)
-;;;;;;;; 	   (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-filter-archive-contents
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
-    
-;;;;;;;;     (should (and "Expecting the standard archive with aaaa moved to ddddd."
-;;;;;;;; 		 (string-equal "070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; b	(( filename ))
-
-;;;;;;;; b
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; dddd	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 00000000	(( mode     ))
-;;;;;;;; 00000000	(( uid      ))
-;;;;;;;; 00000000	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 0000000B	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
-
-;;;;;;;;     (should (and "Expecting a dired style buffer without aaaa."
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
-;;;;;;;; " cpio-dired-buffer-contents)))
-    
-;;;;;;;;     (cdmt-reset)
-    
-;;;;;;;;     (progn (goto-char (point-min))
-;;;;;;;; 	   (re-search-forward " b$" (point-max))
-;;;;;;;; 	   (cpio-dired-mark 4)
-;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "d\n"))
-;;;;;;;; 	   (cpio-dired-do-rename 1)
-;;;;;;;; 	   (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-filter-archive-contents
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
-
-;;;;;;;;     (should (and "Expecting a small archive with d/b, d/bb, d/bbb, d/bbbb."
-;;;;;;;; 		 (string-equal "070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaa	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; aaa
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccc	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; ccc
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; dddd	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000007	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; d/bbbb	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; bbbb
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; d/bbb	(( filename ))
-
-;;;;;;;; bbb
-
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; d/bb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bb
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000004	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; d/b	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; b
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 00000000	(( mode     ))
-;;;;;;;; 00000000	(( uid      ))
-;;;;;;;; 00000000	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 0000000B	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents)))
-
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
-
-;;;;;;;;     (should (and "Looking for a small dired-style buffer with d/b, d/bb, d/bbb, d/bbbb"
-;;;;;;;; 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d/b
-;;;;;;;; " cpio-dired-buffer-contents)))
-
-;;;;;;;;     (cdmt-reset)
-
-;;;;;;;;     (progn (cpio-dired-mark-entries-regexp "\\`...\\'")
-;;;;;;;; 	   (setq unread-command-events (listify-key-sequence "newDirectory\n"))
-;;;;;;;; 	   ;; HEREHERE This rename does something wrong.
-;;;;;;;; 	   (cpio-dired-do-rename 1)
-;;;;;;;; 	   (cpio-dired-save-archive)
-;;;;;;;; 	   (setq cpio-archive-buffer-contents
-;;;;;;;; 		 (cdmt-filter-archive-contents
-;;;;;;;; 		  (with-current-buffer cpio-archive-buffer
-;;;;;;;; 		    (buffer-substring-no-properties (point-min) (point-max)))))
-;;;;;;;; 	   (setq cpio-dired-buffer-contents
-;;;;;;;; 		 (with-current-buffer cpio-dired-buffer
-;;;;;;;; 		   (buffer-substring-no-properties (point-min) (point-max)))))
-
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
-
-;;;;;;;;     (should (string-equal "070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; a	(( filename ))
-
-;;;;;;;; a
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa	(( filename ))
-
-;;;;;;;; aaaaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; aaaaa.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb	(( filename ))
-
-;;;;;;;; bbbbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; bbbbb.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000002	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; c	(( filename ))
-
-;;;;;;;; c
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000003	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cc	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; cc
-
-;;;;;;;; \\0\\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; cccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; cccc
-
-;;;;;;;; \\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000008	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000006	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc	(( filename ))
-
-;;;;;;;; ccccc
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000041ED	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000002	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000008	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; ccccc.d	(( filename ))
-;;;;;;;; \\0\\0070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000005	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; dddd	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000007	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000012	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; newDirectory/bbbb	(( filename ))
-
-;;;;;;;; bbbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000011	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; newDirectory/bbb	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; bbb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000005	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000010	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; newDirectory/bb	(( filename ))
-;;;;;;;; \\0\\0
-;;;;;;;; bb
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000004	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 0000000F	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; newDirectory/b	(( filename ))
-;;;;;;;; \\0\\0\\0
-;;;;;;;; b
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000011	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; newDirectory/ccc	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; ccc
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 000081A4	(( mode     ))
-;;;;;;;; 000003E8	(( uid      ))
-;;;;;;;; 000003E8	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000006	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 00000011	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; newDirectory/aaa	(( filename ))
-;;;;;;;; \\0
-;;;;;;;; aaa
-
-;;;;;;;; 070701	(( magic    ))
-;;;;;;;; DEADBEEF	(( ino      ))
-;;;;;;;; 00000000	(( mode     ))
-;;;;;;;; 00000000	(( uid      ))
-;;;;;;;; 00000000	(( gid      ))
-;;;;;;;; 00000001	(( nlink    ))
-;;;;;;;; DEADBEEF	(( mtime    ))
-;;;;;;;; 00000000	(( filesize ))
-;;;;;;;; DEADBEEF	(( dev maj  ))
-;;;;;;;; DEADBEEF	(( dev min  ))
-;;;;;;;; DEADBEEF	(( rdev maj ))
-;;;;;;;; DEADBEEF	(( rdev min ))
-;;;;;;;; 0000000B	(( namesize ))
-;;;;;;;; 00000000	(( chksum   ))
-;;;;;;;; TRAILER!!!	(( filename ))
-;;;;;;;; \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0" cpio-archive-buffer-contents))
-
-;;;;;;;;     (should (= 0 1))
-
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
-
-;;;;;;;;     (should (string-match "CPIO archive: alphabet_small.newc.cpio:
-
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
-;;;;;;;;   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} dddd
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bbbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bbb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/bb
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/b
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/ccc
-;;;;;;;;   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaa
-;;;;;;;; " cpio-dired-buffer-contents))
-
-;;;;;;;;     (should (= 0 1))
-
-;;;;;;;;     ;; (cdmt-do-cpio-id (count-lines (point-min) (point-max)) (file-name-nondirectory *cdmt-small-archive*))
-
-;;;;;;;;     ))
 
 (ert-deftest cdmt-cpio-describe-mode ()
   "Test cpio-describe-mode.
@@ -9006,7 +7213,8 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-match "((\"a\" \.
+    (should (and "Expecting a catalog with  the first entry having group 9999."
+		 (string-match "((\"a\" \.
   \[\[[[:digit:]]+ 33188 [[:digit:]]+ 9999 1
 	      ([[:digit:]]+ [[:digit:]]+)
 	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
@@ -9096,7 +7304,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 	      ([[:digit:]]+ [[:digit:]]+)
 	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
    #<marker at 2077 in alphabet_small\.newc\.cpio> #<marker at 2197 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after))
+" cpio-catalog-contents-after)))
 
     (cdmt-reset)
     
@@ -9136,7 +7344,8 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-match"((\"a\" \.
+    (should (and "Expecting a catalog with the first 3 entries having group 8888."
+		 (string-match"((\"a\" \.
   \[\[[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
 	      ([[:digit:]]+ [[:digit:]]+)
 	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
@@ -9226,7 +7435,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 	      ([[:digit:]]+ [[:digit:]]+)
 	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
    #<marker at 2077 in alphabet_small\.newc\.cpio> #<marker at 2197 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after))
+" cpio-catalog-contents-after)))
 
     (cdmt-reset)
 
@@ -10755,7 +8964,8 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-match "((\"a\" \.
+    (should (and "Expecting  a catalog with 4 entries owned by 8888."
+		 (string-match "((\"a\" \.
   \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 	      ([[:digit:]]+ [[:digit:]]+)
 	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
@@ -10845,7 +9055,7 @@ TRAILER!!!	(( filename ))
 	      ([[:digit:]]+ [[:digit:]]+)
 	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
    #<marker at 2077 in alphabet_small\.newc\.cpio> #<marker at 2197 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after))
+" cpio-catalog-contents-after)))
 
     (cdmt-reset)
 
@@ -11004,7 +9214,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
+    (should (and "Expecting an untouched archive. (11010)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
 
     (should (and "Expecting entry 'a' to have owner 9999 and group 1111."
 		 (string-match "CPIO archive: alphabet_small.newc.cpio:
@@ -11752,8 +9963,8 @@ a
 
 
 " cpio-archive-buffer-contents)))
-    (should (and "Checking that there is an entry »d« in the dired style buffer."
-		 (string-match "CPIO archive: alphabet_small.newc.cpio:
+  (should (and "Checking that there is an entry »d« in the dired style buffer."
+	       (string-match "CPIO archive: alphabet_small.newc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -11773,7 +9984,7 @@ a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
 " cpio-dired-buffer-contents)))
     (should (and "Expecting to see an entry »d«."
 		 (string-match "((\"a\" \.
@@ -11942,7 +10153,7 @@ a
     (cdmt-test-save)))
 
 (ert-deftest cdmt-cpio-dired-do-copy-2 () ;✓
-  "Test the function of M-x cpio-do-copy."
+  "Test the function of M-x cpio-do-copy operating on multiple entries."
   (let ((test-name "cdmt-cpio-dired-do-copy")
         (cpio-archive-buffer)
         (cpio-archive-buffer-contents)
@@ -12337,7 +10548,8 @@ aaa
 
 \\0\\0
 " cpio-archive-buffer-contents)))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+    (should (and (message "Expecting a dired-style buffer with 3 entries in newDirectory-1")
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -12357,117 +10569,118 @@ aaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/ccc
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/bbb
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/aaa
-" cpio-dired-buffer-contents))
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/ccc
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/bbb
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/aaa
+" cpio-dired-buffer-contents)))
     (should (and "Expecting to see ... entries in newDirectory-1."
 		 (string-match "((\"a\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
-   #<marker at 1 in alphabet_small\.newc\.cpio> #<marker at 113 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"aa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
-   #<marker at 117 in alphabet_small\.newc\.cpio> #<marker at 233 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
-   #<marker at 241 in alphabet_small\.newc\.cpio> #<marker at 357 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"aaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
-   #<marker at 365 in alphabet_small\.newc\.cpio> #<marker at 481 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
-   #<marker at 489 in alphabet_small\.newc\.cpio> #<marker at 605 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"aaaaa\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	      ([[:digit:]]+ [[:digit:]]+)
-	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
-   #<marker at 613 in alphabet_small\.newc\.cpio> #<marker at 733 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"b\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
-   #<marker at 733 in alphabet_small\.newc\.cpio> #<marker at 845 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"bb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
-   #<marker at 849 in alphabet_small\.newc\.cpio> #<marker at 965 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
-   #<marker at 973 in alphabet_small\.newc\.cpio> #<marker at 1089 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"bbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
-   #<marker at 1097 in alphabet_small\.newc\.cpio> #<marker at 1213 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
-   #<marker at 1221 in alphabet_small\.newc\.cpio> #<marker at 1337 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"bbbbb\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	      ([[:digit:]]+ [[:digit:]]+)
-	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
-   #<marker at 1345 in alphabet_small\.newc\.cpio> #<marker at 1465 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"c\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
-   #<marker at 1465 in alphabet_small\.newc\.cpio> #<marker at 1577 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"cc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
-   #<marker at 1581 in alphabet_small\.newc\.cpio> #<marker at 1697 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
-   #<marker at 1705 in alphabet_small\.newc\.cpio> #<marker at 1821 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"cccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
-   #<marker at 1829 in alphabet_small\.newc\.cpio> #<marker at 1945 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
-   #<marker at 1953 in alphabet_small\.newc\.cpio> #<marker at 2069 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"ccccc\.d\" \.
-  \[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
-	      ([[:digit:]]+ [[:digit:]]+)
-	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
-   #<marker at 2077 in alphabet_small\.newc\.cpio> #<marker at 2197 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/ccc\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/ccc\"]
-   #<marker at 2197 in alphabet_small\.newc\.cpio> #<marker at 2329 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/bbb\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/bbb\"]
-   #<marker at 2337 in alphabet_small\.newc\.cpio> #<marker at 2469 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
- (\"newDirectory-1/aaa\" \.
-  \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
-	      ([[:digit:]]+ [[:digit:]]+)
-	      6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/aaa\"]
-   #<marker at 2477 in alphabet_small\.newc\.cpio> #<marker at 2609 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after)))
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small\.newc\.cpio> #<marker at 113 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"aa\"]
+\\s-+#<marker at 117 in alphabet_small\.newc\.cpio> #<marker at 233 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"aaa\"]
+\\s-+#<marker at 241 in alphabet_small\.newc\.cpio> #<marker at 357 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"aaaa\"]
+\\s-+#<marker at 365 in alphabet_small\.newc\.cpio> #<marker at 481 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"aaaaa\"]
+\\s-+#<marker at 489 in alphabet_small\.newc\.cpio> #<marker at 605 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"aaaaa\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"aaaaa\.d\"]
+\\s-+#<marker at 613 in alphabet_small\.newc\.cpio> #<marker at 733 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"b\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"b\"]
+\\s-+#<marker at 733 in alphabet_small\.newc\.cpio> #<marker at 845 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"bb\"]
+\\s-+#<marker at 849 in alphabet_small\.newc\.cpio> #<marker at 965 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"bbb\"]
+\\s-+#<marker at 973 in alphabet_small\.newc\.cpio> #<marker at 1089 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"bbbb\"]
+\\s-+#<marker at 1097 in alphabet_small\.newc\.cpio> #<marker at 1213 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"bbbbb\"]
+\\s-+#<marker at 1221 in alphabet_small\.newc\.cpio> #<marker at 1337 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"bbbbb\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"bbbbb\.d\"]
+\\s-+#<marker at 1345 in alphabet_small\.newc\.cpio> #<marker at 1465 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"c\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"c\"]
+\\s-+#<marker at 1465 in alphabet_small\.newc\.cpio> #<marker at 1577 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"cc\"]
+\\s-+#<marker at 1581 in alphabet_small\.newc\.cpio> #<marker at 1697 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 4 0 \"ccc\"]
+\\s-+#<marker at 1705 in alphabet_small\.newc\.cpio> #<marker at 1821 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"cccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 5 0 \"cccc\"]
+\\s-+#<marker at 1829 in alphabet_small\.newc\.cpio> #<marker at 1945 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 6 0 \"ccccc\"]
+\\s-+#<marker at 1953 in alphabet_small\.newc\.cpio> #<marker at 2069 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"ccccc\.d\" \.
+\\s-+\[\[[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
+\\s-+#<marker at 2077 in alphabet_small\.newc\.cpio> #<marker at 2197 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/ccc\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/ccc\"]
+\\s-+#<marker at 2197 in alphabet_small\.newc\.cpio> #<marker at 2329 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/bbb\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/bbb\"]
+\\s-+#<marker at 2337 in alphabet_small\.newc\.cpio> #<marker at 2469 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified])
+\\s-+(\"newDirectory-1/aaa\" \.
+\\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 0 \"newDirectory-1/aaa\"]
+\\s-+#<marker at 2477 in alphabet_small\.newc\.cpio> #<marker at 2609 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified\]))
+"
+cpio-catalog-contents-after)))
 
     (cdmt-test-save)))
 
@@ -13045,18 +11258,18 @@ aaa
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/cccc
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccc
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbb
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbb
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaa
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaa
+C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc.d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccccc
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/cccc
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/ccc
+C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb.d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbbb
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbbb
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/bbb
+C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa.d
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaa
+C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaa
 " cpio-dired-buffer-contents)))
     (should (and "Expecting all entries named with at least 3 letters to have copies in newDirectory-3."
 		 (string-match "((\"a\" \.
@@ -13677,7 +11890,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal "070701	(( magic    ))
+    (should (and "$xpecting an archive with one archive deleted but otherwise unchanged."
+		 (string-equal "070701	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -13921,8 +12135,9 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+" cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with 4 more entries deleted."
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
@@ -13937,7 +12152,7 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
+" cpio-dired-buffer-contents)))
     (should (and "Expecting a catalog with entries"
 		 "    »aaaa«, »aaaaa«, »aaaaa.d« and »b« deleted."
 		 (string-match "((\"aa\" \.
@@ -14020,7 +12235,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal "070701	(( magic    ))
+    (should (and "Expecting an archive with ... deleted."
+		 (string-equal "070701	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -14210,8 +12426,9 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+" cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with ... all deleted."
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
@@ -14223,7 +12440,7 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
+" cpio-dired-buffer-contents)))
     (should (and "Expecting a catalog with further entries \`...\' deleted."
 		 (string-match "((\"aa\" \.
   \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
@@ -14817,15 +13034,21 @@ They reflect an outstanding bug in cpio-affiliated buffers."
 		     (buffer-substring-no-properties (point-min) (point-max))))
 	     (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog))))))
 
-
     (with-current-buffer cpio-dired-buffer
-      (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-      (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-      (should (not (null cpio-contents-buffer)))
-      (should (buffer-live-p cpio-contents-buffer))
-      (should (string-equal cpio-contents-buffer-string (concat "\n" entry-name "\n\n")))
-      (should (window-live-p cpio-contents-window))
-      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+      (should (and "Expecting an untouched small archive. (14832)"
+		   (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+      (should (and  "Expecting an untouched small dired buffer (14834)"
+		    (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+      (should (and "Expecting a real entry contents buffer. (14836)"
+		   (not (null cpio-contents-buffer))))
+      (should (and "...and expecting the entry contents buffer to be live. (14838)"
+		   (buffer-live-p cpio-contents-buffer)))
+      (should (and (format "Expecting that buffer to contain the contents of [[%s]]. (14840)" entry-name)
+		   (string-equal cpio-contents-buffer-string (concat "\n" entry-name "\n\n"))))
+      (should (and "Expecting a live entry contents window. (14842)"
+		   (window-live-p cpio-contents-window)))
+      (should (and "Expecting an unchanged entry contents buffer. (14844)"
+		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
     (push entry-name past-entries)
     
@@ -14850,13 +13073,16 @@ They reflect an outstanding bug in cpio-affiliated buffers."
 		     (buffer-substring-no-properties (point-min) (point-max))))))
 
     (with-current-buffer cpio-dired-buffer
-      (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-      (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+      (should (and "Expecting an unchanged small archive. (14870)."
+		   (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+      (should (and "Expecting an untouched cpio-dired buffer (14872)"
+		   (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
       (should (not (null cpio-contents-buffer)))
       (should (buffer-live-p cpio-contents-buffer))
       (should (string-equal cpio-contents-buffer-string "\nccc\n\n"))
       (should (window-live-p cpio-contents-window))
-      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+      (should (and "Expecting an unchanged catalog. (17957)"
+		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
     ;; Now make sure that any past entries are still there.
     (mapc (lambda (en)
@@ -15284,7 +13510,8 @@ c
 
 
 " cpio-archive-buffer-contents)))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+     (should (and "Expecting a cpio-dired buffer with an autosave entry for each onecharacter entry."
+		  (string-match "CPIO archive: alphabet_small.newc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15307,8 +13534,9 @@ c
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #a
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #b
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #c
-" cpio-dired-buffer-contents))
-    (should (string-match "((\"a\" \.
+" cpio-dired-buffer-contents)))
+     (should (and "Expecting a catalog with autosave entries for each one-character entry."
+		  (string-match "((\"a\" \.
   \[\[[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 	      ([[:digit:]]+ [[:digit:]]+)
 	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 0 \"a\"]
@@ -15413,7 +13641,7 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 	      ([[:digit:]]+ [[:digit:]]+)
 	      4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 0 \"#c\"]
    #<marker at 2437 in alphabet_small\.newc\.cpio> #<marker at 2553 in alphabet_small\.newc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after))))
+" cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-flag-backup-entries ()
   "Test cpio-dired-flag-backup-entries.
@@ -15449,8 +13677,10 @@ cpio-dired-flag-entries-regexp is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+    (should (and "Expecting and unchanged small archive. (15472)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with one entry flagged for deletion."
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15470,8 +13700,9 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17958)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 2)
@@ -15485,8 +13716,10 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+    (should (and "Expecting and unchanged small archive. (15510)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with another 4 entries flagged for deletion."
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15506,8 +13739,9 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17959)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-flag-garbage-entries ()
   "Test cpio-dired-flag-garbage-entries."
@@ -16189,8 +14423,10 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
     
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+    (should (and "Expecting and unchanged small archive. (16216)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with the first entry marked."
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16210,8 +14446,9 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17960)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 2)
@@ -16225,8 +14462,10 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal cpio-archive-buffer-contents *cdmt-untouched-small-archive*))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+    (should (and "Expecting and unchanged small archive. (16254)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with 4 more entries marked."
+		 (string-match "CPIO archive: alphabet_small.newc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16246,8 +14485,9 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17961)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-mark-directories ()
   "Test cpio-dired-mark-directories.
@@ -16282,8 +14522,10 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match "CPIO archive: alphabet_small.newc.cpio:
+    (should (and "Expecting and unchanged small archive. (16313)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting a cpio-dired buffer with ... marked."
+		  (string-match "CPIO archive: alphabet_small.newc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16303,8 +14545,9 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+" cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17962)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-mark-executables ()
   "Test cpio-dired-mark-executables.
@@ -16492,9 +14735,12 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
     
     (should (string-equal "a" entry-name))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an untouched cpio-dired buffer. (16526)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting and unchanged small archive. (16526)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17963)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 2)
@@ -16509,8 +14755,10 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (string-equal "aaa" entry-name))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
+    (should (and "Expecting an untouched cpio-dired buffer. (16545)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting and unchanged small archive. (16544)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 4)
@@ -16525,9 +14773,12 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (string-equal "b" entry-name))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an untouched cpio-dired buffer. (16563)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting and unchanged small archive. (16561)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17964)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 100)
@@ -16542,9 +14793,12 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (equal nil entry-name))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an untouched cpio-dired buffer. (16582)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting and unchanged small archive. (16579)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17965)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-next-marked-entry ()
   "Test cpio-dired-next-marked-entry.
@@ -16605,9 +14859,12 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (= where 1155))
-    (should (string-match *cdmt-untouched-small-archive-buffer* cpio-archive-buffer-contents))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting and unchanged small archive. (16642)"
+		 (string-equal *cdmt-untouched-small-archive-buffer* cpio-archive-buffer-contents)))
+    (should (and "Expecting an untouched cpio-dired buffer. (16649)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17966)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-previous-line 2)
@@ -16623,8 +14880,10 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 
     (should (= where 1019))
     (should (string-match *cdmt-untouched-small-archive-buffer* cpio-archive-buffer-contents))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an untouched cpio-dired buffer. (16667)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17967)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-previous-line 4)
@@ -16639,9 +14898,12 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (= where 774))
-    (should (string-match *cdmt-untouched-small-archive-buffer* cpio-archive-buffer-contents))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting and unchanged small archive. (16677)"
+		 (string-equal *cdmt-untouched-small-archive-buffer* cpio-archive-buffer-contents)))
+    (should (and "Expecting an untouched cpio-dired buffer. (16686)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17968)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-previous-line ()
   "Test cpio-dired-previous-line.
@@ -16763,7 +15025,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17969)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-next-line 2)
@@ -16801,7 +15064,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17970)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 4)
@@ -16839,7 +15103,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17971)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (dired-next-line 4)
@@ -16877,7 +15142,8 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (17972)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-unmark-all-entries ()
   "Test cpio-dired-unmark-all-entries."
@@ -16932,7 +15198,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17973)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-entries "" nil)
@@ -16969,7 +15236,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17974)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-mark-entries-regexp ".")
@@ -17014,7 +15282,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
     
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17975)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-entries "B" nil)
@@ -17052,7 +15321,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
 
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17976)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-entries "F" nil)
@@ -17089,7 +15359,8 @@ E -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (17977)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-unmark-all-marks ()
   "Test cpio-dired-unmark-all-marks."
@@ -17144,7 +15415,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
+    (should (and "Expecting an unchanged catalog. (17978)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
   
     (progn (setq cpio-catalog-contents-before (format "%s" (pp (cpio-catalog))))
 	   (cpio-dired-unmark-all-marks)
@@ -17181,7 +15453,8 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting an unchanged catalog. (17979)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-unmark-all-marks () ;✓
   "Test the function of M-x cpio-unmark-all-marks."
@@ -17214,9 +15487,12 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
-    (should (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents))
-    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+    (should (and "Expecting and unchanged small archive. (17253)"
+		 (string-equal *cdmt-untouched-small-archive* cpio-archive-buffer-contents)))
+    (should (and "Expecting an untouched cpio-dired buffer. (17263)"
+		 (string-match *cdmt-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+    (should (and "Expecting an unchanged catalog. (17980)"
+		 (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-cpio-dired-unmark-backward ()
   "Test cpio-dired-unmark-backward.
@@ -17384,33 +15660,6 @@ cpio-image-dired-tag-entries is not yet implemented -- expect an error."
 cpio-mouse-face is not yet implemented -- expect an error."
   (should-error (cpio-mouse-face)
      :type 'error))
-
-;;;;;;;; (ert-deftest cdmt-cpio-quit-window () ;✓
-;;;;;;;;   "Test cpio-quit-window.
-;;;;;;;; cpio-quit-window is not yet implemented -- expect an error."
-;;;;;;;;   (let ((test-name "cdmt-cpio-dired-quit-window")
-;;;;;;;;         (cpio-archive-buffer)
-;;;;;;;;         (cpio-archive-buffer-contents)
-;;;;;;;;         (cpio-dired-buffer)
-;;;;;;;;         (cpio-dired-buffer-contents)
-;;;;;;;; 	(cpio-archive-window)
-;;;;;;;; 	(cpio-dired-window)
-;;;;;;;;         )
-;;;;;;;;     (cdmt-reset 'make)
-
-;;;;;;;;     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
-;;;;;;;;     (should (window-live-p cpio-dired-window))
-;;;;;;;;     (setq cpio-archive-window (get-buffer-window (get-buffer cpio-archive-buffer)))
-;;;;;;;;     ;; (should (not (window-live-p cpio-dired-window)))
-;;;;;;;;     (should (eq nil cpio-archive-window))
-
-;;;;;;;; This causes an error under ERT.
-;;;;;;;;     (cpio-quit-window)
-
-;;;;;;;;     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
-;;;;;;;;     (should (eq nil cpio-dired-window))
-;;;;;;;;     (setq cpio-archive-window (get-buffer-window (get-buffer cpio-archive-buffer)))
-;;;;;;;;     (should (eq nil cpio-archive-window))))
 
 (ert-deftest cdmt-revert-buffer ()
   "Test revert-buffer.
@@ -17799,8 +16048,8 @@ newDirectory	(( filename ))
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
   drwxr-xr-x   1  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory
 " cpio-dired-buffer-contents)))
-    ;; (should (and "Expecting a catalog with a new directory called »newDirectory«."
-	(should	 (string-match "((\"newDirectory\" \\.
+    (should (and "Expecting a catalog with a new directory called »newDirectory«."
+		 (string-match "((\"newDirectory\" \\.
   [[1 16877 [[:digit:]]+ [[:digit:]]+ 1
       ([[:digit:]]+ [[:digit:]]+)
       0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 13 0 \"newDirectory\"]
@@ -17895,7 +16144,7 @@ newDirectory	(( filename ))
 	      ([[:digit:]]+ [[:digit:]]+)
 	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\\.d\"]
    #<marker at 2077 in alphabet_small\\.newc\\.cpio> #<marker at 2197 in alphabet_small\\.newc\\.cpio> cpio-mode-entry-unmodified]))
-" cpio-catalog-contents-after))
+" cpio-catalog-contents-after)))
     
     (cdmt-test-save)))
 
