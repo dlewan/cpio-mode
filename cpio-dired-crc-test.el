@@ -6520,7 +6520,7 @@ If MAKE is non-nil, then run 'make crc' as part of the reset."
 			     *cdmt-crc-large-archive*)))
     (cd run-dir)
     (mapc (lambda (an)
-	    (setq cpio-archive-buffer (find-file-noselect an 'no-warn))
+	    (setq cpio-archive-buffer (find-file-noselect an nil nil))
 	    (if (and (file-exists-p an)
 		     (buffer-live-p (get-buffer cpio-archive-buffer)))
 		(with-current-buffer cpio-archive-buffer
@@ -6540,7 +6540,7 @@ If MAKE is non-nil, then run 'make crc' as part of the reset."
 			 *cdmt-crc-small-archive*))
 
     (delete-other-windows)
-    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name 'no-warn))
+    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name nil nil))
       (if (string-match "/test_data/.+/test_data/" (buffer-file-name))
 	  (error "Bogus archive!"))
       (cpio-mode))

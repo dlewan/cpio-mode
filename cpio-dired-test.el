@@ -6557,7 +6557,7 @@ If MAKE is non-nil, then run 'make newc' as part of the reset."
 			 *cdmt-small-archive*))
 
     (delete-other-windows)
-    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name 'no-warn))
+    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name nil nil))
       (if (string-match "/test_data/.+/test_data/" (buffer-file-name))
 	  (error "Bogus archive!"))
       (cpio-mode))
