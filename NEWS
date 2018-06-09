@@ -1,5 +1,10 @@
 # -*- outline -*-
-#	$Id: NEWS,v 1.6 2018/06/03 14:01:54 doug Exp $	
+#	$Id: NEWS,v 1.7 2018/06/09 06:16:41 doug Exp $	
+
+* Version 0.08
+** Binary format support.
+   As with the ODC format, hpbin = bin if the archive contains no devices,
+   and cpio-mode doesn't handle devices yet.
 
 * Version 0.07
 ** Fontification (from dired).
@@ -9,7 +14,7 @@
 * Version 0.06
 ** Support for the ODC archive format.
    Note that hpodc = odc if the archive contains no devices,
-   and cpio-mode doesn't handle devices yes.
+   and cpio-mode doesn't handle devices yet.
    (And it may never.)
 
 * Version 0.05
