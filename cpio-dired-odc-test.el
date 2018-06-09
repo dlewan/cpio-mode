@@ -1,7 +1,6 @@
-;	$Id: cpio-dired-odc-test.el,v 1.3 2018/06/03 14:01:55 doug Exp $	
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-test.el --- Tests of cpio-dired-mode.
-;	$Id: cpio-dired-odc-test.el,v 1.3 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-dired-odc-test.el,v 1.4 2018/06/04 19:21:15 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -777,187 +776,187 @@ TRAILER!!!	(( filename ))
 ")
 
 (defvar *cdmt-odc-untouched-small-catalog* "((\"a\" .
-  [[43252341448 33188 1000 1000 1
-	 (23281 65535)
-	 4 253 0 0 0 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 113 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341448 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+4 253 0 0 0 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 113 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aa\" .
-  [[43252341474 33188 1000 1000 1
-	 (23281 65535)
-	 5 253 0 0 0 3 0 \"aa\"]
-   #<marker at 117 in alphabet_small.odc.cpio> #<marker at 233 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341474 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+5 253 0 0 0 3 0 \"aa\"]
+\\s-+#<marker at 117 in alphabet_small.odc.cpio> #<marker at 233 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaa\" .
-  [[43252341508 33188 1000 1000 1
-	 (23281 65535)
-	 6 253 0 0 0 4 0 \"aaa\"]
-   #<marker at 241 in alphabet_small.odc.cpio> #<marker at 357 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341508 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+6 253 0 0 0 4 0 \"aaa\"]
+\\s-+#<marker at 241 in alphabet_small.odc.cpio> #<marker at 357 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaaa\" .
-  [[43252341511 33188 1000 1000 1
-	 (23281 65535)
-	 7 253 0 0 0 5 0 \"aaaa\"]
-   #<marker at 365 in alphabet_small.odc.cpio> #<marker at 481 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341511 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+7 253 0 0 0 5 0 \"aaaa\"]
+\\s-+#<marker at 365 in alphabet_small.odc.cpio> #<marker at 481 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaaaa\" .
-  [[43252341512 33188 1000 1000 1
-	 (23281 65535)
-	 8 253 0 0 0 6 0 \"aaaaa\"]
-   #<marker at 489 in alphabet_small.odc.cpio> #<marker at 605 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341512 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+8 253 0 0 0 6 0 \"aaaaa\"]
+\\s-+#<marker at 489 in alphabet_small.odc.cpio> #<marker at 605 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaaaa.d\" .
-  [[43252341515 16877 1000 1000 2
-	 (23268 65535)
-	 0 253 0 0 0 8 0 \"aaaaa.d\"]
-   #<marker at 613 in alphabet_small.odc.cpio> #<marker at 733 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341515 16877 1000 1000 2
+\\s-+(23268 65535)
+\\s-+0 253 0 0 0 8 0 \"aaaaa.d\"]
+\\s-+#<marker at 613 in alphabet_small.odc.cpio> #<marker at 733 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"b\" .
-  [[43252341513 33188 1000 1000 1
-	 (23281 65535)
-	 4 253 0 0 0 2 0 \"b\"]
-   #<marker at 733 in alphabet_small.odc.cpio> #<marker at 845 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341513 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+4 253 0 0 0 2 0 \"b\"]
+\\s-+#<marker at 733 in alphabet_small.odc.cpio> #<marker at 845 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bb\" .
-  [[43252341514 33188 1000 1000 1
-	 (23281 65535)
-	 5 253 0 0 0 3 0 \"bb\"]
-   #<marker at 849 in alphabet_small.odc.cpio> #<marker at 965 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341514 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+5 253 0 0 0 3 0 \"bb\"]
+\\s-+#<marker at 849 in alphabet_small.odc.cpio> #<marker at 965 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbb\" .
-  [[43252341516 33188 1000 1000 1
-	 (23281 65535)
-	 6 253 0 0 0 4 0 \"bbb\"]
-   #<marker at 973 in alphabet_small.odc.cpio> #<marker at 1089 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341516 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+6 253 0 0 0 4 0 \"bbb\"]
+\\s-+#<marker at 973 in alphabet_small.odc.cpio> #<marker at 1089 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbbb\" .
-  [[43252341517 33188 1000 1000 1
-	 (23281 65535)
-	 7 253 0 0 0 5 0 \"bbbb\"]
-   #<marker at 1097 in alphabet_small.odc.cpio> #<marker at 1213 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341517 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+7 253 0 0 0 5 0 \"bbbb\"]
+\\s-+#<marker at 1097 in alphabet_small.odc.cpio> #<marker at 1213 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbbbb\" .
-  [[43252341518 33188 1000 1000 1
-	 (23281 65535)
-	 8 253 0 0 0 6 0 \"bbbbb\"]
-   #<marker at 1221 in alphabet_small.odc.cpio> #<marker at 1337 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341518 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+8 253 0 0 0 6 0 \"bbbbb\"]
+\\s-+#<marker at 1221 in alphabet_small.odc.cpio> #<marker at 1337 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbbbb.d\" .
-  [[43252341601 16877 1000 1000 2
-	 (23268 65535)
-	 0 253 0 0 0 8 0 \"bbbbb.d\"]
-   #<marker at 1345 in alphabet_small.odc.cpio> #<marker at 1465 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341601 16877 1000 1000 2
+\\s-+(23268 65535)
+\\s-+0 253 0 0 0 8 0 \"bbbbb.d\"]
+\\s-+#<marker at 1345 in alphabet_small.odc.cpio> #<marker at 1465 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"c\" .
-  [[43252341519 33188 1000 1000 1
-	 (23281 65535)
-	 4 253 0 0 0 2 0 \"c\"]
-   #<marker at 1465 in alphabet_small.odc.cpio> #<marker at 1577 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341519 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+4 253 0 0 0 2 0 \"c\"]
+\\s-+#<marker at 1465 in alphabet_small.odc.cpio> #<marker at 1577 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"cc\" .
-  [[43252341600 33188 1000 1000 1
-	 (23281 65535)
-	 5 253 0 0 0 3 0 \"cc\"]
-   #<marker at 1581 in alphabet_small.odc.cpio> #<marker at 1697 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341600 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+5 253 0 0 0 3 0 \"cc\"]
+\\s-+#<marker at 1581 in alphabet_small.odc.cpio> #<marker at 1697 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"ccc\" .
-  [[43252341602 33188 1000 1000 1
-	 (23281 65535)
-	 6 253 0 0 0 4 0 \"ccc\"]
-   #<marker at 1705 in alphabet_small.odc.cpio> #<marker at 1821 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341602 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+6 253 0 0 0 4 0 \"ccc\"]
+\\s-+#<marker at 1705 in alphabet_small.odc.cpio> #<marker at 1821 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"cccc\" .
-  [[43252341603 33188 1000 1000 1
-	 (23281 65535)
-	 7 253 0 0 0 5 0 \"cccc\"]
-   #<marker at 1829 in alphabet_small.odc.cpio> #<marker at 1945 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341603 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+7 253 0 0 0 5 0 \"cccc\"]
+\\s-+#<marker at 1829 in alphabet_small.odc.cpio> #<marker at 1945 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"ccccc\" .
-  [[43252341604 33188 1000 1000 1
-	 (23281 65535)
-	 8 253 0 0 0 6 0 \"ccccc\"]
-   #<marker at 1953 in alphabet_small.odc.cpio> #<marker at 2069 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341604 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+8 253 0 0 0 6 0 \"ccccc\"]
+\\s-+#<marker at 1953 in alphabet_small.odc.cpio> #<marker at 2069 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"ccccc.d\" .
-  [[43252341607 16877 1000 1000 2
-	 (23268 65535)
-	 0 253 0 0 0 8 0 \"ccccc.d\"]
-   #<marker at 2077 in alphabet_small.odc.cpio> #<marker at 2197 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+[[43252341607 16877 1000 1000 2
+\\s-+(23268 65535)
+\\s-+0 253 0 0 0 8 0 \"ccccc.d\"]
+\\s-+#<marker at 2077 in alphabet_small.odc.cpio> #<marker at 2197 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 "
   "An string representing an untouched catalog.")
 (setq *cdmt-odc-untouched-small-catalog* "((\"a\" .
-  [[43252341448 33188 1000 1000 1
-	 (23281 65535)
-	 4 253 0 0 0 2 0 \"a\"]
-   #<marker at 1 in alphabet_small.odc.cpio> #<marker at 113 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341448 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+4 253 0 0 0 2 0 \"a\"]
+\\s-+#<marker at 1 in alphabet_small.odc.cpio> #<marker at 113 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aa\" .
-  [[43252341474 33188 1000 1000 1
-	 (23281 65535)
-	 5 253 0 0 0 3 0 \"aa\"]
-   #<marker at 117 in alphabet_small.odc.cpio> #<marker at 233 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341474 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+5 253 0 0 0 3 0 \"aa\"]
+\\s-+#<marker at 117 in alphabet_small.odc.cpio> #<marker at 233 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaa\" .
-  [[43252341508 33188 1000 1000 1
-	 (23281 65535)
-	 6 253 0 0 0 4 0 \"aaa\"]
-   #<marker at 241 in alphabet_small.odc.cpio> #<marker at 357 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341508 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+6 253 0 0 0 4 0 \"aaa\"]
+\\s-+#<marker at 241 in alphabet_small.odc.cpio> #<marker at 357 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaaa\" .
-  [[43252341511 33188 1000 1000 1
-	 (23281 65535)
-	 7 253 0 0 0 5 0 \"aaaa\"]
-   #<marker at 365 in alphabet_small.odc.cpio> #<marker at 481 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341511 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+7 253 0 0 0 5 0 \"aaaa\"]
+\\s-+#<marker at 365 in alphabet_small.odc.cpio> #<marker at 481 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaaaa\" .
-  [[43252341512 33188 1000 1000 1
-	 (23281 65535)
-	 8 253 0 0 0 6 0 \"aaaaa\"]
-   #<marker at 489 in alphabet_small.odc.cpio> #<marker at 605 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341512 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+8 253 0 0 0 6 0 \"aaaaa\"]
+\\s-+#<marker at 489 in alphabet_small.odc.cpio> #<marker at 605 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"aaaaa.d\" .
-  [[43252341515 16877 1000 1000 2
-	 (23268 65535)
-	 0 253 0 0 0 8 0 \"aaaaa.d\"]
-   #<marker at 613 in alphabet_small.odc.cpio> #<marker at 733 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341515 16877 1000 1000 2
+\\s-+(23268 65535)
+\\s-+0 253 0 0 0 8 0 \"aaaaa.d\"]
+\\s-+#<marker at 613 in alphabet_small.odc.cpio> #<marker at 733 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"b\" .
-  [[43252341513 33188 1000 1000 1
-	 (23281 65535)
-	 4 253 0 0 0 2 0 \"b\"]
-   #<marker at 733 in alphabet_small.odc.cpio> #<marker at 845 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341513 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+4 253 0 0 0 2 0 \"b\"]
+\\s-+#<marker at 733 in alphabet_small.odc.cpio> #<marker at 845 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bb\" .
-  [[43252341514 33188 1000 1000 1
-	 (23281 65535)
-	 5 253 0 0 0 3 0 \"bb\"]
-   #<marker at 849 in alphabet_small.odc.cpio> #<marker at 965 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341514 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+5 253 0 0 0 3 0 \"bb\"]
+\\s-+#<marker at 849 in alphabet_small.odc.cpio> #<marker at 965 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbb\" .
-  [[43252341516 33188 1000 1000 1
-	 (23281 65535)
-	 6 253 0 0 0 4 0 \"bbb\"]
-   #<marker at 973 in alphabet_small.odc.cpio> #<marker at 1089 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341516 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+6 253 0 0 0 4 0 \"bbb\"]
+\\s-+#<marker at 973 in alphabet_small.odc.cpio> #<marker at 1089 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbbb\" .
-  [[43252341517 33188 1000 1000 1
-	 (23281 65535)
-	 7 253 0 0 0 5 0 \"bbbb\"]
-   #<marker at 1097 in alphabet_small.odc.cpio> #<marker at 1213 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341517 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+7 253 0 0 0 5 0 \"bbbb\"]
+\\s-+#<marker at 1097 in alphabet_small.odc.cpio> #<marker at 1213 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbbbb\" .
-  [[43252341518 33188 1000 1000 1
-	 (23281 65535)
-	 8 253 0 0 0 6 0 \"bbbbb\"]
-   #<marker at 1221 in alphabet_small.odc.cpio> #<marker at 1337 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341518 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+8 253 0 0 0 6 0 \"bbbbb\"]
+\\s-+#<marker at 1221 in alphabet_small.odc.cpio> #<marker at 1337 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"bbbbb.d\" .
-  [[43252341601 16877 1000 1000 2
-	 (23268 65535)
-	 0 253 0 0 0 8 0 \"bbbbb.d\"]
-   #<marker at 1345 in alphabet_small.odc.cpio> #<marker at 1465 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341601 16877 1000 1000 2
+\\s-+(23268 65535)
+\\s-+0 253 0 0 0 8 0 \"bbbbb.d\"]
+\\s-+#<marker at 1345 in alphabet_small.odc.cpio> #<marker at 1465 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"c\" .
-  [[43252341519 33188 1000 1000 1
-	 (23281 65535)
-	 4 253 0 0 0 2 0 \"c\"]
-   #<marker at 1465 in alphabet_small.odc.cpio> #<marker at 1577 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341519 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+4 253 0 0 0 2 0 \"c\"]
+\\s-+#<marker at 1465 in alphabet_small.odc.cpio> #<marker at 1577 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"cc\" .
-  [[43252341600 33188 1000 1000 1
-	 (23281 65535)
-	 5 253 0 0 0 3 0 \"cc\"]
-   #<marker at 1581 in alphabet_small.odc.cpio> #<marker at 1697 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341600 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+5 253 0 0 0 3 0 \"cc\"]
+\\s-+#<marker at 1581 in alphabet_small.odc.cpio> #<marker at 1697 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"ccc\" .
-  [[43252341602 33188 1000 1000 1
-	 (23281 65535)
-	 6 253 0 0 0 4 0 \"ccc\"]
-   #<marker at 1705 in alphabet_small.odc.cpio> #<marker at 1821 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341602 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+6 253 0 0 0 4 0 \"ccc\"]
+\\s-+#<marker at 1705 in alphabet_small.odc.cpio> #<marker at 1821 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"cccc\" .
-  [[43252341603 33188 1000 1000 1
-	 (23281 65535)
-	 7 253 0 0 0 5 0 \"cccc\"]
-   #<marker at 1829 in alphabet_small.odc.cpio> #<marker at 1945 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341603 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+7 253 0 0 0 5 0 \"cccc\"]
+\\s-+#<marker at 1829 in alphabet_small.odc.cpio> #<marker at 1945 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"ccccc\" .
-  [[43252341604 33188 1000 1000 1
-	 (23281 65535)
-	 8 253 0 0 0 6 0 \"ccccc\"]
-   #<marker at 1953 in alphabet_small.odc.cpio> #<marker at 2069 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
+\\s-+[[43252341604 33188 1000 1000 1
+\\s-+(23281 65535)
+\\s-+8 253 0 0 0 6 0 \"ccccc\"]
+\\s-+#<marker at 1953 in alphabet_small.odc.cpio> #<marker at 2069 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified])
  (\"ccccc.d\" .
-  [[43252341607 16877 1000 1000 2
-	 (23268 65535)
-	 0 253 0 0 0 8 0 \"ccccc.d\"]
-   #<marker at 2077 in alphabet_small.odc.cpio> #<marker at 2197 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
+\\s-+[[43252341607 16877 1000 1000 2
+\\s-+(23268 65535)
+\\s-+0 253 0 0 0 8 0 \"ccccc.d\"]
+\\s-+#<marker at 2077 in alphabet_small.odc.cpio> #<marker at 2197 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
 ")
 
 (defvar *cdmt-odc-untouched-large-archive-buffer* "070707	(( magic    ))
@@ -7317,7 +7316,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 " cpio-dired-buffer-contents)))
-    (should (and "Expecting a catalog with the firwat entry having group 9999."
+    (should (and "Expecting a catalog with the first entry having group 9999."
 		 (string-match "((\"a\" \.
 \\s-+\[\[[[:digit:]]+ 33188 [[:digit:]]+ 9999 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
@@ -7408,8 +7407,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
 \\s-+#<marker at 1459 in alphabet_small.odc.cpio> #<marker at 1543 in alphabet_small.odc.cpio> cpio-mode-entry-unmodified]))
-"
- cpio-catalog-contents-after)))
+" cpio-catalog-contents-after)))
 
     (cdmt-odc-reset)
     
@@ -15751,6 +15749,7 @@ cpio-image-dired-tag-entries is not yet implemented -- expect an error."
 cpio-mouse-face is not yet implemented -- expect an error."
   (should-error (cpio-mouse-face)
      :type 'error))
+
 
 (ert-deftest cdmt-odc-revert-buffer ()
   "Test revert-buffer.

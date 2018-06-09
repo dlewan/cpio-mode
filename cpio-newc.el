@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.7 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-newc.el,v 1.8 2018/06/09 05:20:12 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -289,7 +289,7 @@ in a newc cpio archive.")
   (defconst *cpio-newc-name-field-offset*     (+ l (* *cpio-newc-field-width* i)))
   (setq *cpio-newc-name-field-offset*         (+ l (* *cpio-newc-field-width* (1- i)))))
 
-(defconst *cpio-newc-trailer "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0"
+(defconst *cpio-newc-trailer* "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0"
   "The TRAILER string for a newc archive.")
 
 (defcustom *cpio-newc-blocksize* 512
@@ -335,7 +335,7 @@ CAVEATS:
 ;; 
 
 (defun cpio-newc-parse-header (header-string)
-  "Return the internal entry header structure encoded in HEADER-STR.
+  "Return the internal entry header structure encoded in HEADER-STRING.
 The optional argument WHERE should be a buffer location
 at the beginning of a known cpio newc header.
 If WHERE is not given, then take point and hope.
@@ -573,8 +573,7 @@ Since we're writing a NEWC CPIO header it must be < 8 digits.
 N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
 I likely won't need this, but someone might."
   (let ((fname "cpio-newc-big-inode-to-string")
-	(hex-digit-count (integer-hex-digits))
-	(formatter))
+	(hex-digit-count (integer-hex-digits)))
     (hex-format-pair ino)))
 
 (defun cpio-newc-make-mode (attrs)

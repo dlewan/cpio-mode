@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.7 2018/06/03 14:01:56 doug Exp $	
+;	$Id: cpio.el,v 1.8 2018/06/09 05:20:12 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -261,9 +261,6 @@ Takes the values 'bin, 'newc, 'odc etc.")
 
 ;; N.B. The format REs go here since they are what we use
 ;; to discern the type of the archive.
-(defvar *cpio-bin-header-re* "nOt yEt iMpLeMeNtEd"
-  "RE to match BIN format cpio archives.")
-(setq *cpio-bin-header-re* "nOt yEt iMpLeMeNtEd")
 
 (defvar *cpio-tar-header-re* "nOt yEt iMpLeMeNtEd"
   "RE to match tar format cpio archives.")
@@ -539,6 +536,9 @@ A parsed header is a vector of the following form:
 (defvar *cpio-padding-str* ()
   "A single character string of the character to be used for building padded strings.")
 
+(defvar *cpio-archive-syntax-table* ()
+  "Every character in a cpio archive has word syntax.")
+
 
 ;;
 ;; Customizations
@@ -563,6 +563,13 @@ and NIL if the current buffer does not begin with a cpio entry header."
   ;; Maybe each format needs a function.
   (let ((fname "cpio-discern-archive-type")
 	(this-archive-type))
+    (unless *cpio-archive-syntax-table*
+      (setq *cpio-archive-syntax-table* (make-syntax-table))
+      (let ((i 0))
+	(while (< i #x100)
+	  (modify-syntax-entry i "w" *cpio-archive-syntax-table*)
+	  (setq i (1+ i)))))
+    (set-syntax-table *cpio-archive-syntax-table*)
     (save-excursion
       (widen)
       (goto-char (point-min))
@@ -1343,7 +1350,7 @@ Signal an error if it isn't."
 (define-derived-mode cpio-mode fundamental-mode "cpio-mode"
   "Treat cpio archives like file systems with a dired UI."
   (if (null (setq *cpio-format* (cpio-discern-archive-type)))
-      (error "You're not in a supported CPIO buffer."))
+      (error "You're not in a supported CPIO buffer. It begins [[%s]]." (buffer-substring-no-properties 1 8)))
   (message "You're in a cpio buffer of type [[%s]]." (symbol-name *cpio-format*)) ; (sit-for 1.0)
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
@@ -1520,7 +1527,13 @@ See *cpio-local-funcs* for more information."
 
 (defun cpio-set-local-bin-vars ()
   "Set buffer local variables appropriate for a BIN format CPIO archive."
-  (let ((fname "cpio-set-local-bin-vars"))))
+  (let ((fname "cpio-set-local-bin-vars"))
+    (make-local-variable '*cpio-padding-modulus*)
+    (setq *cpio-padding-modulus* *cpio-bin-padding-modulus*)
+    (make-local-variable '*cpio-padding-char*)
+    (setq *cpio-padding-char* *cpio-bin-padding-char*)
+    (make-local-variable '*cpio-padding-str*)
+    (setq *cpio-padding-str* *cpio-bin-padding-str*)))
 
 (defun cpio-set-local-newc-vars ()
   "Set buffer local variables appropriate for a NEWC format CPIO archive."

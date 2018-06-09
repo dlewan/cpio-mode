@@ -1,5 +1,5 @@
 # -*- mode: org; encoding: utf-8 -*-
-#	$Id: README,v 1.4 2018/05/12 16:35:59 doug Exp $	
+#	$Id: README,v 1.5 2018/06/04 18:50:14 doug Exp $	
 
 
 * Intent
@@ -30,14 +30,24 @@ To add a new archive type a devloper should be able to do so
 merely by being able to parse an entry and
 write a parsed entry back to a file.
  
-Right now (2017 Dec 10), the cpio-mode package supports the above
-for the "newc" format of cpio archives.
+Right now (2018 May 21), the cpio-mode package supports the above
+for the newc, crc and odc formats of cpio archives.
 However, the internal structure of cpio-mode implements
 all of the manipulation code in terms of parsed headers
 (which look much like inodes), so adding new formats should be
 relatively easy.
 See the documentation in cpio.el
 for a slightly more detailed description of this structure.
+
+You should be able to add a new format if
+1. it has entry headers that have an inode-like format;
+2. the end of a [padded] entry header is the start of the entry contents.
+
+If you need to extend the inode-like format (for example the crc format),
+then you can simply add the extensions to the attributes
+of the entries in the catalog.
+This will likely require updating the various build-catalog functions
+and the make-header-string functions.
 
 * Other code
 
@@ -102,13 +112,29 @@ cab-test.el provides basic testing of cpio-affiliated-buffers.el.
 cpio-newc-test.el provides basic testing of some of the function
 implemented in cpio-newc.el.
 
-cpio-dired-test.el provides basic testing of some dired-like functions.
-This testing typically takes the form
+The following files contain tests that exercise cpio function
+through the dired-style interface.
+    * cpio-dired-test.el -- tests of the newc format.
+    * cpio-dired-crc-test.el
+    * cpio-dired-odc-test.el
+
+The general form of a check is the following:
     1. Do something.
     2. Compare the dired-style buffers.
     3. Compare the archive buffers.
+    4. Compare the catalogs.
 Occasionally, there are other things, like checking for modification,
 or visibility of a window.
 Some tests use a "large" cpio archive (one with 26·5 = 130 entries).
-Those are not fast, so be patient if you're going to run these.
+Those are not fast, so be patient if you're going to run them.
 
+All dired tests are based on cpio-dired-test.el and,
+yes, there's duplicated code.
+Some of this should be cleaned up once development seems stable.
+
+* Cruft
+There's a fair amount of cruft in the code at the moment.
+If I've done my job correctly, it is at least separate
+from the main body of code (like on a different page).
+Some is tools that have been built to help with development;
+some is just hacks.
