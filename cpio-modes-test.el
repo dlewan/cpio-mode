@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes-test.el --- tests of the code in cpio-modes.el.
-;	$Id: cpio-modes-test.el,v 1.2 2018/05/12 16:36:02 doug Exp $	
+;	$Id: cpio-modes-test.el,v 1.3 2018/06/16 18:01:36 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -205,6 +205,99 @@
   (should (string-equal (cpio-int-mode-to-file-type s-ifdir)  "d"))
   (should (string-equal (cpio-int-mode-to-file-type s-ifreg)  "-"))
   (should (string-equal (cpio-int-mode-to-file-type s-iflnk)  "l")))
+
+(ert-deftest cm-string-to-int-mode ()
+  "Test (cpio-modestring-to-int-mode)."
+  (let ((test-data (list (cons "d---------" #o0040000)
+			 (cons "b---------" #o0060000)
+			 (cons "c---------" #o0020000)
+			 (cons "l---------" #o0120000)
+			 (cons "s---------" #o0140000)
+
+			 (cons "-r--------" #o0100400)
+			 (cons "--w-------" #o0100200)
+			 (cons "---x------" #o0100100)
+			 (cons "----r-----" #o0100040)
+			 (cons "-----w----" #o0100020)
+			 (cons "------x---" #o0100010)
+			 (cons "-------r--" #o0100004)
+			 (cons "--------w-" #o0100002)
+			 (cons "---------x" #o0100001)
+
+		         (cons "---s------" #o0104100)
+			 (cons "---S------" #o0104000)
+			 (cons "------s---" #o0102010)
+			 (cons "------S---" #o0102000)
+			 (cons "---------t" #o0101001)
+			 (cons "---------T" #o0101000)
+
+			 (cons "drwx------" (+ #o0040000 #o700))
+			 (cons "drw-------" (+ #o0040000 #o600))
+			 (cons "dr-x------" (+ #o0040000 #o500))
+			 (cons "lrwx------" (+ #o0120000 #o700))
+			 (cons "lrw-------" (+ #o0120000 #o600))
+			 (cons "lr-x------" (+ #o0120000 #o500))
+			 (cons "-rwx------" (+ #o0100000 #o700))
+			 (cons "-rw-------" (+ #o0100000 #o600))
+			 (cons "-r-x------" (+ #o0100000 #o500))
+			 
+			 (cons "d---rwx---" (+ #o0040000 #o070))
+			 (cons "d---rw----" (+ #o0040000 #o060))
+			 (cons "d---r-x---" (+ #o0040000 #o050))
+			 (cons "l---rwx---" (+ #o0120000 #o070))
+			 (cons "l---rw----" (+ #o0120000 #o060))
+			 (cons "l---r-x---" (+ #o0120000 #o050))
+			 (cons "----rwx---" (+ #o0100000 #o070))
+			 (cons "----rw----" (+ #o0100000 #o060))
+			 (cons "----r-x---" (+ #o0100000 #o050))
+			 
+			 (cons "d------rwx" (+ #o0040000 #o007))
+			 (cons "d------rw-" (+ #o0040000 #o006))
+			 (cons "d------r-x" (+ #o0040000 #o005))
+			 (cons "l------rwx" (+ #o0120000 #o007))
+			 (cons "l------rw-" (+ #o0120000 #o006))
+			 (cons "l------r-x" (+ #o0120000 #o005))
+			 (cons "-------rwx" (+ #o0100000 #o007))
+			 (cons "-------rw-" (+ #o0100000 #o006))
+			 (cons "-------r-x" (+ #o0100000 #o005))
+	 
+			 (cons "d---------" (+ #o0040000 #o000))
+			 (cons "drw-r-----" (+ #o0040000 #o640))
+			 (cons "drw-r--r--" (+ #o0040000 #o644))
+			 (cons "drw-rw----" (+ #o0040000 #o660))
+			 (cons "drw-rw-r--" (+ #o0040000 #o664))
+			 (cons "drwxr-x--x" (+ #o0040000 #o751))
+			 (cons "drwxrwxr-x" (+ #o0040000 #o775))
+			 (cons "drwxrwxrwx" (+ #o0040000 #o777))
+
+			 (cons "l---------" (+ #o0120000 #o000))
+			 (cons "lrw-r-----" (+ #o0120000 #o640))
+			 (cons "lrw-r--r--" (+ #o0120000 #o644))
+			 (cons "lrw-rw----" (+ #o0120000 #o660))
+			 (cons "lrw-rw-r--" (+ #o0120000 #o664))
+			 (cons "lrwxr-x--x" (+ #o0120000 #o751))
+			 (cons "lrwxrwxr-x" (+ #o0120000 #o775))
+			 (cons "lrwxrwxrwx" (+ #o0120000 #o777))
+
+			 (cons "----------" (+ #o0100000 #o000))
+			 (cons "-rw-r-----" (+ #o0100000 #o640))
+			 (cons "-rw-r--r--" (+ #o0100000 #o644))
+			 (cons "-rw-rw----" (+ #o0100000 #o660))
+			 (cons "-rw-rw-r--" (+ #o0100000 #o664))
+			 (cons "-rwxr-x--x" (+ #o0100000 #o751))
+			 (cons "-rwxrwxr-x" (+ #o0100000 #o775))
+			 (cons "-rwxrwxrwx" (+ #o0100000 #o777)))))
+
+    (mapc (lambda (datum)
+	    (let ((drwx (car datum))
+		  (octal (cdr datum)))
+	      (should (progn (message "Expecting [[%s]] --> [[%07o]]." drwx octal)
+			     (= (cpio-mode-string-to-int-mode drwx) octal)))))
+	  test-data)))
+
+
+(ert "cm-")
+
 
 
 (provide 'cpio-modes)

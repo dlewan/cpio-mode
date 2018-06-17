@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-bin.el --- handle bin cpio entry header formats
-;	$Id: cpio-bin.el,v 1.5 2018/06/09 05:20:11 doug Exp $	
+;	$Id: cpio-bin.el,v 1.8 2018/06/17 07:34:11 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -37,6 +37,26 @@
 ;; Dependencies
 ;; 
 (require 'bindat)
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(declare-function cpio-entry-name "cpio.el" (attrs))
+(declare-function cpio-ino "cpio.el" (attrs))
+(declare-function cpio-mode-value "cpio.el" (attrs))
+(declare-function cpio-uid "cpio.el" (attrs))
+(declare-function cpio-gid "cpio.el" (attrs))
+(declare-function cpio-nlink "cpio.el" (attrs))
+(declare-function cpio-mtime "cpio.el" (attrs))
+(declare-function cpio-entry-size "cpio.el" (attrs))
+(declare-function cpio-dev-maj "cpio.el" (attrs))
+(declare-function cpio-rdev-maj "cpio.el" (attrs))
+(declare-function cpio-entry-attrs-from-catalog-entry "cpio.el" (entry))
+(declare-function cpio-contents-start "cpio.el" (entry-name))
+(declare-function cpio-entry-attrs "cpio.el" (entry-name))
+(defvar *cpio-catalog*)
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
+
 
 ;; 
 ;; Vars
@@ -166,7 +186,9 @@ in a bin cpio archive.")
   "The TRAILER string of a cpio binary archive.")
   
 (defcustom *cpio-bin-blocksize* 512
-  "The default blocksize for a cpio binary archive.")
+  "The default blocksize for a cpio binary archive."
+  :type 'integer
+  :group 'cpio)
 
 
 ;; 
@@ -251,7 +273,7 @@ The function does NOT get the contents of that entry."
     (if (= 0 (mod (setq total (+ 1 *cpio-bin-name-field-offset* local-namesize)) 
 		  *cpio-bin-padding-modulus*))
 	(setq total (1+ total)))
-    (round-up total *cpio-bin-padding-modulus*)))
+    (cg-round-up total *cpio-bin-padding-modulus*)))
 
 ;;;;;;;;;;;;;;;;
 ;; 
@@ -284,10 +306,10 @@ This function does NOT include the contents."
 			(cons :filesize0 (car  filesize))
 			(cons :filesize1 (cdr  filesize))
 			(cons :filename  (concat name "\0")))))
-    (setq header-string (pad-right header-string (round-up (length header-string)
+    (setq header-string (cg-pad-right header-string (cg-round-up (length header-string)
 							   *cpio-bin-padding-modulus*)
 				   "\0"))
-    ;; (setq header-string (pad-right header-string (round-up (length header-string) *cpio-bin-padding-modulus*) "\0"))
+    ;; (setq header-string (cg-pad-right header-string (cg-round-up (length header-string) *cpio-bin-padding-modulus*) "\0"))
     ;; Check (at least during development).
     ;; (if (string-match-p *cpio-bin-header-re* header-string)
     ;;	header-string
@@ -304,24 +326,6 @@ This function does NOT include the contents."
   "Return a string value for the inode from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-ino"))
     (cpio-ino attrs)))
-
-(defun cpio-bin-BIG-inode-to-string (ino)
-  "Convert the BIG inode format (HIGH MIDDLE . LOW) to a printable integer.
-Since we're writing a BIN CPIO header it must be < 8 digits.
-N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
-I likely won't need this, but someone might."
-  ;; There's a contract here that INO is a triple of integers.
-  (let ((fname "cpio-bin-BIG-inode-to-string"))
-    (hex-format-triple ino)))
-
-(defun cpio-bin-big-inode-to-string (ino)
-  "Convert the big inode format (HIGH . LOW) to a printable integer.
-Since we're writing a BIN CPIO header it must be < 8 digits.
-N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
-I likely won't need this, but someone might."
-  (let ((fname "cpio-bin-big-inode-to-string"))
-    (error "%s() is not yet implemented." fname)
-    (hex-digit-count (integer-hex-digits))))
 
 (defun cpio-bin-make-mode (attrs)
   "Return a string value for the mode from the file attributes ATTRS."
@@ -367,24 +371,24 @@ I likely won't need this, but someone might."
 	       (logand #xFFFF filesize))))
 
 (defun cpio-bin-make-dev-maj (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the major device from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-dev-maj"))
     ;; (error "%s() is not yet implemented." fname)
     (cpio-dev-maj attrs)))
 
 (defun cpio-bin-make-dev-min (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the minor device from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-dev-min"))
     0))
 
 (defun cpio-bin-make-rdev-maj (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the major rdev from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-rdev-maj"))
     ;; (error "%s() is not yet implemented." fname)
     (cpio-rdev-maj attrs)))
 
 (defun cpio-bin-make-rdev-min (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the minor rdev from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-rdev-min"))
     0))
 
@@ -403,7 +407,8 @@ I likely won't need this, but someone might."
   "Parse the bin cpio header that begins at point.
 If there is no header there, then signal an error."
   (let ((fname "cpio-bin-parse-header-at-point"))
-    (unless (looking-at-p *cpio-bin-header-re*) (error "%s(): point is not looking at a bin header."))
+    (unless (looking-at-p *cpio-bin-header-re*)
+      (error "%s(): point is not looking at a bin header." fname))
     (cpio-bin-parse-header (string-as-unibyte (match-string-no-properties 0)))))
 
 (defun cpio-bin-goto-next-header ()
@@ -451,9 +456,9 @@ CAVEAT: This respects neither narrowing nor the point."
 	     ;; A little bit of arithmétic gymnastics here
 	     ;; because cpio, being written in C, starts counting at 0, but
 	     ;; emacs' points start at 1.
-	     (goto-char (1+ (round-up (1- header-end) *cpio-bin-padding-modulus*)))
+	     (goto-char (1+ (cg-round-up (1- header-end) *cpio-bin-padding-modulus*)))
 	     (setq contents-start (point-marker))
-	     (set-marker-insertion-type contents-start *insert-after*)
+	     (set-marker-insertion-type contents-start *cg-insert-after*)
 	     ;; It feels like I really want a function for getting the contents.
 	     ;; But it's not obvious what is simpler or appropriately more general
 	     ;; than this one-liner.
@@ -476,8 +481,8 @@ for the current cpio archive."
   (let ((fname "cpio-bin-start-of-trailer")
 	(end-of-contents 0))
     (mapc (lambda (ce)
-	    (let ((attrs (cpio-entry-attrs-from-catalog-entry e)))
-	      (setq end-of-contents (+ (cpio-entry-size attrs) (cpio-contents-start e)))))
+	    (let ((attrs (cpio-entry-attrs-from-catalog-entry ce)))
+	      (setq end-of-contents (+ (cpio-entry-size attrs) (cpio-contents-start ce)))))
 	  *cpio-catalog*)
     end-of-contents))
 
@@ -486,7 +491,7 @@ for the current cpio archive."
 once the TRAILER is written and padded."
   (let ((fname "cpio-bin-end-of-archive")
 	(end-of-contents (cpio-bin-start-of-trailer)))
-    (round-up (+ end-of-contents (length *cpio-bin-trailer*)) 512)))
+    (cg-round-up (+ end-of-contents (length *cpio-bin-trailer*)) 512)))
 
 (defun cpio-bin-adjust-trailer ()
   "Replace thed current trailer in the current cpio bin archive."
@@ -505,7 +510,7 @@ once the TRAILER is written and padded."
     (insert base-trailer)
     (goto-char (point-max))
     ;; ...with padding.
-    (setq len (round-up (1- (point)) *cpio-bin-blocksize*))
+    (setq len (cg-round-up (1- (point)) *cpio-bin-blocksize*))
     (setq len (1+ (- len (point))))
     (insert (make-string len ?\0))
     (setq buffer-read-only t)))
@@ -531,6 +536,13 @@ once the TRAILER is written and padded."
     (delete-region (point) (point-max))
     (setq buffer-read-only t)))
 
+(defun cpio-bin-make-chcksum-for-file (filename)
+  "Return the checksum for FILENAME."
+  (let ((fname "cpio-newc-make-chcksum-for-file")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    0
+    ))
 
 ;; 
 ;; Commands

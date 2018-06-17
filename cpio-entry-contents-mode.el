@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.4 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.6 2018/06/17 07:34:12 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -42,7 +42,7 @@
   "Set up buffers and windows for working on entry NAME.
 If NAME is not given, then use 'aa'."
   (interactive "P")
-  (if (and (interactive-p) 
+  (if (and (called-interactively-p 'interactive) 
 	   arg)
       (setq name (read-string "Name? ")))
   (unless name (setq name "aa"))
@@ -93,6 +93,31 @@ If NAME is not given, then use 'aa'."
 ;;
 ;; Dependencies
 ;; 
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(defvar cpio-entry-name)
+(defvar *cpio-catalog-entry-contents-start-idx*)
+(declare-function cpio-contents-start "cpio.el")
+(declare-function cpio-delete-archive-entry "cpio.el")
+(declare-function cpio-dired-find-entry "cpio-dired.el")
+(declare-function cpio-dired-goto-entry "cpio-dired.el")
+(declare-function cpio-entry "cpio.el")
+(declare-function cpio-entry-attrs "cpio.el")
+(declare-function cpio-entry-exists-p "cpio.el")
+(declare-function cpio-entry-header-start "cpio.el")
+(declare-function cpio-insert-padded-contents "cpio.el")
+(declare-function cpio-make-header-string "cpio.el")
+(declare-function cpio-mode "cpio.el")
+(declare-function cpio-present-ala-dired "cpio-dired.el")
+(declare-function cpio-set-entry-modified "cpio.el")
+(declare-function cpio-set-entry-size "cpio.el")
+(declare-function cpio-entry-exists-p "cpio.el")
+(declare-function cpio-dired-goto-entry "cpio-dired.el")
+(declare-function cpio-dired-find-entry "cpio-dired.el")
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
+
 
 
 ;; 

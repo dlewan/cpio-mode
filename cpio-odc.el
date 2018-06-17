@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.6 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-odc.el,v 1.9 2018/06/17 07:34:12 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -38,6 +38,40 @@
 ;; Dependencies
 ;; 
 (load-file (concat default-directory "cpio-generic.el"))
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(defvar *cpio-catalog*)
+(defvar *cpio-odc-dev-field-offset*)
+(defvar *cpio-odc-filesize-field-offset*)
+(defvar *cpio-odc-gid-field-offset*)
+(defvar *cpio-odc-ino-field-offset*)
+(defvar *cpio-odc-magic-field-offset*)
+(defvar *cpio-odc-mode-field-offset*)
+(defvar *cpio-odc-mtime-field-offset*)
+(defvar *cpio-odc-name-field-offset*)
+(defvar *cpio-odc-namesize-field-offset*)
+(defvar *cpio-odc-nlink-field-offset*)
+(defvar *cpio-odc-rdev-field-offset*)
+(defvar *cpio-odc-uid-field-offset*)
+(declare-function cpio-contents-start "cpio.el")
+(declare-function cpio-dev-maj "cpio.el")
+(declare-function cpio-entry-attrs-from-catalog-entry "cpio.el")
+(declare-function cpio-entry-name "cpio.el")
+(declare-function cpio-entry-size "cpio.el")
+(declare-function cpio-gid "cpio.el")
+(declare-function cpio-ino "cpio.el")
+(declare-function cpio-mode-value "cpio.el")
+(declare-function cpio-mtime "cpio.el")
+(declare-function cpio-nlink "cpio.el")
+(declare-function cpio-rdev-maj "cpio.el")
+(declare-function cpio-uid "cpio.el")
+(declare-function cpio-entry-attrs "cpio.el")
+
+
+
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
 
 
 ;; 
@@ -456,7 +490,7 @@ This function does NOT include the contents."
 				 (cpio-odc-make-filesize attrs)
 				 name
 				 "\0"))
-    ;; (setq header-string (pad-right header-string (round-up (length header-string) *cpio-odc-padding-modulus*) "\0"))
+    ;; (setq header-string (cg-pad-right header-string (cg-round-up (length header-string) *cpio-odc-padding-modulus*) "\0"))
     ;; Check (at least during development).
     (if (string-match-p *cpio-odc-header-re* header-string)
 	header-string
@@ -471,34 +505,7 @@ This function does NOT include the contents."
   "Return a string value for the inode from the file attributes ATTRS."
   (let ((fname "cpio-odc-make-ino")
 	(ino (cpio-ino attrs)))
-    (cond ((numberp ino)
-	   (format "%06o" ino))
-	  ((consp ino)
-	   (cond ((cddr ino)
-		  (cpio-odc-BIG-inode-to-string))
-		 ((cdr ino)
-		  (cpio-odc-big-inode-to-string))
-		 (t (error "Bad inode value: [[%s]]." ino))))
-	  (t (error "Bad inode value: [[%s]]." ino)))))
-
-(defun cpio-odc-BIG-inode-to-string (ino)
-  "Convert the BIG inode format (HIGH MIDDLE . LOW) to a printable integer.
-Since we're writing a ODC CPIO header it must be < 8 digits.
-N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
-I likely won't need this, but someone might."
-  ;; There's a contract here that INO is a triple of integers.
-  (let ((fname "cpio-odc-BIG-inode-to-string"))
-    (hex-format-triple ino)))
-
-(defun cpio-odc-big-inode-to-string (ino)
-  "Convert the big inode format (HIGH . LOW) to a printable integer.
-Since we're writing a ODC CPIO header it must be < 8 digits.
-N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
-I likely won't need this, but someone might."
-  (let ((fname "cpio-odc-big-inode-to-string")
-	(hex-digit-count (integer-hex-digits))
-	(formatter))
-    (hex-format-pair ino)))
+    (format "%06o" ino)))
 
 (defun cpio-odc-make-mode (attrs)
   "Return a string value for the mode from the file attributes ATTRS."
@@ -509,21 +516,13 @@ I likely won't need this, but someone might."
   "Return an integer string value for the UID from the file attributes ATTRS."
   (let ((fname "cpio-odc-make-uid")
 	(uid (cpio-uid attrs)))
-    (cond ((numberp uid)
-	   (format "%06o" uid))
-	  ((string-match-p "\\`[[:graph:]]\\'" uid)
-	   (cpio-look-up-uid uid))
-	  (t (error "Bad UID: [[%s]]" uid)))))
+    (format "%06o" uid)))
 
 (defun cpio-odc-make-gid (attrs)
   "Return an integer string value for the GID from the file attributes ATTRS."
   (let ((fname "cpio-odc-make-gid")
 	(gid (cpio-gid attrs)))
-    (cond ((numberp gid)
-	   (format "%06o" gid))
-	  ((string-match-p "\\`[[:graph:]]\\'" gid)
-	   (cpio-look-up-gid gid))
-	  (t (error "Bad GID: [[%s]]" gid)))))
+    (format "%06o" gid)))
 
 (defun cpio-odc-make-nlink (attrs)
   "Return an integer string value for the number of links from the file attributes ATTRS."
@@ -545,20 +544,10 @@ I likely won't need this, but someone might."
   "Return a string value for the dev from the file attributes ATTRS."
   (let ((fname "cpio-odc-make-dev")
 	(dev (cpio-dev-maj attrs)))
-    (cond ((numberp dev)
-	   (format "%06o" (logand (lsh dev -8) #xff)))
-	  ;; The documenation for (file-attributes) says that this is handled
-	  ;; like the inode.
-	  ((consp dev)
-	   (cond ((cddr dev)
-		  (cpio-BIG-inode-to-string))
-		 ((cdr dev)
-		  (cpio-big-inode-to-string))
-		 (t (error "Bad dev value: [[%s]]." ino))))
-	  (t (error "Bad dev value: [[%s]]." ino)))))
+    (format "%06o" dev)))
 
 (defun cpio-odc-make-rdev (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the rdev from the file attributes ATTRS."
   (let ((fname "cpio-odc-make-rdev")
 	(rdev))
     (format "%06o" (cpio-rdev-maj attrs))))
@@ -573,7 +562,8 @@ I likely won't need this, but someone might."
   "Parse the odc cpio header that begins at point.
 If there is no header there, then signal an error."
   (let ((fname "cpio-odc-parse-header-at-point"))
-    (unless (looking-at-p *cpio-odc-header-re*) (error "%s(): point is not looking at a odc header."))
+    (unless (looking-at-p *cpio-odc-header-re*)
+      (error "%s(): point is not looking at a odc header." fname))
     (cpio-odc-parse-header (match-string-no-properties 0))))
 
 (defun cpio-odc-goto-next-header ()
@@ -623,7 +613,7 @@ CAVEAT: This respects neither narrowing nor the point."
 	     ;; emacs' points start at 1.
 	     (goto-char header-end)
 	     (setq contents-start (point-marker))
-	     (set-marker-insertion-type contents-start *insert-after*)
+	     (set-marker-insertion-type contents-start *cg-insert-after*)
 	     ;; It feels like I really want a function for getting the contents.
 	     ;; But it's not obvious what is simpler or appropriately more general
 	     ;; than this one-liner.
@@ -646,8 +636,8 @@ for the current cpio archive."
   (let ((fname "cpio-odc-start-of-trailer")
 	(end-of-contents 0))
     (mapc (lambda (ce)
-	    (let ((attrs (cpio-entry-attrs-from-catalog-entry e)))
-	      (setq end-of-contents (+ (cpio-entry-size attrs) (cpio-contents-start e)))))
+	    (let ((attrs (cpio-entry-attrs-from-catalog-entry ce)))
+	      (setq end-of-contents (+ (cpio-entry-size attrs) (cpio-contents-start ce)))))
 	  *cpio-catalog*)
     end-of-contents))
 
@@ -656,7 +646,7 @@ for the current cpio archive."
 once the TRAILER is written and padded."
   (let ((fname "cpio-odc-end-of-archive")
 	(end-of-contents (cpio-odc-start-of-trailer)))
-    (round-up (+ end-of-contents (length *cpio-odc-trailer*)) *cpio-odc-blocksize*)))
+    (cg-round-up (+ end-of-contents (length *cpio-odc-trailer*)) *cpio-odc-blocksize*)))
 
 (defun cpio-odc-adjust-trailer ()
   "Replace thed current trailer in the current cpio odc archive."
@@ -675,7 +665,7 @@ once the TRAILER is written and padded."
     (insert base-trailer)
     (goto-char (point-max))
     ;; ...with padding.
-    (setq len (round-up (1- (point)) *cpio-odc-blocksize*))
+    (setq len (cg-round-up (1- (point)) *cpio-odc-blocksize*))
     (setq len (1+ (- len (point))))
     (insert (make-string len ?\0))
     (setq buffer-read-only t)))

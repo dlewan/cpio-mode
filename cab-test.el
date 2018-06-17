@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.3 2018/06/03 14:01:54 doug Exp $	
+;	$Id: cab-test.el,v 1.5 2018/06/16 18:01:35 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -52,8 +52,8 @@
 (ert-deftest cab-test-registry-1 ()
   "Tests a simple (cab-register child parent)."
   (let ((fname "cab-test-registry-1")
-	(parent (get-buffer-create "p"))
-	(child (get-buffer-create "c")))
+	(parent (find-file-noselect "p"))
+	(child (find-file-noselect "c")))
     (message "%s(): Entering." fname)
     (message "%s(): 58" fname)
     (if (buffer-live-p parent)
@@ -89,18 +89,14 @@
 		   (equal (with-current-buffer child
 			    *cab-subordinates*)
 			  ())))
-    (should (progn (message "%s(): 92" fname)
-		   (equal (with-current-buffer child
-			    *cab-parent*)
-			  parent)))
     (message "%s(): Leaving." fname)))
 
 (ert-deftest cab-test-registry-2 ()
   "Tests registering two buffers under the same parent."
   (let ((fname "cab-test-registry-2")
-	(parent (get-buffer-create "p2"))
-	(buffer-1 (get-buffer-create "b21"))
-	(buffer-2 (get-buffer-create "b22")))
+	(parent (find-file-noselect "p2"))
+	(buffer-1 (find-file-noselect "b21"))
+	(buffer-2 (find-file-noselect "b22")))
     (message "%s(): Entering." fname)
 
     (cab-register buffer-1 parent)
@@ -137,14 +133,14 @@
 (ert-deftest cab-test-registry-3 ()
   "Tests registering a 3 level hierarchy."
   (let ((fname "cab-test-registery-3")
-	(grandparent (get-buffer-create "gp3"))
-	(parent-1       (get-buffer-create "p31"))
-	(parent-2       (get-buffer-create "p32"))
-	(grandchild-311 (get-buffer-create "b311"))
-	(grandchild-312 (get-buffer-create "b312"))
-	(grandchild-313 (get-buffer-create "b313"))
-	(grandchild-321 (get-buffer-create "b321"))
-	(grandchild-322 (get-buffer-create "b322")))
+	(grandparent (find-file-noselect "gp3"))
+	(parent-1       (find-file-noselect "p31"))
+	(parent-2       (find-file-noselect "p32"))
+	(grandchild-311 (find-file-noselect "b311"))
+	(grandchild-312 (find-file-noselect "b312"))
+	(grandchild-313 (find-file-noselect "b313"))
+	(grandchild-321 (find-file-noselect "b321"))
+	(grandchild-322 (find-file-noselect "b322")))
     (message "%s(): Entering." fname)
     
     (cab-register parent-1       grandparent)
@@ -210,9 +206,10 @@
     (cab-register buffer parent)
     (cab-deregister parent)
     (should (progn (message "%s(): 211" fname)
-		   (not (buffer-live-p parent))))
+		   (buffer-live-p parent)))
     (should (progn (message "%s(): 213" fname)
-		   (not (buffer-live-p buffer))))
+		   (cab-registered-p buffer parent)))
+
     (message "%s(): Leaving." fname)))
 
 (ert-deftest cab-test-deregister-2 ()
@@ -244,10 +241,15 @@
     (setq buffer-2 (find-file-noselect "b22"))
     (cab-register buffer-1 parent)
     (cab-register buffer-2 parent)
-    (cab-deregister parent)
+
+    (should (progn (message "%s(): You can't deregister the root." fname)
+		   (null (cab-deregister parent))))
 
     (should (progn (message "%s(): 248" fname)
-		   (not (buffer-live-p parent))))
+		   (buffer-live-p parent)))
+
+    (should (cab-registered-p buffer-1 parent))
+    (should (cab-registered-p buffer-2 parent))
 
     (message "%s(): Leaving." fname)))
 
@@ -286,6 +288,14 @@
 		   (equal (with-current-buffer parent-2
 			    *cab-parent*)
 			  grandparent)))
+    (mapc (lambda (bi)
+	    (let ((vname (cdr bi))
+		  (b (car bi)))
+	      (should (progn (message "%s(): Checking that [[%s]] is still live. (294)" fname vname)
+			     (buffer-live-p b)))))
+	  (list (cons grandchild-321 "grandchild-321")
+		(cons grandchild-321 "grandchild-321")
+		))
     (should (progn (message "%s(): 288" fname)
 		   (equal (with-current-buffer parent-2
 			    (length *cab-subordinates*))
@@ -294,14 +304,25 @@
 		   (member grandchild-322 (with-current-buffer parent-2
 					    *cab-subordinates*))))
 
-    (cab-deregister grandparent)
+    ;; (should (null (cab-deregister grandparent)))
+    (kill-buffer grandparent)
 
-    (should (progn (message "%s(): 298" fname)
-		   (not (buffer-live-p grandparent))))
     (should (progn (message "%s(): 300" fname)
-		   (not (buffer-live-p parent-1))))
+		   (null (buffer-live-p parent-1))))
     (should (progn (message "%s(): 302" fname)
-		   (not (buffer-live-p parent-2))))
+		   (null (buffer-live-p parent-2))))
+    (mapc (lambda (bi)
+	    (let ((vname (cdr bi))
+		  (b (car bi)))
+	      (should (progn (message "%s(): Checking if [[%s]] is no longer live. (321)" fname vname)
+			     (not (buffer-live-p b))))))
+	  (list (cons parent-1 "parent-1")
+		(cons parent-2 "parent-2")
+		(cons grandchild-311 "grandchild-311")
+		(cons grandchild-312 "grandchild-312")
+		(cons grandchild-313 "grandchild-313")
+		(cons grandchild-321 "grandchild-321")
+		(cons grandchild-322 "grandchild-322")))
 
     (message "%s(): Leaving." fname)))
 
@@ -551,8 +572,225 @@
 	     (should (progn (message "%s(): 557" fname)
 			    (not (buffer-live-p grandchild-321))))
 	     (should (progn (message "%s(): 559" fname)
-			    (not (buffer-live-p grandchild-322))))))
-    (message "%s(): Leaving." fname)))
+			    (not (buffer-live-p grandchild-322)))))
+      ;; This bothers the byte compiler for some reason.
+      (message "%s(): Leaving." fname))))
+
+(ert-deftest cab-test-register-negatively-0 ()
+  "Test of the things that (cab-register) should not do.
+Included are results from using (cab-registered-p)."
+  (let* ((fname "cab-test-register-negatively-0")
+	 (root-buffer (find-file-noselect "root"))
+	 (rand)
+	 (unaffiliated-buffers)
+	 (affiliated-buffers)
+	 (i)
+	)
+
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "uab%d" i)) unaffiliated-buffers)
+      (setq i (1+ i)))
+
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "ab%d" i)) affiliated-buffers)
+      (setq i (1+ i)))
+    
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): registering [[%s]] with [[%s]]." fname b root-buffer)
+			   (cab-register b root-buffer))))
+	  affiliated-buffers)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be registered to [[%s]]." fname b root-buffer)
+			   (cab-registered-p b root-buffer))))
+	  affiliated-buffers)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should NOT be registered to [[%s]]." fname b root-buffer)
+			   (not (cab-registered-p b root-buffer)))))
+	  unaffiliated-buffers)
+
+    (kill-buffer root-buffer)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be killed [[%s]]." fname b root-buffer)
+			   (not (buffer-live-p b)))))
+	  affiliated-buffers)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should still be live." fname b)
+			   (buffer-live-p b))))
+	  unaffiliated-buffers)
+    ))
+
+(ert-deftest cab-test-register-negatively-1 ()
+  "Test of the things that (cab-register) should not do with two roots.
+Included are results from using (cab-registered-p)."
+  (let* ((fname "cab-test-register-negatively-1")
+	 (root-buffer-0 (find-file-noselect "root0"))
+	 (root-buffer-1 (find-file-noselect "root1"))
+	 (rand)
+	 (unaffiliated-buffers)
+	 (affiliated-buffers-0)
+	 (affiliated-buffers-1)
+	 (i)
+	)
+
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "uab%d" i)) unaffiliated-buffers)
+      (setq i (1+ i)))
+
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "ab%d-0" i)) affiliated-buffers-0)
+      (setq i (1+ i)))
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "ab%d-1" i)) affiliated-buffers-1)
+      (setq i (1+ i)))
+    
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): registering [[%s]] with [[%s]]. (657)" fname b root-buffer-0)
+			   (cab-register b root-buffer-0))))
+	  affiliated-buffers-0)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): registering [[%s]] with [[%s]]. (661)" fname b root-buffer-1)
+			   (cab-register b root-buffer-1))))
+	  affiliated-buffers-1)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be registered to [[%s]]. (666)" fname b root-buffer-0)
+			   (cab-registered-p b root-buffer-0))))
+	  affiliated-buffers-0)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should NOT be registered to [[%s]]. (670)" fname b root-buffer-1)
+			   (not (cab-registered-p b root-buffer-1)))))
+	  affiliated-buffers-0)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should NOT be registered to [[%s]]. (675)" fname b root-buffer-1)
+			   (not (cab-registered-p b root-buffer-1)))))
+	  affiliated-buffers-0)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should NOT be registered to [[%s]]. (679)" fname b root-buffer-0)
+			   (not (cab-registered-p b root-buffer-0)))))
+	  affiliated-buffers-1)
+
+    (mapc (lambda (rb)
+	    (mapc (lambda (b)
+		    (should (progn (message "%s(): [[%s]] should NOT be registered to [[%s]]. (685)" fname b rb)
+				   (not (cab-registered-p b rb)))))
+		  unaffiliated-buffers))
+	    (list root-buffer-0
+		  root-buffer-1))
+
+    (kill-buffer root-buffer-0)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be killed [[%s]]. (694)" fname b root-buffer-0)
+			   (not (buffer-live-p b)))))
+	  affiliated-buffers-0)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should still be live [[%s]]. (698)" fname b root-buffer-1)
+			   (buffer-live-p b))))
+	  affiliated-buffers-1)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should still be live. (702)" fname b)
+			   (buffer-live-p b))))
+	  unaffiliated-buffers)
+
+    (kill-buffer root-buffer-1)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be killed [[%s]]. (709)" fname b root-buffer-1)
+			   (not (buffer-live-p b)))))
+	  affiliated-buffers-1)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should still be live. (713)" fname b)
+			   (buffer-live-p b))))
+	  unaffiliated-buffers)
+    
+
+    ))
+
+(ert-deftest cab-test-register-negatively-2 ()
+  "Test of the things that (cab-register) should not do with two roots.
+Included are results from using (cab-registered-p)."
+  (let* ((fname "cab-test-register-negatively-2")
+	 (root-buffer-0 (find-file-noselect "root0"))
+	 (root-buffer-1 (find-file-noselect "root1"))
+	 (rand)
+	 (unaffiliated-buffers)
+	 (affiliated-buffers-0)
+	 (affiliated-buffers-1)
+	 (i)
+	)
+
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "uab%d" i)) unaffiliated-buffers)
+      (setq i (1+ i)))
+
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "ab%d-0" i)) affiliated-buffers-0)
+      (setq i (1+ i)))
+    (setq i 0)
+    (setq rand (+ 5 (mod (random) 20)))
+    (while (< i rand)
+      (push (find-file-noselect (format "ab%d-1" i)) affiliated-buffers-1)
+      (setq i (1+ i)))
+    
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): registering [[%s]] with [[%s]]. (657)" fname b root-buffer-0)
+			   (cab-register b root-buffer-0))))
+	  affiliated-buffers-0)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): registering [[%s]] with [[%s]]. (661)" fname b root-buffer-1)
+			   (cab-register b root-buffer-1))))
+	  affiliated-buffers-1)
+
+    (kill-buffer root-buffer-0)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be killed." fname b)
+			   (null (buffer-live-p b)))))
+	  affiliated-buffers-0)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] is still alive." fname b)
+			   (buffer-live-p b)))
+	    (should (progn (message "%s(): [[%s]] is still registered with [[%s]]." fname b root-buffer-1)
+			   (cab-registered-p b root-buffer-1))))
+	  affiliated-buffers-1)
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should still be alive." fname b)
+			   (buffer-live-p b))))
+	  unaffiliated-buffers)
+
+    (kill-buffer root-buffer-1)
+
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should be killed." fname b)
+			   (null (buffer-live-p b)))))
+	  (append affiliated-buffers-0 affiliated-buffers-1))
+    (mapc (lambda (b)
+	    (should (progn (message "%s(): [[%s]] should still be alive." fname b)
+			   (buffer-live-p b))))
+	  unaffiliated-buffers)
+    ))
+
+
+;; Seed the random number generator.
+(random t)
+
+(ert "cab-")
 
 
 (provide 'cab-test)

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-crc-test.el --- brief description
-;	$Id: cpio-dired-crc-test.el,v 1.4 2018/06/04 19:21:15 doug Exp $	
+;	$Id: cpio-dired-crc-test.el,v 1.9 2018/06/17 07:34:11 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -36,6 +36,126 @@
 ;; Dependencies
 ;; 
 (load (concat default-directory "cpio.el"))
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(defvar *cpio-crc-chksum-re-idx*)
+(defvar *cpio-crc-filename-re-idx*)
+(defvar *cpio-crc-filesize-re-idx*)
+(defvar *cpio-crc-gid-re-idx*)
+(defvar *cpio-crc-header-re*)
+(defvar *cpio-crc-magic-re-idx*)
+(defvar *cpio-crc-mode-re-idx*)
+(defvar *cpio-crc-namesize-re-idx*)
+(defvar *cpio-crc-nlink-re-idx*)
+(defvar *cpio-crc-uid-re-idx*)
+(defvar cpio-archive-buffer)
+(defvar cpio-dired-buffer)
+(defvar cpio-dired-del-marker)
+(defvar cpio-dired-keep-marker-copy-str)
+(defvar cpio-dired-keep-marker-rename)
+(defvar run-dir)
+(declare-function cpio-catalog "cpio.el")
+(declare-function cpio-contents-buffer-name "cpio.el")
+(declare-function cpio-dired-add-entry "cpio-dired.el")
+(declare-function cpio-dired-buffer-name "cpio-dired.el")
+(declare-function cpio-dired-change-marks "cpio-dired.el")
+(declare-function cpio-dired-clean-directory "cpio-dired.el")
+(declare-function cpio-dired-copy-entry-name-as-kill "cpio-dired.el")
+(declare-function cpio-dired-create-directory "cpio-dired.el")
+(declare-function cpio-dired-diff "cpio-dired.el")
+(declare-function cpio-dired-display-entry "cpio-dired.el")
+(declare-function cpio-dired-do-async-shell-command "cpio-dired.el")
+(declare-function cpio-dired-do-chgrp "cpio-dired.el")
+(declare-function cpio-dired-do-chmod "cpio-dired.el")
+(declare-function cpio-dired-do-chown "cpio-dired.el")
+(declare-function cpio-dired-do-compress "cpio-dired.el")
+(declare-function cpio-dired-do-copy "cpio-dired.el")
+(declare-function cpio-dired-do-copy-regexp "cpio-dired.el")
+(declare-function cpio-dired-do-delete "cpio-dired.el")
+(declare-function cpio-dired-do-flagged-delete "cpio-dired.el")
+(declare-function cpio-dired-do-hardlink "cpio-dired.el")
+(declare-function cpio-dired-do-hardlink-regexp "cpio-dired.el")
+(declare-function cpio-dired-do-isearch "cpio-dired.el")
+(declare-function cpio-dired-do-isearch-regexp "cpio-dired.el")
+(declare-function cpio-dired-do-kill-lines "cpio-dired.el")
+(declare-function cpio-dired-do-print "cpio-dired.el")
+(declare-function cpio-dired-do-query-replace-regexp "cpio-dired.el")
+(declare-function cpio-dired-do-redisplay "cpio-dired.el")
+(declare-function cpio-dired-do-rename "cpio-dired.el")
+(declare-function cpio-dired-do-rename-regexp "cpio-dired.el")
+(declare-function cpio-dired-do-search "cpio-dired.el")
+(declare-function cpio-dired-do-symlink "cpio-dired.el")
+(declare-function cpio-dired-do-symlink-regexp "cpio-dired.el")
+(declare-function cpio-dired-do-touch "cpio-dired.el")
+(declare-function cpio-dired-downcase "cpio-dired.el")
+(declare-function cpio-dired-extract-all "cpio-dired.el")
+(declare-function cpio-dired-extract-entries "cpio-dired.el")
+(declare-function cpio-dired-find-alternate-entry "cpio-dired.el")
+(declare-function cpio-dired-find-entry-other-window "cpio-dired.el")
+(declare-function cpio-dired-flag-auto-save-entries "cpio-dired.el")
+(declare-function cpio-dired-flag-backup-entries "cpio-dired.el")
+(declare-function cpio-dired-flag-entries-regexp "cpio-dired.el")
+(declare-function cpio-dired-flag-entry-deletion "cpio-dired.el")
+(declare-function cpio-dired-flag-garbage-entries "cpio-dired.el")
+(declare-function cpio-dired-get-entry-name "cpio-dired.el")
+(declare-function cpio-dired-goto-entry "cpio-dired.el")
+(declare-function cpio-dired-hide-all "cpio-dired.el")
+(declare-function cpio-dired-hide-details-mode "cpio-dired.el" ())
+(declare-function cpio-dired-hide-details-mode "cpio-dired.el")
+(declare-function cpio-dired-hide-subdir "cpio-dired.el")
+(declare-function cpio-dired-isearch-entry-names "cpio-dired.el")
+(declare-function cpio-dired-isearch-entry-names-regexp "cpio-dired.el")
+(declare-function cpio-dired-kill "cpio-dired.el")
+(declare-function cpio-dired-mark "cpio-dired.el")
+(declare-function cpio-dired-mark-directories "cpio-dired.el")
+(declare-function cpio-dired-mark-entries-containing-regexp "cpio-dired.el")
+(declare-function cpio-dired-mark-entries-regexp "cpio-dired.el")
+(declare-function cpio-dired-mark-executables "cpio-dired.el")
+(declare-function cpio-dired-mark-subdir-entries "cpio-dired.el")
+(declare-function cpio-dired-mark-symlinks "cpio-dired.el")
+(declare-function cpio-dired-mark-this-entry "cpio-dired.el")
+(declare-function cpio-dired-mouse-find-entry-other-window "cpio-dired.el")
+(declare-function cpio-dired-move-to-first-entry "cpio-dired.el")
+(declare-function cpio-dired-next-dirline "cpio-dired.el")
+(declare-function cpio-dired-next-line "cpio-dired.el")
+(declare-function cpio-dired-next-marked-entry "cpio-dired.el")
+(declare-function cpio-dired-prev-marked-entry "cpio-dired.el")
+(declare-function cpio-dired-previous-line "cpio-dired.el")
+(declare-function cpio-dired-save-archive "cpio-dired.el")
+(declare-function cpio-dired-show-entry-type "cpio-dired.el")
+(declare-function cpio-dired-sort-toggle-or-edit "cpio-dired.el")
+(declare-function cpio-dired-toggle-marks "cpio-dired.el")
+(declare-function cpio-dired-toggle-read-only "cpio-dired.el")
+(declare-function cpio-dired-undo "cpio-dired.el")
+(declare-function cpio-dired-unmark "cpio-dired.el")
+(declare-function cpio-dired-unmark-all-entries "cpio-dired.el")
+(declare-function cpio-dired-unmark-all-marks "cpio-dired.el")
+(declare-function cpio-dired-unmark-backward "cpio-dired.el")
+(declare-function cpio-dired-up-directory "cpio-dired.el")
+(declare-function cpio-dired-upcase "cpio-dired.el")
+(declare-function cpio-dired-view-archive "cpio-dired.el")
+(declare-function cpio-dired-view-entry "cpio-dired.el")
+(declare-function cpio-epa-dired-do-decrypt "cpio-dired.el")
+(declare-function cpio-epa-dired-do-encrypt "cpio-dired.el")
+(declare-function cpio-epa-dired-do-sign "cpio-dired.el")
+(declare-function cpio-epa-dired-do-verify "cpio-dired.el")
+(declare-function cpio-image-dired-delete-tag "cpio-dired.el")
+(declare-function cpio-image-dired-dired-comment-entries "cpio-dired.el")
+(declare-function cpio-image-dired-dired-display-external "cpio-dired.el")
+(declare-function cpio-image-dired-dired-display-image "cpio-dired.el")
+(declare-function cpio-image-dired-dired-edit-comment-and-tags "cpio-dired.el")
+(declare-function cpio-image-dired-dired-toggle-marked-thumbs "cpio-dired.el")
+(declare-function cpio-image-dired-display-thumb "cpio-dired.el")
+(declare-function cpio-image-dired-display-thumbs "cpio-dired.el")
+(declare-function cpio-image-dired-display-thumbs-append "cpio-dired.el")
+(declare-function cpio-image-dired-jump-thumbnail-buffer "cpio-dired.el")
+(declare-function cpio-image-dired-mark-tagged-entries "cpio-dired.el")
+(declare-function cpio-image-dired-tag-entries "cpio-dired.el")
+(declare-function cpio-mode "cpio.el")
+(declare-function cpio-view-dired-style-buffer "cpio-dired.el")
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
 
 
 ;; 
@@ -6609,7 +6729,7 @@ If MAKE is non-nil, then run 'make crc' as part of the reset."
 			     *cdmt-crc-large-archive*)))
     (cd run-dir)
     (mapc (lambda (an)
-	    (setq cpio-archive-buffer (find-file-noselect an 'no-warn))
+	    (setq cpio-archive-buffer (find-file-noselect an nil nil))
 	    (if (and (file-exists-p an)
 		     (buffer-live-p (get-buffer cpio-archive-buffer)))
 		(with-current-buffer cpio-archive-buffer
@@ -6629,7 +6749,7 @@ If MAKE is non-nil, then run 'make crc' as part of the reset."
 			 *cdmt-crc-small-archive*))
 
     (delete-other-windows)
-    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name 'no-warn))
+    (with-current-buffer (setq cpio-archive-buffer (find-file-noselect archive-name nil nil))
       (if (string-match "/test_data/.+/test_data/" (buffer-file-name))
 	  (error "Bogus archive!"))
       (cpio-mode))
@@ -6732,7 +6852,9 @@ In principal, FROM-STR can be a regular expression."
   (interactive)
   (let ((fname "cdmt-crc-finished-command")
 	(finished-command-regexp ") ;✓$")
-	(command-name))
+	(command-name)
+	(where)
+	)
     (cond ((re-search-forward finished-command-regexp (point-max) t)
 	   (beginning-of-line)
 	   (re-search-forward "cdmt-crc-" (line-end-position))
@@ -6993,7 +7115,7 @@ to check that the saved archive seems sane."
     (if (file-exists-p test-buffer-dir)
 	(call-process "rm" nil nil nil "-rf" test-buffer-dir))
     (if (file-exists-p test-buffer-dir)
-	(error "%s(): Removing %s failed."))
+	(error "%s(): Removing %s failed." fname test-buffer-dir))
     (with-current-buffer cpio-archive-buffer
       (cpio-dired-save-archive))
     (make-directory test-buffer-dir 'parents)
@@ -7096,12 +7218,6 @@ cpio-dired-isearch-entry-names-regexp is not yet implemented -- expect an error.
   (should-error (cpio-dired-isearch-entry-names-regexp)
      :type 'error))
 
-
-(ert-deftest cdmt-crc-cpio-describe-mode ()
-  "Test cpio-describe-mode.
-cpio-describe-mode is not yet implemented -- expect an error."
-  (should-error (cpio-describe-mode)
-     :type 'error))
 
 (ert-deftest cdmt-crc-cpio-dired-add-entry ()
   "Test cpio-dired-add-entry.
@@ -7218,8 +7334,8 @@ cpio-dired-diff) ; is not yet implemented -- expect an error."
 	     (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog))))))
 
     (with-current-buffer cpio-dired-buffer
-      (should (and "Viewing an entry should not change the archive buffer."
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+      ;;(should (and "Viewing an entry should not change the archive buffer."
+	(should	   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
       (should (and "Viewing an entry should not change the dired-style buffer."
 		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
       (should (and "The contents buffer should not be null."
@@ -7412,8 +7528,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after))
-
+" cpio-catalog-contents-after)))
 
     (cdmt-crc-reset)
     
@@ -7544,7 +7659,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 	      ([[:digit:]]+ [[:digit:]]+)
 	      0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 \"ccccc\.d\"]
    #<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified\]))
-" cpio-catalog-contents-after))
+" cpio-catalog-contents-after)))
 
     (cdmt-crc-reset)
 
@@ -7568,19 +7683,19 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
-  -rw-r--r--   1  [[:digit:]]+  7777        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+\\* -rw-r--r--   1  [[:digit:]]+  7777        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-  -rw-r--r--   1  [[:digit:]]+  7777        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
+\\* -rw-r--r--   1  [[:digit:]]+  7777        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-  -rw-r--r--   1  [[:digit:]]+  7777        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+\\* -rw-r--r--   1  [[:digit:]]+  7777        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
@@ -9188,19 +9303,19 @@ TRAILER!!!	(( filename ))
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
-  -rw-r--r--   1  7777  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+\\* -rw-r--r--   1  7777  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-  -rw-r--r--   1  7777  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
+\\* -rw-r--r--   1  7777  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-  -rw-r--r--   1  7777  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+\\* -rw-r--r--   1  7777  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
@@ -9595,19 +9710,19 @@ TRAILER!!!	(( filename ))
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
-  -rw-r--r--   1  7777  3333        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
+\\* -rw-r--r--   1  7777  3333        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaaaa.d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} b
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
-  -rw-r--r--   1  7777  3333        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
+\\* -rw-r--r--   1  7777  3333        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbb
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbb
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bbbbb.d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} c
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cc
-  -rw-r--r--   1  7777  3333        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
+\\* -rw-r--r--   1  7777  3333        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
@@ -13119,7 +13234,11 @@ They reflect an outstanding bug in cpio-affiliated buffers."
         (cpio-archive-buffer-contents)
         (cpio-dired-buffer)
         (cpio-dired-buffer-contents)
+	(cpio-contents-buffer)
+	(cpio-contents-buffer-string)
 	(cpio-contents-window)
+	(cpio-catalog-contents-before)
+	(cpio-catalog-contents-after)
 	(entry-name)
 	(past-entries ()))
     (cdmt-crc-reset 'make)
@@ -13860,7 +13979,7 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 
     (cdmt-crc-reset 'make)
     
-    (progn (setq cpio-dired-catalog-contents-before (cpio-catalog))
+    (progn (setq cpio-catalog-contents-before (cpio-catalog))
 	   (cpio-dired-goto-entry entry-name)
 	   (mapc (lambda (s)		;suffix
 		   (setq unread-command-events (listify-key-sequence (concat entry-name "." s "\n")))
@@ -14963,7 +15082,7 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (= where 1155))
-    (should (string-match *cdmt-crc-untouched-small-archive-buffer* cpio-archive-buffer-contents))
+    (should (string-match *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
     (should (and "Expecting an untouched dired buffer. (17991)"
 		 (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
     (should (and "Expecting an unchanged catalog. (17959)"
@@ -14982,7 +15101,7 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (= where 1019))
-    (should (string-match *cdmt-crc-untouched-small-archive-buffer* cpio-archive-buffer-contents))
+    (should (string-match *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
     (should (and "Expecting an untouched dired buffer. (17992)"
 		 (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
     (should (and "Expecting an unchanged catalog. (17960)"
@@ -15001,7 +15120,7 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 	   (setq cpio-catalog-contents-after (format "%s" (pp (cpio-catalog)))))
 
     (should (= where 774))
-    (should (string-match *cdmt-crc-untouched-small-archive-buffer* cpio-archive-buffer-contents))
+    (should (string-match *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
     (should (and "Expecting an untouched dired buffer. (17993)"
 		 (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
     (should (and "Expecting an unchanged catalog. (17961)"
@@ -15757,12 +15876,6 @@ cpio-image-dired-tag-entries is not yet implemented -- expect an error."
   (should-error (cpio-image-dired-tag-entries)
      :type 'error))
 
-(ert-deftest cdmt-crc-cpio-mouse-face ()
-  "Test cpio-mouse-face.
-cpio-mouse-face is not yet implemented -- expect an error."
-  (should-error (cpio-mouse-face)
-     :type 'error))
-
 
 (ert-deftest cdmt-crc-revert-buffer ()
   "Test revert-buffer.
@@ -16256,7 +16369,7 @@ newDirectory	(( filename ))
 ;; Run tests
 ;;
 
-(ert "^cdmt-crc-")
+(ert "\\`cdmt-crc-")
 
 
 ;;; cpio-dired-crc-test.el ends here

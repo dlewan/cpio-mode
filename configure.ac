@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-dnl 	$Id: configure.ac,v 1.7 2018/06/09 05:51:07 doug Exp $	
+dnl 	$Id: configure.ac,v 1.8 2018/06/16 04:21:49 doug Exp $	
 
 # 
 # Copyright © 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -20,7 +20,7 @@ dnl 	$Id: configure.ac,v 1.7 2018/06/09 05:51:07 doug Exp $
 # 
 
 dnl Autoconf requirements
-AC_INIT(cpio-mode, 0.08, d.lewan2000@gmail.com)
+AC_INIT(cpio-mode, 0.09, d.lewan2000@gmail.com)
 AC_PREFIX_DEFAULT(${HOME}/local)
 dnl information on the package
 dnl checks for programs

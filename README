@@ -1,5 +1,5 @@
 # -*- mode: org; encoding: utf-8 -*-
-#	$Id: README,v 1.5 2018/06/04 18:50:14 doug Exp $	
+#	$Id: README,v 1.7 2018/06/16 02:08:25 doug Exp $	
 
 
 * Intent
@@ -20,6 +20,14 @@ That includes things like
 • Adding/deleting entries
 • Editing entries
 • Changing an entry's attributes (chown, chgrp, chmod, etc.).
+
+Note that, if you can write the archive,
+then all those operations will succeed in the archive.
+And they will be carried in the saved archive.
+They may, however, not apply to files extracted from the archive
+if you do not have sufficient permissions to perform those operations
+on the corresponding files.
+chown(1), for example, may require that you be root.
 ________________
 ¹Yes, this is a terrible requirement.
  However, it does allow for incremental development relatively easily.
@@ -30,8 +38,8 @@ To add a new archive type a devloper should be able to do so
 merely by being able to parse an entry and
 write a parsed entry back to a file.
  
-Right now (2018 May 21), the cpio-mode package supports the above
-for the newc, crc and odc formats of cpio archives.
+Right now (2018 Jun 09), the cpio-mode package supports the above
+for the bin, crc, newc and odc formats of cpio archives.²
 However, the internal structure of cpio-mode implements
 all of the manipulation code in terms of parsed headers
 (which look much like inodes), so adding new formats should be
@@ -48,18 +56,35 @@ then you can simply add the extensions to the attributes
 of the entries in the catalog.
 This will likely require updating the various build-catalog functions
 and the make-header-string functions.
+________________
+² For archives without device entries, this means
+that hpbin and hpodc are also supported.
 
 * Other code
 
 Some more generic code is delivered with cpio-mode.
 
-* cpio-generic.el
+** cpio-generic.el
 
-* cpio-modes.el
+This file contains truly generic lisp code.
+For the most part, it employs the prefix cg-
+to keep its names distinct.
+Some names begin cpio-.
 
-* cpio-affiliated-buffers.el
+** cpio-modes.el
 
-There's also a package of Affiliated Buffers included
+This file contains generic code pertaining to file modes,
+both numeric and symbolic.
+
+Constants corresponding to mode bits are named with lispish versions
+of the names given in /usr/include/linux/stat.h.
+The same goes for the predicates about a file's (entry's) type.
+
+Otherwise, the prefix cpio- is used.
+
+** cpio-affiliated-buffers.el
+
+This file contains a package called Affiliated Buffers
 that should be independent.
 (And one day it will be published that way.)
 
@@ -133,6 +158,7 @@ yes, there's duplicated code.
 Some of this should be cleaned up once development seems stable.
 
 * Cruft
+
 There's a fair amount of cruft in the code at the moment.
 If I've done my job correctly, it is at least separate
 from the main body of code (like on a different page).

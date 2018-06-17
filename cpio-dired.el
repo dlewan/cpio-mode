@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired.el --- UI definition à la dired.
-;	$Id: cpio-dired.el,v 1.4 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-dired.el,v 1.10 2018/06/17 07:34:12 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -104,6 +104,72 @@ Keep any preceding comments."
 ;; 
 ;; Vars
 ;; 
+
+;;;;;;;;;;;;;;;;
+;; Make the byte compiler happy.
+(defvar *cpio-search-entries*)
+(defvar *cpio-search-entry*)
+(defvar *cpio-search-point*)
+(defvar *cpio-search-re*)
+(defvar cpio-dired-set-modified)
+(defvar cpio-dired-hide-details-mode)
+(defvar *cpio-catalog*)
+(defvar *cpio-padding-modulus*)
+(defvar *cpio-catalog-entry-length*)
+(defvar *cpio-catalog-entry-attrs-idx*)
+(defvar *cpio-catalog-entry-contents-start-idx*)
+(defvar *cpio-catalog-entry-header-start-idx*)
+(declare-function cpio-adjust-trailer "cpio.el")
+(declare-function cpio-catalog "cpio.el")
+(declare-function cpio-contents "cpio.el")
+(declare-function cpio-contents-start "cpio.el")
+(declare-function cpio-create-entry-attrs "cpio.el")
+(declare-function cpio-create-faux-directory-attrs "cpio.el")
+(declare-function cpio-delete-trailer "cpio.el")
+(declare-function cpio-dev-maj "cpio.el")
+(declare-function cpio-dev-maj-to-dev-maj-string "cpio.el")
+(declare-function cpio-dev-min "cpio.el")
+(declare-function cpio-dev-min-to-dev-min-string "cpio.el")
+(declare-function cpio-dired-modified-p "cpio-dired.el")
+(declare-function cpio-dired-set-modified "cpio-dired.el")
+(declare-function cpio-dired-set-unmodified "cpio-dired.el")
+(declare-function cpio-entry "cpio.el")
+(declare-function cpio-entry-attrs "cpio.el")
+(declare-function cpio-entry-contents-start "cpio.el")
+(declare-function cpio-entry-exists-p "cpio.el")
+(declare-function cpio-entry-header-start "cpio.el")
+(declare-function cpio-entry-name "cpio.el")
+(declare-function cpio-entry-name-to-entry-name-string "cpio.el")
+(declare-function cpio-entry-size "cpio.el")
+(declare-function cpio-extract-all "cpio.el")
+(declare-function cpio-filesize-to-filesize-string "cpio.el")
+(declare-function cpio-find-entry "cpio.el")
+(declare-function cpio-gid "cpio.el")
+(declare-function cpio-gid-to-gid-string "cpio.el")
+(declare-function cpio-insert-padded-contents "cpio.el")
+(declare-function cpio-insert-trailer "cpio.el")
+(declare-function cpio-make-header-string "cpio.el")
+(declare-function cpio-mode "cpio.el")
+(declare-function cpio-mode-value "cpio.el")
+(declare-function cpio-move-to-entry "cpio.el")
+(declare-function cpio-mtime "cpio.el")
+(declare-function cpio-mtime-to-mtime-string "cpio.el")
+(declare-function cpio-nlink "cpio.el")
+(declare-function cpio-nlink-to-nlink-string "cpio.el")
+(declare-function cpio-numeric-entry-type "cpio.el")
+(declare-function cpio-set-contents-start "cpio.el")
+(declare-function cpio-set-entry-name "cpio.el")
+(declare-function cpio-set-entry-unmodified "cpio.el")
+(declare-function cpio-set-gid "cpio.el")
+(declare-function cpio-set-mode "cpio.el")
+(declare-function cpio-set-uid "cpio.el")
+(declare-function cpio-sort-catalog "cpio.el")
+(declare-function cpio-uid "cpio.el")
+(declare-function cpio-uid-to-uid-string "cpio.el")
+;; EO byte compiler code.
+;;;;;;;;;;;;;;;;
+
+
 
 (defvar *cpio-dired-permission-flags-regexp* dired-permission-flags-regexp
   "Regular expression to match the permission flags in `ls -l'.")
@@ -646,7 +712,7 @@ Run more than one instance of emacs to avoid such collisions."
 	   (kill-buffer target-buffer)
 	   (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name)))
 	   (with-current-buffer target-buffer
-	     (insert (cpio-entry-contents entry-name)))
+	     (insert (cpio-contents entry-name)))
 	   target-buffer)
 	  (t nil))))
 
@@ -673,7 +739,7 @@ CONTRACT: You're in that archive's buffer."
       (if (null (setq entry-info (assoc entry-name *cpio-catalog*)))
 	  (error "%s(): Could not get entry information for %s." fname entry-name))
       (setq start-marker (aref (cdr entry-info) 1)) ;HEREHERE Shouldn't this have an abstraction?
-      (setq end-marker (1+ (round-up (1- (+ (aref (cdr entry-info) 2)
+      (setq end-marker (1+ (cg-round-up (1- (+ (aref (cdr entry-info) 2)
 					    (cpio-entry-size (cpio-entry-attrs entry-name)))) *cpio-padding-modulus*)))
       (setq buffer-read-only nil)
       (delete-region start-marker end-marker)
@@ -795,27 +861,31 @@ CONTRACT:
   ;; HEREHERE This has some overlap with (cpio-dired-internal-do-copy).
   (let ((fname "cpio-dired-internal-do-rename")
 	(entry (cpio-entry entry-name))
-	(attrs (cpio-entry-attrs entry-name)))
+	(attrs (cpio-entry-attrs entry-name))
+	(mark (cpio-dired-get-mark entry-name)))
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
-    (cpio-set-entry-name attrs target)
-    (with-current-buffer *cab-parent*
-      (setcar (assoc entry-name *cpio-catalog*) target))
+
     (save-excursion
-      (goto-char (point-min))
-      (re-search-forward (concat " \\(" entry-name "\\)$"))
+      (cpio-dired-goto-entry entry-name)
       (setq buffer-read-only nil)
-      (replace-match target 'fixedcase 'literal nil 1)
+      (delete-region (line-beginning-position) (line-end-position))
+      ;; (cpio-dired-goto-entry) needs entry-name in the catalog,
+      ;; so don't update it until after.
+      (cpio-set-entry-name attrs target)
+      (with-current-buffer *cab-parent*
+	(setcar (assoc entry-name *cpio-catalog*) target))
+      (insert (cpio-dired-format-entry attrs mark))
       (setq buffer-read-only t))
     (cpio-dired-move-to-entry-name)))
 
 (defun cpio-dired-mark-read-regexp (operation)
   "Read a regular expression to match entries for the given OPERATION."
-    (let ((fname "cpio-dired-mark-read-regexp")
-	  (regexp (read-regexp
-		   (format "%s on entries matching regexp: " operation)
-		   nil
-		   'dired-regexp-history))
+    (let* ((fname "cpio-dired-mark-read-regexp")
+	   (regexp (read-regexp
+		    (format "%s on entries matching regexp: " operation)
+		    nil
+		    'dired-regexp-history))
 	   (mark-char (cond ((string-equal operation "Copy")
 			     cpio-dired-keep-marker-copy)
 			    ((string-equal operation "Rename")
@@ -826,7 +896,7 @@ CONTRACT:
 	   (entry-name))
       ;;(error "%s(): is not yet implemented." fname)
       (save-excursion
-	(gpoto-char (point-min))
+	(goto-char (point-min))
 	(while (re-search-forward *cpio-dired-entry-regexp* (point-max) t)
 	  (setq entry-name (cpio-dired-get-entry-name))
 	  (if (string-match-p regexp entry-name)
@@ -841,9 +911,7 @@ CONTRACT: You're on the line to be replaced."
 	(mark))
     (save-excursion
       (cpio-move-to-entry entry-name)
-      (setq mark (if (= (line-beginning-position) (line-end-position))
-		     ?\s
-		   (string-to-char (buffer-substring (line-beginning-position) (1+ (line-beginning-position))))))
+      (setq mark (cpio-dired-get-mark))
       (cpio-dired-delete-dired-line entry-name)
       (setq buffer-read-only nil)
       (insert (cpio-dired-format-entry attrs mark))
@@ -887,7 +955,15 @@ This returns the buffer created."
       (cpio-dired-mode))
     ;; No, I do not yet understand why this must be done
     ;; every time the presentation is updated.
+
+    ;; (with-current-buffer "cpio.el"
+    ;;   kill-buffer-hook)
+
     (cab-register buffer archive-buffer)
+
+    ;; (with-current-buffer "cpio.el"
+    ;;    kill-buffer-hook)
+
     buffer))
 
 (defun cpio-dired-move-to-first-entry ()
@@ -925,6 +1001,22 @@ The line does not include a trailing <new line>."
 	(format fmt mark 
 		mode-string nlink-string uid-string gid-string 
 		filesize-string mtime-string entry-name-string))))
+
+(defun cpio-dired-get-mark (&optional entry-name)
+  "Get the mark, a character, on ENTRY-NAME."
+  (let ((fname "cpio-dired-get-mark")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): only makes sense in a cpio-dired buffer." fname))
+    (unless entry-name
+      (setq entry-name (cpio-dired-get-entry-name)))
+    (save-excursion
+      (cpio-dired-goto-entry entry-name)
+      (string-to-char (buffer-substring (line-beginning-position) 
+					(1+ (line-beginning-position)))))
+    ))
+
 
 ;;
 ;; Commands
@@ -981,7 +1073,7 @@ then use the current buffer."
 
 	   (setq contents-start-marker (point-max-marker))
 	   (goto-char (point-max))
-	   (insert-file filename)
+	   (insert-file-contents filename)
 
 	   (goto-char (point-max))
 	   (cpio-insert-trailer)
@@ -1070,7 +1162,8 @@ This respects umask(1) as available through (default-file-modes)."
 	(header-string)
 	(header-start)
 	(contents-start)
-	(cat-entry))
+	(cat-entry)
+	(namesize))
     (cond (*cab-parent*
 	   (unless (eq major-mode 'cpio-dired-mode)
 	     (error "%s(): You're not in a cpio dired buffer." fname))
@@ -1237,7 +1330,8 @@ in the buffer containing the archive."
 				   (current-buffer)))
 	(i 0)
 	(entry)
-	(attrs))
+	(attrs)
+	(mark))
     (unless (or (eq major-mode 'cpio-dired-mode)
  		(eq major-mode 'cpio-mode))
       (error "%s(): major mode is [[%s]]." fname (symbol-name major-mode))
@@ -1245,7 +1339,7 @@ in the buffer containing the archive."
     (cond (*cab-parent*
 	   (unless entry-names
 	     (setq entry-names (cpio-dired-get-marked-entries arg)))
-	   (setq local-group (strip "\\s-+" local-group))
+	   (setq local-group (cg-strip "\\s-+" local-group))
 	   (with-current-buffer *cab-parent*
 	     (cpio-dired-do-chgrp arg entry-names local-group local-cpio-dired-buffer))
 	   (cpio-dired-set-modified))
@@ -1265,13 +1359,12 @@ in the buffer containing the archive."
 
 		   (with-current-buffer local-cpio-dired-buffer
 		     (save-excursion
-		       (goto-char (point-min))
-		       (re-search-forward (concat " " en "$") (point-max) t)
-
+		       (cpio-dired-goto-entry en)
+		       (setq mark (cpio-dired-get-mark))
 		       (setq buffer-read-only nil)
 		       (delete-region (line-beginning-position)
 				      (line-end-position))
-		       (insert (cpio-dired-format-entry attrs))
+		       (insert (cpio-dired-format-entry attrs mark))
 		       (setq buffer-read-only t))))
 		 entry-names)
 	  (cpio-dired-set-modified)))))
@@ -1339,7 +1432,8 @@ into the minibuffer."
 				     cpio-dired-buffer))
 	(i 0)
 	(entry)
-	(attrs))
+	(attrs)
+	(mark))
     (unless (or (eq major-mode 'cpio-dired-mode)
 		(eq major-mode 'cpio-mode))
       (error "%s(): You're in neither a cpio-dired buffer nor a buffer in cpio-mode ." fname))
@@ -1354,7 +1448,7 @@ into the minibuffer."
 			   (< (point) (point-max)))
 		 (push (cpio-dired-get-entry-name) entry-names)
 		 (setq i (1+ i)))))
-	   (setq local-owner (strip "\\s-+" local-owner))
+	   (setq local-owner (cg-strip "\\s-+" local-owner))
 	   (with-current-buffer *cab-parent*
 	     (cpio-dired-do-chown arg entry-names local-owner cpio-dired-buffer))
 	   (cpio-dired-set-modified))
@@ -1385,12 +1479,12 @@ into the minibuffer."
 
 		   (with-current-buffer local-cpio-dired-buffer
 		     (save-excursion
-		       (goto-char (point-min))
-		       (re-search-forward (concat " " en "$") (point-max) t)
+		       (cpio-dired-goto-entry en)
+		       (setq mark (cpio-dired-get-mark))
 		       (setq buffer-read-only nil)
 		       (delete-region (line-beginning-position)
 				      (line-end-position))
-		       (insert (cpio-dired-format-entry attrs))
+		       (insert (cpio-dired-format-entry attrs mark))
 		       (setq buffer-read-only t))))
 		 entry-names)
 	  (cpio-dired-set-modified)))))
@@ -1421,7 +1515,7 @@ that that target should be a directory."
 			      *cpio-dired-copy-history*))
     (cpio-delete-trailer)
     (cond ((> (length entries) 1)
-	   (setq target (strip-right "/" target 'multiples))
+	   (setq target (cg-strip-right "/" target 'multiples))
 	   ;; First handle the case where the entry exists and looks like a directory.
 	   (cond ((cpio-entry-exists-p target)
 		  (setq target-attrs (cpio-entry-attrs target))
@@ -1470,9 +1564,7 @@ Marks win over ARG."
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (mapc (lambda (en)
 	    (save-excursion
-	      (goto-char (point-min))
-	      (re-search-forward (concat " " en "$") (point-max) t)
-
+	      (cpio-dired-goto-entry en)
 	      (setq buffer-read-only nil)
 	      (delete-region (line-beginning-position) (1+ (line-end-position)))
 	      (setq buffer-read-only t)
@@ -1495,12 +1587,11 @@ non-empty directories is allowed."
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (if (and (null entries)
-	     (not (nomessage)))
+	     (not nomessage))
 	(message "%s(): No entries marked for deletion." fname))
     (mapc (lambda (en)
 	    (save-excursion
-	      (goto-char (point-min))
-	      (cond ((re-search-forward (concat " " en "$") (point-max) t)
+	      (cond ((cpio-dired-goto-entry en)
 		     (setq buffer-read-only nil)
 		     (delete-region (line-beginning-position)
 				    (1+ (line-end-position)))
@@ -1628,7 +1719,7 @@ of `dired-dwim-target', which see."
 			      nil
 			      *cpio-dired-do-rename-history*))
     (cond ((> (length entries) 1)
-	   (setq target (strip-right "/" target 'multiples))
+	   (setq target (cg-strip-right "/" target 'multiples))
 	   ;; First handle the case where the entry exists and looks like a directory.
 	   (cond ((cpio-entry-exists-p target)
 		  (setq target-attrs (cpio-entry-attrs target))
@@ -1690,6 +1781,7 @@ NOTE: This behavior differs from the corresponding function in dired."
   (interactive "sSearch marked entries (regexp): ")
   (let ((fname "cpio-dired-do-search")
 	(entry-names (cpio-dired-get-marked-entries))
+	(entry-name)
 	(entry-info)
 	(entry-attrs)
 	(entry-start)
@@ -1901,7 +1993,7 @@ A prefix argument says to unmark or unflag those files instead."
       (while (< (point) (point-max))
 	(if (string-match-p "\\`#" (cpio-dired-get-entry-name))
 	    (if unflag-p
-		(cpio-dired-unmark)
+		(cpio-dired-unmark 1)
 	      (cpio-dired-mark-this-entry cpio-dired-del-marker))
 	  (cpio-dired-next-line 1))))))
 
@@ -1976,7 +2068,7 @@ in the active region."
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (unless (cpio-entry-exists-p entry)
       (error "%s(): There's no entry [[%s]]." fname entry))
-    (cpio-dired-move-to-first-entry)
+    (goto-char (point-min))
     (re-search-forward (concat " " entry "$"))
     (cpio-dired-move-to-entry-name)))
 
@@ -2024,7 +2116,7 @@ and any affiliated buffers thereof."
   (let ((fname "cpio-dired-kill"))
     (if *cab-parent*
 	(cond ((buffer-live-p *cab-parent*)
-	       (if (and (called-interactively-p)
+	       (if (and (called-interactively-p 'interactive)
 			(cpio-dired-modified-p))
 		   (if (y-or-n-p "You've made changes to the archive. Save first? ")
 		       (cpio-dired-save-archive)))
@@ -2137,7 +2229,8 @@ With prefix argument, unmark or unflag all those entries."
 If the Dired buffer shows multiple directories, this command
 marks the entries listed in the subdirectory that point is in."
   (interactive)
-  (let ((fname "cpio-dired-mark-subdir-entries"))
+  (let ((fname "cpio-dired-mark-subdir-entries")
+	(this-mode))
     (save-excursion
       (cpio-dired-move-to-first-entry)
       (while (< (point) (point-max))
@@ -2241,20 +2334,11 @@ Optional prefix ARG says how many lines to move; default is one line."
     (cpio-dired-move-to-entry-name)))
 
 ;; M-}		dired-next-marked-file
+;; * C-n		dired-next-marked-file
 (defun cpio-dired-next-marked-entry (wrap) ;×
   "Move to the previous marked entry.
 If WRAP is non-nil, wrap around to the end of the buffer if we
 reach the beginning of the buffer."
-  (let ((fname "cpio-dired-next-marked-entry"))
-    (error "%s() is not yet implemented" fname)))
-
-;; 
-;; * C-n		dired-next-marked-file
-(defun cpio-dired-next-marked-entry (arg &optional wrap opoint) ;×
-  "Move to the next marked entry.
-If WRAP is non-nil, wrap around to the beginning of the buffer if
-we reach the end."
-  (interactive "p\np")
   (let ((fname "cpio-dired-next-marked-entry"))
     (error "%s() is not yet implemented" fname)))
 
@@ -2281,16 +2365,8 @@ we reach the end."
 
 ;; M-s		Prefix Command
 ;; M-{		dired-prev-marked-file
-(defun cpio-dired-prev-marked-entry (arg wrap) ;×
-  "Move to the previous marked entry.
-If WRAP is non-nil, wrap around to the end of the buffer if we
-reach the beginning of the buffer."
-  (interactive "p\np")
-  (let ((fname "cpio-dired-prev-marked-entry"))
-    (error "%s() is not yet implemented" fname)))
-
 ;; * C-p		dired-prev-marked-file
-(defun cpio-dired-prev-marked-entry (arg &opitonal wrap) ;×
+(defun cpio-dired-prev-marked-entry (arg wrap) ;×
   "Move to the previous marked entry.
 If WRAP is non-nil, wrap around to the end of the buffer if we
 reach the beginning of the buffer."
@@ -2376,24 +2452,24 @@ one.  If non-nil, reset `quit-restore' parameter to nil."
 		 ;; Do the adjustments backwards to ensure that the resulting markers are correct.
 		 (reverse *cpio-catalog*))
 	   ;; Adjust all the entry padding.
-	   (mapcar (lambda (cen)
-	     (let* ((entry (cdr cen))
-	   	    (attrs                         (aref entry *cpio-catalog-entry-attrs-idx*))
-	   	    (header-start (marker-position (aref entry *cpio-catalog-entry-header-start-idx*)))
-	   	    (entry-start  (marker-position (aref entry *cpio-catalog-entry-contents-start-idx*)))
-		    (cpio-set-entry-unmodified entry)
-	   	    (header-string (cpio-make-header-string attrs))
-		    (local-where)
-		    (padding-length))
-	       (goto-char (+ entry-start (cpio-entry-size attrs)))
-	       (setq local-where (mod (1- (point))
-				      *cpio-padding-modulus*))
-	       (cond ((= 0 local-where)
-		      (setq padding-length 0))
-		     (t
-		      (setq padding-length (- *cpio-padding-modulus* local-where))))
-	       (insert (make-string padding-length ?\0))))
-	   *cpio-catalog*)
+	   (mapc (lambda (cen)
+		   (let* ((entry (cdr cen))
+			  (attrs                         (aref entry *cpio-catalog-entry-attrs-idx*))
+			  (header-start (marker-position (aref entry *cpio-catalog-entry-header-start-idx*)))
+			  (entry-start  (marker-position (aref entry *cpio-catalog-entry-contents-start-idx*)))
+			  (cpio-set-entry-unmodified entry)
+			  (header-string (cpio-make-header-string attrs))
+			  (local-where)
+			  (padding-length))
+		     (goto-char (+ entry-start (cpio-entry-size attrs)))
+		     (setq local-where (mod (1- (point))
+					    *cpio-padding-modulus*))
+		     (cond ((= 0 local-where)
+			    (setq padding-length 0))
+			   (t
+			    (setq padding-length (- *cpio-padding-modulus* local-where))))
+		     (insert (make-string padding-length ?\0))))
+		 *cpio-catalog*)
 	   (cpio-adjust-trailer)
 	   (setq buffer-read-only t)
 	   (basic-save-buffer)))))
@@ -2774,7 +2850,7 @@ to do the work, with arguments IGNORE-AUTO and NOCONFIRM.
 The default function runs the hooks `before-revert-hook' and
 `after-revert-hook'."
   (interactive)
-  (let ((fname "revert-buffer"))
+  (let ((fname "cpio-revert-buffer"))
     (if *cab-parent*
 	(if (buffer-live-p *cab-parent*)
 	    (with-current-buffer *cab-parent*
@@ -2809,7 +2885,9 @@ If ARG is the atom `-', scroll upward by nearly full screen."
 	(regex (with-current-buffer *cab-parent*
 		 *cpio-search-re*))
 	(entry-attrs)
-	(contents-size))
+	(contents-size)
+	(contents-start))
+    (error "%s(): is not yet implemented." fname)
     (switch-to-buffer entry-buffer)
     (goto-char search-point)
     (unless (re-search-forward regex (point-max) t)
@@ -2818,16 +2896,25 @@ If ARG is the atom `-', scroll upward by nearly full screen."
 	  (while (setq *cpio-search-entry* (pop *cpio-search-entries*))
 	    (setq entry-attrs (cpio-entry-attrs *cpio-search-entry*))
 	    (goto-char (cpio-contents-start *cpio-search-entry*))
-	    (cond ((re-search-foward *cpio-search-re* (+ contents-start (cpio-entry-size attrs)))
+	    (cond ((re-search-forward *cpio-search-re* (+ contents-start (cpio-entry-size entry-attrs)))
 		   (cpio-dired-find-entry)
 		   (goto-char (point-min))
-		   (re-search-forward *cpio-search-re (point-max) t)
-		   (throw 'found-one))
+		   (re-search-forward *cpio-search-re* (point-max) t)
+		   (throw 'found-one t))
 		  (t nil)))))
       (unless *cpio-search-entries*
 	(setq *cpio-search-entry* nil)
 	(setq *cpio-search-re* nil)
 	(setq *cpio-search-point* nil)))))
+
+(defun cpio-dired-hide-details-mode ()
+  "Toggle visibility of detailed information in current Dired buffer.
+When this minor mode is enabled, details such as file ownership and
+permissions are hidden from view."
+  (let ((fname "cpio-dired-hide-details-mode")
+	)
+    (error "%s() is not yet implemented" fname)
+    ))
 
 
 ;; 
@@ -2954,7 +3041,7 @@ If ARG is the atom `-', scroll upward by nearly full screen."
       ;; HEREHERE This is not the way to do this.
       (define-key cpio-dired-mode-map "g" 'revert-buffer)
       ;; h		describe-mode
-      (define-key cpio-dired-mode-map "h" 'cpio-describe-mode)
+      (define-key cpio-dired-mode-map "h" 'describe-mode)
       ;; i		dired-maybe-insert-subdir
       ;; (define-key cpio-dired-mode-map "i" 'cpio-dired-maybe-insert-subdir) ;×
       ;; j		dired-goto-file

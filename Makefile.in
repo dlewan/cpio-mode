@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile.in,v 1.5 2018/06/03 14:01:54 doug Exp $	
+#	$Id: Makefile.in,v 1.6 2018/06/09 16:14:35 doug Exp $	
 
 # 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018 
@@ -47,11 +47,14 @@ APP_FILES	=	cpio-bin.el			\
 			cpio-ustar.el			\
 			cpio-wanted.el
 
+ELC_FILES	=	${EL_FILES:.el=.elc}
+
 TEST_FILES	=	cab-test.el			\
 			cpio-dired-crc-test.el		\
 			cpio-dired-odc-test.el		\
 			cpio-dired-test.el		\
 			cpio-modes-test.el
+
 
 
 SUPPORT_FILES	=	cpio-affiliated-buffers.el	\
@@ -115,6 +118,24 @@ INSTALL	=	@INSTALL@
 CC	=	@CC@
 CFLAGS	=	
 
+.el.elc:
+	emacs -Q -batch ${BYTE_COMPILE_FLAGS} 			\
+		-l bytecomp -f byte-compile-refresh-preloaded 	\
+		-l cpio.el -f batch-byte-compile ${<} ;
+
+
+################################
+# Taken from emacs' lisp/Makefile.in
+BYTE_COMPILE_EXTRA_FLAGS =
+BIG_STACK_DEPTH = 2200
+BIG_STACK_OPTS = --eval "(setq max-lisp-eval-depth $(BIG_STACK_DEPTH))"
+
+# Set load-prefer-newer for the benefit of the non-bootstrappers.
+BYTE_COMPILE_FLAGS = $(BIG_STACK_OPTS) \
+  --eval '(setq load-prefer-newer t)' $(BYTE_COMPILE_EXTRA_FLAGS)
+# EO stuff from emacs' lisp/Makefile.in
+################################
+
 
 ################################################################
 
@@ -149,7 +170,10 @@ version:
 
 all:	default
 
-.PHONY:	check_gnu
+.PHONY:	check_gnu elc
+
+elc:	${ELC_FILES}
+
 check_gnu:
 	@${MAKE} --version >/dev/null 2>&1 || ( echo "This makefile requires GNU Make." && exit 1 )
 

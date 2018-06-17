@@ -1,5 +1,19 @@
 # -*- outline -*-
-#	$Id: NEWS,v 1.7 2018/06/09 06:16:41 doug Exp $	
+#	$Id: NEWS,v 1.10 2018/06/16 18:03:21 doug Exp $	
+
+* Version 0.09
+** There's now a find-file-hook
+   and documentation on how to use/invoke cpio-mode.
+** Changing owner or group no longer removes marks
+   on the entries on which the change is being performed.
+** cpio-affiliated-buffers.el has had somae fixes.
+   There were lots of issues around the kill-buffer-hook.
+   It seems correct now.
+   (Of course, bug reports are welcome.)
+   Affiliated buffer tests have been fleshed out some.
+** Byte compilation is cleaner.
+   Not entirely clean, but cleaner.
+** Some tests have had minor fixes.
 
 * Version 0.08
 ** Binary format support.

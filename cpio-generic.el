@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.4 2018/05/21 21:21:16 doug Exp $	
+;	$Id: cpio-generic.el,v 1.7 2018/06/17 07:34:12 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -52,15 +52,15 @@
 ;; Vars
 ;; 
 
-(defvar *integer-hex-digits* nil)
+(defvar *cg-integer-hex-digits* nil)
 
-(defvar *debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" fname)$"
+(defvar *cg-debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" fname)$"
   "RE to match a debugger created by M-x insert-debugger.")
-(setq *debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" fname)")
+(setq *cg-debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" fname)")
 
-(defvar *insert-after* nil
+(defvar *cg-insert-after* nil
   "Value used to define that a marker has type 'insert after'.")
-(defvar *insert-before* t
+(defvar *cg-insert-before* t
   "Value used to define that a marker has type 'insert before'.")
 
 
@@ -68,62 +68,62 @@
 ;; Library
 ;; 
 
-(defun integer-hex-digits ()
+(defun cg-integer-hex-digits ()
   "Calculate the number of hex digits that are required to represent any integer."
-  (let ((fname "integer-hex-digits")
+  (let ((fname "cg-integer-hex-digits")
 	(an-integer most-negative-fixnum)
 	(hex-digit-ct 0))
-    (unless *integer-hex-digits*
+    (unless *cg-integer-hex-digits*
 	(while (/= 0 an-integer)
 	  (setq an-integer (lsh an-integer -4))
 	  (setq hex-digit-ct (1+ hex-digit-ct)))
-	(setq *integer-hex-digits* hex-digit-ct)))
-  *integer-hex-digits*)
+	(setq *cg-integer-hex-digits* hex-digit-ct)))
+  *cg-integer-hex-digits*)
 
-(defun hex-format-pair (pair)
+(defun cg-hex-format-pair (pair)
   "Return a hex formatted representation of PAIR."
-  (let ((fname "hex-format-pair")
-	(hex-digit-count (integer-hex-digits))
+  (let ((fname "cg-hex-format-pair")
+	(hex-digit-count (cg-integer-hex-digits))
 	(formatter))
     (setq formatter (format "%%0%dx" hex-digit-count))
     (setq formatter (concat formatter formatter))
     (format formatter (car pair) (cdr pair))))
 
-(defun hex-format-triple (triple)
+(defun cg-hex-format-triple (triple)
   "Return a hex formatted representation of TRIPLE."
-  (let ((fname "hex-format-triple")
-	(hex-digit-count (integer-hex-digits))
+  (let ((fname "cg-hex-format-triple")
+	(hex-digit-count (cg-integer-hex-digits))
 	(formatter))
     (setq formatter (format "%%0%dx" hex-digit-count))
     (setq formatter (concat formatter formatter formatter))
     (format formatter (car triple) (cadr triple) (cddr triple))))
 
-(defun round-up (number modulus)
+(defun cg-round-up (number modulus)
   "Round NUMBER up to the next multiple of MODULUS.
 If number ≡ 0 (modulus), then the NUMBER is already rounded up,
 so NUMBER is returned.
 CAVEAT: If NUMBER is negative, then the result may be surprising."
-  (let ((fname "round-up"))
+  (let ((fname "cg-round-up"))
     (unless (and (integerp number) (integerp modulus))
       (error "%s() takes integer arguments." fname))
     (if (= 0 (mod number modulus))
 	number
       (* modulus (/ (+ number modulus -1) modulus)))))
 
-(defun pad-right (string width char)
+(defun cg-pad-right (string width char)
   "Pad STRING on the right with CHAR until it is WIDTH characters wide.
 CHAR is typically a character or a single character string, but may be any string."
-  (let ((fname "pad-right"))
+  (let ((fname "cg-pad-right"))
     (if (characterp char) (setq char (char-to-string char)))
     (while (< (length string) width)
       (setq string (concat string char)))
     string))
 
-(defun strip-right (re string &optional multiples)
+(defun cg-strip-right (re string &optional multiples)
   "Strip the given RE from the right end of STRING.
 If the optional argument MULTIPLES is not NIL,
 then match as many copies of RE as are there."
-  (let ((fname "strip-right")
+  (let ((fname "cg-strip-right")
 	(inner-re (if multiples
 		      (concat "\\(" re "\\)+\\'")
 		    (concat re "\\'")))
@@ -133,11 +133,11 @@ then match as many copies of RE as are there."
 	  (setq result (substring string 0 (match-beginning 0)))))
     result))
 
-(defun strip-left (re string &optional multiples)
+(defun cg-strip-left (re string &optional multiples)
   "Strip the given RE from the left end of STRING.
 If the optional argument MULTIPLES is not NIL,
 then match as many copies of RE as are there."
-  (let ((fname "strip-left")
+  (let ((fname "cg-strip-left")
 	(inner-re (if multiples
 		      (concat "\\`+\\(" re "\\)")
 		    (concat "\\`" re)))
@@ -148,20 +148,20 @@ then match as many copies of RE as are there."
 	  (setq result (substring string (match-end 0)))))
     result))
 
-(defun strip (re string &optional multiples)
+(defun cg-strip (re string &optional multiples)
   "Remove the given RE from both ends of STRING.
 If the optional argument MULTIPLES is not NIL,
 then match as many copies of RE as are there."
   (let ((fname "strip")
 	(result))
-    (strip-left re (strip-right re string multiples) multiples)))
+    (cg-strip-left re (cg-strip-right re string multiples) multiples)))
 
 (defun cpio-padded (string modulus pad-char)
   "Pad the given STRING."
   (let* ((fname "cpio-padded")
 	 (string-length (length string))
-	 (desired-length (round-up string-length modulus)))
-    (pad-right string desired-length pad-char)))
+	 (desired-length (cg-round-up string-length modulus)))
+    (cg-pad-right string desired-length pad-char)))
 
 (defun cpio-uid-for-owner (owner)
   "Return the uid (an integer) for the given OWNER (a string) if it exists.
@@ -237,7 +237,7 @@ CAVEAT: This deletes any buffer holding /etc/group."
     (save-excursion
       (save-restriction
 	(goto-char (point-min))
-	(while (re-search-forward *debugger-re* (point-max) t)
+	(while (re-search-forward *cg-debugger-re* (point-max) t)
 	  (replace-match (format "%d" (count-lines (point-min) (point)))
 			 nil nil nil 1))))
     (save-buffer)))
@@ -250,7 +250,7 @@ and NIL otherwise.
 This function respects narrowing."
   (interactive)
   (let ((fname "remove-debugger"))
-    (cond ((re-search-forward *debugger-re* (point-max) t)
+    (cond ((re-search-forward *cg-debugger-re* (point-max) t)
 	   (delete-region (match-beginning 0) (match-end 0))
 	   t)
 	  (t nil))))
@@ -313,7 +313,7 @@ Well, that's the intent, but, really, it's a hack."
 			  lengths)))
 	 (i 0)
 	 (j 1))
-    (setq header-string (strip-right "\0" header-string t))
+    (setq header-string (cg-strip-right "\0" header-string t))
     (mapcar (lambda (s)
 	      (prog1 (substring header-string (nth i stops) (nth j stops))
 		(setq i j)

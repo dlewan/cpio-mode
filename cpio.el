@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.8 2018/06/09 05:20:12 doug Exp $	
+;	$Id: cpio.el,v 1.13 2018/06/17 07:34:12 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -18,8 +18,26 @@
 ;; NAME: cpio-mode
 ;; 
 ;; USAGE:
-;;     (load-library 'cpio-mode)
+;;     (load-library 'cpio-mode) OR
 ;;     (require 'cpio-mode)
+;;
+;;     Once loaded, there are several ways to invoke cpio-mode:
+;; 
+;;     • M-x cpio-mode
+;; 
+;;     • If you want to put a cpio-archive into cpio-mode autmatically,
+;;       then add the following to your .emacs:
+;;         (add-hook 'find-file-hook 'cpio-mode-find-file-hook)
+;;
+;;     • Another way to do this would be to modify magic-mode-alist
+;;         (setq magic-mode-alist
+;;              (add-to-list 'magic-mode-alist
+;;                           (cons 'cpio-discern-archive-type 'cpio-mode))).
+;;
+;;     • If you only care about archives that end .cpio,
+;;       then the following would also work:
+;;         (setq auto-mode-alist
+;;               (add-to-list 'auto-mode-alist (cons "\\.cpio\\'" 'cpio-mode))).
 ;; 
 ;; DESCRIPTION:
 ;;     cpio-mode presents a cpio archive as if it were a directory
@@ -205,49 +223,115 @@
 ;; Dependencies
 ;; 
 
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(defvar *cpio-catalog-entry-attrs-idx*)
+(defvar *cpio-catalog-entry-contents-start-idx*)
+(defvar *cpio-catalog-entry-header-start-idx*)
+(defvar *cpio-catalog-entry-length*)
+(defvar *cpio-catalog-entry-modified-flag-idx*)
+(defvar *cpio-chksum-parsed-idx*)
+(defvar *cpio-crc-header-re*)
+(defvar *cpio-crc-padding-char*)
+(defvar *cpio-crc-padding-modulus*)
+(defvar *cpio-crc-padding-str*)
+(defvar *cpio-dev-maj-parsed-idx*)
+(defvar *cpio-dev-min-parsed-idx*)
+(defvar *cpio-entry-size-parsed-idx*)
+(defvar *cpio-gid-parsed-idx*)
+(defvar *cpio-ino-parsed-idx*)
+(defvar *cpio-mode-parsed-idx*)
+(defvar *cpio-mtime-parsed-idx*)
+(defvar *cpio-name-parsed-idx*)
+(defvar *cpio-namesize-parsed-idx*)
+(defvar *cpio-nlink-parsed-idx*)
+(defvar *cpio-odc-header-re*)
+(defvar *cpio-odc-padding-char*)
+(defvar *cpio-odc-padding-modulus*)
+(defvar *cpio-odc-padding-str*)
+(defvar *cpio-parsed-header-length*)
+(defvar *cpio-rdev-maj-parsed-idx*)
+(defvar *cpio-rdev-min-parsed-idx*)
+(defvar *cpio-uid-parsed-idx*)
+(defvar cpio-entry-name)
+(defvar cpio-try-names)
+(declare-function cpio-contents-buffer-name "cpio-dired.el")
+(declare-function cpio-entry-contents-mode "cpio-entry-contents-mode.el")
+(declare-function cpio-dired-move-to-first-entry "cpio-dired.el")
+(declare-function cpio-dired-next-line "cpio-dired.el")
+(declare-function cpio-dired-buffer-name "cpio-dired.el")
+(declare-function cpio-present-ala-dired "cpio-dired.el")
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
+
 ;; During development I need access to local files.
 (setq load-path (add-to-list 'load-path (substring default-directory -1)))
 
 (require 'dired)
 
 ;; (require 'cpio-generic)
-(load (concat default-directory "cpio-generic.el"))
-(message "Loaded cpio-generic.el.")
+(if (file-exists-p (concat default-directory "cpio-generic.elc"))
+    (load (concat default-directory "cpio-generic.elc"))
+  (load (concat default-directory "cpio-generic.el")))
+(message "Loaded cpio-generic.")
 ;; (require 'cpio-modes)
-(load (concat default-directory "cpio-modes.el"))
-(message "Loaded cpio-modes.el.")
+(if (file-exists-p (concat default-directory "cpio-modes.elc"))
+    (load (concat default-directory "cpio-modes.elc"))
+  (load (concat default-directory "cpio-modes.el")))
+(message "Loaded cpio-modes.")
 ;; (require 'cpio-affiliated-buffers)
-(load (concat default-directory "cpio-affiliated-buffers"))
-(message "Loaded cpio-affiliated-buffers.el.")
+(if (file-exists-p (concat default-directory "cpio-affiliated-buffers.elc"))
+    (load (concat default-directory "cpio-affiliated-buffers.elc"))
+  (load (concat default-directory "cpio-affiliated-buffers.el")))
+(message "Loaded cpio-affiliated-buffers.")
 
 ;; (require 'cpio-bin)
-(load (concat default-directory "cpio-bin"))
-(message "Loaded cpio-bin")
+(if (file-exists-p (concat default-directory "cpio-bin.elc"))
+    (load (concat default-directory "cpio-bin.elc"))
+  (load (concat default-directory "cpio-bin.el")))
+(message "Loaded cpion")
 ;; (require 'cpio-crc)
-(load (concat default-directory "cpio-crc"))
-(message "Loaded cpio-crc.el.")
+(if (file-exists-p (concat default-directory "cpio-crc.elc"))
+    (load (concat default-directory "cpio-crc.elc"))
+  (load (concat default-directory "cpio-crc.el")))
+(message "Loaded cpio-crc.")
 ;; (require 'cpio-hpbin)
-(load (concat default-directory "cpio-hpbin"))
-(message "Loaded cpio-hpbin.el")
+(if (file-exists-p (concat default-directory "cpio-hpbin.elc"))
+    (load (concat default-directory "cpio-hpbin.elc"))
+  (load (concat default-directory "cpio-hpbin.el")))
+(message "Loaded cpio-hpbil")
 ;; (require 'cpio-hpodc)
-(load (concat default-directory "cpio-hpodc"))
-(message "Loaded cpio-hpodc.el")
+(if (file-exists-p (concat default-directory "cpio-hpodc.elc"))
+    (load (concat default-directory "cpio-hpodc.elc"))
+  (load (concat default-directory "cpio-hpodc.el")))
+(message "Loaded cpio-hpodl")
 ;; (require 'cpio-newc)
-(load (concat default-directory "cpio-newc"))
-(message "Loaded cpio-newc.el.")
+(if (file-exists-p (concat default-directory "cpio-newc.elc"))
+    (load (concat default-directory "cpio-newc.elc"))
+  (load (concat default-directory "cpio-newc.el")))
+(message "Loaded cpio-newc.")
 ;; (require 'cpio-odc)
-(load (concat default-directory "cpio-odc"))
-(message "Loaded cpio-odc.el")
+(if (file-exists-p (concat default-directory "cpio-odc.elc"))
+    (load (concat default-directory "cpio-odc.elc"))
+  (load (concat default-directory "cpio-odc.el")))
+(message "Loaded cpio-odl")
 ;; (require 'cpio-tar)
 ;; (require 'cpio-ustar)
 
 ;; (require 'cpio-wanted)
-(load (concat default-directory "cpio-wanted"))
-(message "Loaded cpio-wanted.el.")
+(if (file-exists-p (concat default-directory "cpio-wanted.elc"))
+    (load (concat default-directory "cpio-wanted.elc"))
+  (load (concat default-directory "cpio-wanted.el")))
+(message "Loaded cpio-wanted.")
 ;; (require 'cpio-dired)
-(load (concat default-directory "cpio-dired"))
-(message "Loaded cpio-dired.el.")
-(load (concat default-directory "cpio-entry-contents-mode"))
+(if (file-exists-p (concat default-directory "cpio-dired.elc"))
+    (load (concat default-directory "cpio-dired.elc"))
+  (load (concat default-directory "cpio-dired.el")))
+(message "Loaded cpio-dired.")
+;; (require 'cpio-entry-contents-mode)
+(if (file-exists-p (concat default-directory "cpio-entry-contents-mode.elc"))
+    (load (concat default-directory "cpio-entry-contents-mode.elc"))
+  (load (concat default-directory "cpio-entry-contents-mode.el")))
 (message "Loaded cpio-entry-contents-mode.")
 
 
@@ -383,6 +467,18 @@ See `cpio-discern-archive-type' for the full list.")
   "")
 (setq cpio-make-header-string-func ())
 
+(defvar cpio-adjust-trailer-func ()
+  "")
+
+(defvar cpio-insert-trailer-func ()
+  "")
+
+(defvar cpio-delete-trailer-func ()
+  "")
+
+(defvar cpio-make-chksum-for-file-func ()
+  "")
+
 (defvar *cpio-local-funcs* ()
   "A list of variables peculiar to the different headers and their fields.
 The design here is that package-wide variables have the prefix `cpio-'
@@ -391,6 +487,7 @@ All of this can then be calculated via (symbol-name), etc.")
 (setq *cpio-local-funcs* (list
 			  ;; Catalog management
 			  'cpio-build-catalog-func
+			  'cpio-make-chksum-for-file-func
 			  ;; Header parsing functions
 			  'cpio-end-of-archive-func
 			  'cpio-start-of-trailer-func
@@ -435,7 +532,7 @@ A parsed header is a vector of the following form:
      rdev-min
      name-size
 
-     checksum
+     chksum
      name].")
 (make-variable-buffer-local '*cpio-catalog*)
 (setq *cpio-catalog* ())
@@ -517,8 +614,8 @@ A parsed header is a vector of the following form:
   (setq *cpio-namesize-parsed-idx* i)
 
   (setq i (1+ i))
-  (defvar *cpio-checksum-parsed-idx* i)
-  (setq *cpio-checksum-parsed-idx* i)
+  (defvar *cpio-chksum-parsed-idx* i)
+  (setq *cpio-chksum-parsed-idx* i)
 
   (setq i (1+ i))
   (defvar *cpio-name-parsed-idx* i)
@@ -544,7 +641,8 @@ A parsed header is a vector of the following form:
 ;; Customizations
 ;; 
 (defgroup cpio ()
-  "Customizations for cpio-mode.")
+  "Customizations for cpio-mode."
+  :group 'data)
 
 (defcustom cpio-default-format "newc"
   "The default cpio format to use for a new or empty archive."
@@ -555,6 +653,17 @@ A parsed header is a vector of the following form:
 ;; 
 ;; Library
 ;; 
+
+(defun cpio-mode-find-file-hook ()
+  "find-file hook to detect if a file is likely a cpio archive.
+If it is, then put it under cpio-mode."
+  (let ((fname "cpio-mode-find-file-hook")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (if (cpio-discern-archive-type)
+	(cpio-mode))
+    ))
+
 (defun cpio-discern-archive-type ()
   "Return a symbol reflecting the type of the cpio archive in the current buffer.
 Values are 'bin, 'newc, 'odc, 'crc, 'tar, 'ustar, 'hpbin, 'hpodc
@@ -562,24 +671,24 @@ and NIL if the current buffer does not begin with a cpio entry header."
   ;; Using a RE may not be the right way to go.
   ;; Maybe each format needs a function.
   (let ((fname "cpio-discern-archive-type")
-	(this-archive-type))
+	(this-archive-type ()))
     (unless *cpio-archive-syntax-table*
       (setq *cpio-archive-syntax-table* (make-syntax-table))
       (let ((i 0))
 	(while (< i #x100)
 	  (modify-syntax-entry i "w" *cpio-archive-syntax-table*)
 	  (setq i (1+ i)))))
-    (set-syntax-table *cpio-archive-syntax-table*)
-    (save-excursion
-      (widen)
-      (goto-char (point-min))
-      (catch 'found-it
-	(mapcar (lambda (archive-spec)
-		  (cond ((looking-at-p (car archive-spec))
-			 (setq this-archive-type (cdr archive-spec))
-			 (throw 'found-it t))
+    (with-syntax-table *cpio-archive-syntax-table*
+      (save-excursion
+ 	(widen)
+	(goto-char (point-min))
+ 	(catch 'found-it
+ 	  (mapc (lambda (archive-spec)
+ 		  (cond ((looking-at-p (car archive-spec))
+ 			 (setq this-archive-type (cdr archive-spec))
+ 			 (throw 'found-it t))
 			(t t)))
-		*cpio-re-type-alist*)))
+ 		*cpio-re-type-alist*))))
     this-archive-type))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -591,7 +700,7 @@ and NIL if the current buffer does not begin with a cpio entry header."
   (let ((fname "cpio-parse-header"))
     (funcall cpio-parse-header-func header-str)))
 
-(defun cpio-header-at-point (&optional where)
+(defun OBS-cpio-header-at-point (&optional where)
   "Return the header string at or following point WHERE.
 If WHERE is not given, then use point.
 CAVEAT: This searches for the magic number at the begining of the header;
@@ -746,7 +855,7 @@ WHERE can be an integer or marker."
 		  (contents-end (+ contents-start contents-size -1))
 		  (result))
 	     (if (null entry-attrs)
-		 (error "%s(): Could not get entry attributes for [[%s]]." fname))
+		 (error "%s(): Could not get entry attributes for [[%s]]." fname entry-name))
 	     (goto-char contents-start)
 	     (forward-char contents-size)
 	     (setq result (buffer-substring-no-properties contents-start (point))))))))
@@ -796,7 +905,7 @@ GID can be either a string (representing a number)
 or an integer."
   (let ((fname "cpio-set-gid"))
     (unless (integerp gid)
-      (setq uid (string-to-number gid)))
+      (setq gid (string-to-number gid)))
     (aset parsed-header *cpio-gid-parsed-idx* gid)))
 
 (defun cpio-set-mode (parsed-header mode)
@@ -804,7 +913,7 @@ or an integer."
 MODE is either an integer or a string representing an integer."
   (let ((fname "cpio-set-mode"))
     (unless (integerp mode)
-      (setq uid (string-to-number mode)))
+      (setq mode (string-to-number mode)))
     (aset parsed-header *cpio-mode-parsed-idx* mode)))
 
 (defun cpio-set-mtime (parsed-header mtime)
@@ -889,7 +998,7 @@ or a buffer affiliated with such a buffer."
 	    (warn "%s(): FIFOs (pipes) cannot be extracted with cpio-mode." fname))
 	   ((string-equal entry-type *cpio-modes-sock*)
 	    (warn "%s(): Sockets cannot be extracted with cpio-mode." fname))
-	   ((string-equal entry-type *cpio-modes-unkown*)
+	   ((string-equal entry-type *cpio-modes-unknown*)
 	    (warn "%s(): Unknown entry type -- not extracting." fname))
 	   (t (error "%s(): Impossible condition." fname)))))
 
@@ -954,7 +1063,7 @@ If ENTRY-NAME is not in the current archive, then return NIL."
 	  ((= #o140000 (logand s-ifsock numeric-mode))
 	   s-ifsock)
 	  ((= #o120000 (logand s-iflnk  numeric-mode))
-	   s-iflink)
+	   s-iflnk)
 	  ((/= 0       (logand s-ifreg  numeric-mode))
 	   s-ifreg)
 	  ((/= 0       (logand s-ifdir  numeric-mode))
@@ -966,7 +1075,7 @@ If ENTRY-NAME is not in the current archive, then return NIL."
 	  ((/= 0       (logand s-ififo  numeric-mode))
 	   s-ififo)
 	  (t
-	   s_iunk))))
+	   s-ifunk))))
 
 (defun cpio-set-file-attrs (file-name)
   "Set the attributes on FILE-NAME
@@ -1041,9 +1150,9 @@ ENTRY is a catalog entry."
 	     (size (cpio-entry-size attrs))
 	     (entry-start (cpio-entry-header-start entry))
 	     (contents-start (cpio-contents-start (cpio-entry-name attrs)))
-	     (entry-end (1+ (round-up (+ (1- contents-start)
-					 (cpio-entry-size attrs))
-				      *cpio-padding-modulus*))))
+	     (entry-end (1+ (cg-round-up (+ (1- contents-start)
+					    (cpio-entry-size attrs))
+					 *cpio-padding-modulus*))))
 	(setq buffer-read-only nil)
 	(delete-region entry-start entry-end)
 	(setq buffer-read-only t)))))
@@ -1146,7 +1255,7 @@ a UNIX/GNU/Linux time as an integer."
   (let ((fname "cpio-find-entry")
 	(target-buffer))
     (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
-	(error "%s(): Could not get a buffer for entry [[%s]]." fname))
+	(error "%s(): Could not get a buffer for entry [[%s]]." fname entry-name))
     (cab-register target-buffer *cab-parent*)
     (with-current-buffer target-buffer
       (cond ((or (/= 0 (1- (point)))
@@ -1156,7 +1265,7 @@ a UNIX/GNU/Linux time as an integer."
 	     ;; (setq buffer-read-only t)
 	     (goto-char (point-min)))
 	    (t t))
-      (make-variable-buffer-local 'cpio-entry-name)
+      (make-local-variable 'cpio-entry-name)
       (setq cpio-entry-name entry-name)
       (set-buffer-modified-p nil)
       (cpio-entry-contents-mode))
@@ -1182,7 +1291,7 @@ a UNIX/GNU/Linux time as an integer."
 	 (rdev-min 0)
 	 (namesize (length filename))
 
-	 (checksum (cpio-make-checksum filename))
+	 (chksum (cpio-make-chksum-for-file filename))
 
 	 (result (make-vector 14 nil)))
     (aset result *cpio-ino-parsed-idx*        ino)
@@ -1200,10 +1309,16 @@ a UNIX/GNU/Linux time as an integer."
     (aset result *cpio-rdev-min-parsed-idx*   rdev-min)
     (aset result *cpio-namesize-parsed-idx*   namesize)
     
-    (aset result *cpio-checksum-parsed-idx*   checksum)
+    (aset result *cpio-chksum-parsed-idx*     chksum)
     (aset result *cpio-name-parsed-idx*       filename)
 
     result))
+
+(defun cpio-make-chksum-for-file (filename)
+  "Return the checksum for FILENAME."
+  (let ((fname "cpio-make-chksum-for-file"))
+    ;; (error "%s() is not yet implemented" fname)
+    (funcall cpio-make-chksum-for-file-func filename)))
 
 (defun cpio-create-faux-directory-attrs (name)
   "Create attributes appropriate for adding a directory entry to a cpio-archive.
@@ -1230,25 +1345,25 @@ many are simply invented."
 	 (rdev-maj 0)
 	 (rdev-min 0)
 	 (namesize (1+ (length name)))
-	 (checksum 0)			;Checksum for a direcory is always 0.
+	 (chksum 0)			;Checksum for a direcory is always 0.
 	 (result (make-vector 14 nil)))
-    (aset result *cpio-ino-parsed-idx* ino)
-    (aset result *cpio-mode-parsed-idx* mode)
-    (aset result *cpio-uid-parsed-idx* uid)
-    (aset result *cpio-gid-parsed-idx* gid)
+    (aset result *cpio-ino-parsed-idx*        ino)
+    (aset result *cpio-mode-parsed-idx*       mode)
+    (aset result *cpio-uid-parsed-idx*        uid)
+    (aset result *cpio-gid-parsed-idx*        gid)
     
-    (aset result *cpio-nlink-parsed-idx* nlink)
-    (aset result *cpio-mtime-parsed-idx* mtime)
+    (aset result *cpio-nlink-parsed-idx*      nlink)
+    (aset result *cpio-mtime-parsed-idx*      mtime)
     (aset result *cpio-entry-size-parsed-idx* entry-size)
-    (aset result *cpio-dev-maj-parsed-idx* dev-maj)
+    (aset result *cpio-dev-maj-parsed-idx*    dev-maj)
     
-    (aset result *cpio-dev-min-parsed-idx* dev-min)
-    (aset result *cpio-rdev-maj-parsed-idx* rdev-maj)
-    (aset result *cpio-rdev-min-parsed-idx* rdev-min)
-    (aset result *cpio-namesize-parsed-idx* namesize)
+    (aset result *cpio-dev-min-parsed-idx*    dev-min)
+    (aset result *cpio-rdev-maj-parsed-idx*   rdev-maj)
+    (aset result *cpio-rdev-min-parsed-idx*   rdev-min)
+    (aset result *cpio-namesize-parsed-idx*   namesize)
     
-    (aset result *cpio-checksum-parsed-idx* checksum)
-    (aset result *cpio-name-parsed-idx* name)
+    (aset result *cpio-chksum-parsed-idx*     chksum)
+    (aset result *cpio-name-parsed-idx*       name)
     
     result))
 
@@ -1351,16 +1466,21 @@ Signal an error if it isn't."
   "Treat cpio archives like file systems with a dired UI."
   (if (null (setq *cpio-format* (cpio-discern-archive-type)))
       (error "You're not in a supported CPIO buffer. It begins [[%s]]." (buffer-substring-no-properties 1 8)))
-  (message "You're in a cpio buffer of type [[%s]]." (symbol-name *cpio-format*)) ; (sit-for 1.0)
+  ;; (message "You're in a cpio buffer of type [[%s]]." (symbol-name *cpio-format*))
+  ;; (sit-for 1.0)
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
+    ;; You really only need this for the binary archive formats,
+    ;; but, hey it's cheap to set it.
+    (set-syntax-table *cpio-archive-syntax-table*)
     (setq buffer-read-only t)
-    (message "Establishing local variables.")
+    ;; (message "Establishing local variables.")
     (cpio-set-locals *cpio-format*)
     (setq *cpio-archive-name* (buffer-file-name))
     (cpio-build-catalog)
     (with-current-buffer (setq cpio-dired-buffer
 			       (cpio-present-ala-dired (current-buffer)))
+      (make-local-variable '*cpio-archive-name*)
       (cpio-dired-set-unmodified))
     (cpio-create-keymap)
     (bury-buffer)
@@ -1424,7 +1544,7 @@ and, thus, the archive can be saved."
   (interactive)
   (let ((fname "cpio-quit"))
     (if *cab-parent*
-	(with-current-buffer *cab-pattern*
+	(with-current-buffer *cab-parent*
 	  (cpio-quit)
 	  (unless (kill-buffer)
 	    (warn "%s(): Could not kill [[%s]]." fname (current-buffer)))))))
@@ -1455,7 +1575,7 @@ ARCHIVE-TYPE is a symbol."
   (let ((fname "cpio-set-locals"))
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
-	  (cpio-set-local-vars))
+	  (cpio-set-local-vars archive-type))
       (cpio-set-local-vars archive-type)
       (cpio-set-local-funcs archive-type))))
 
@@ -1504,7 +1624,6 @@ See *cpio-local-funcs* for more information."
     ;; Some variables are not format-specific.
     (make-local-variable '*cpio-catalog*)
     (setq *cpio-catalog* ())
-    (make-variable-buffer-local '*cpio-archive-name*)
     (setq *cpio-archive-name* (buffer-file-name))
     ;; Now for the format-specific variables.
     (cond ((eq archive-type 'bin)

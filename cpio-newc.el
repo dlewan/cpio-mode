@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.8 2018/06/09 05:20:12 doug Exp $	
+;	$Id: cpio-newc.el,v 1.11 2018/06/17 07:34:12 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -53,8 +53,32 @@
 ;;
 ;; Dependencies
 ;; 
-(require 'cpio-generic)
+(condition-case err
+    (require 'cpio-generic)
+    (error
+     (if (file-exists-p (concat default-directory "cpio-generic.elc"))
+	 (load-file (concat default-directory "cpio-generic.elc"))
+       (load-file (concat default-directory "cpio-generic.el")))))
 
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(defvar *cpio-catalog*)
+(defvar *cpio-padding-modulus*)
+(declare-function cpio-entry-name "cpio.el")
+(declare-function cpio-ino "cpio.el")
+(declare-function cpio-mode-value "cpio.el")
+(declare-function cpio-uid "cpio.el")
+(declare-function cpio-gid "cpio.el")
+(declare-function cpio-nlink "cpio.el")
+(declare-function cpio-mtime "cpio.el")
+(declare-function cpio-entry-size "cpio.el")
+(declare-function cpio-dev-maj "cpio.el")
+(declare-function cpio-dev-min "cpio.el")
+(declare-function cpio-entry-attrs-from-catalog-entry "cpio.el")
+(declare-function cpio-contents-start "cpio.el")
+(declare-function cpio-entry-attrs "cpio.el")
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
 
 ;; 
 ;; Vars
@@ -384,7 +408,7 @@ This function does NOT get the contents."
     (if (= 0 (mod (setq total (+ 1 *cpio-newc-name-field-offset* local-namesize)) 
 		  *cpio-newc-padding-modulus*))
 	(setq total (1+ total)))
-    (round-up total *cpio-newc-padding-modulus*)))
+    (cg-round-up total *cpio-newc-padding-modulus*)))
 
 (defun cpio-newc-parse-magic (header-string)
   "Get the magic field from HEADER-STRING."
@@ -533,11 +557,11 @@ This function does NOT include the contents."
 				 (cpio-newc-make-chksum   attrs)
 				 name
 				 "\0"))
-    (setq header-string (pad-right header-string (round-up (length header-string) *cpio-newc-padding-modulus*) "\0"))
+    (setq header-string (cg-pad-right header-string (cg-round-up (length header-string) *cpio-newc-padding-modulus*) "\0"))
     ;; Check (at least during development).
     (if (string-match-p *cpio-newc-header-re* header-string)
 	header-string
-      (error "%s(): I built a bad header: [[%s]]" fname header))))
+      (error "%s(): I built a bad header: [[%s]]" fname header-string))))
 
 (defun cpio-newc-make-magic (attrs)
   "Return the NEWC magic header string"
@@ -547,69 +571,35 @@ This function does NOT include the contents."
 (defun cpio-newc-make-ino (attrs)
   "Return a string value for the inode from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-ino")
-	(ino (aref attrs *cpio-ino-parsed-idx*)))
-    (cond ((numberp ino)
-	   (format "%08X" ino))
-	  ((consp ino)
-	   (cond ((cddr ino)
-		  (cpio-newc-BIG-inode-to-string))
-		 ((cdr ino)
-		  (cpio-newc-big-inode-to-string))
-		 (t (error "Bad inode value: [[%s]]." ino))))
-	  (t (error "Bad inode value: [[%s]]." ino)))))
-
-(defun cpio-newc-BIG-inode-to-string (ino)
-  "Convert the BIG inode format (HIGH MIDDLE . LOW) to a printable integer.
-Since we're writing a NEWC CPIO header it must be < 8 digits.
-N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
-I likely won't need this, but someone might."
-  ;; There's a contract here that INO is a triple of integers.
-  (let ((fname "cpio-newc-BIG-inode-to-string"))
-    (hex-format-triple ino)))
-
-(defun cpio-newc-big-inode-to-string (ino)
-  "Convert the big inode format (HIGH . LOW) to a printable integer.
-Since we're writing a NEWC CPIO header it must be < 8 digits.
-N.B. On my 64 bit machine most-positive-fixnum is 2305843009213693951.
-I likely won't need this, but someone might."
-  (let ((fname "cpio-newc-big-inode-to-string")
-	(hex-digit-count (integer-hex-digits)))
-    (hex-format-pair ino)))
+	(ino (cpio-ino attrs)))
+    (format "%08X" ino)))
 
 (defun cpio-newc-make-mode (attrs)
   "Return a string value for the mode from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-mode"))
-    (format "%08X" (aref attrs *cpio-mode-parsed-idx*))))
+    (format "%08X" (cpio-mode-value attrs))))
 
 (defun cpio-newc-make-uid (attrs)
   "Return an integer string value for the UID from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-uid")
-	(uid (aref attrs *cpio-uid-parsed-idx*)))
-    (cond ((numberp uid)
-	   (format "%08X" uid))
-	  ((string-match-p "\\`[[:graph:]]\\'" uid)
-	   (cpio-look-up-uid uid))
-	  (t (error "Bad UID: [[%s]]" uid)))))
+	(uid (cpio-uid attrs)))
+    (format "%08X" uid)))
 
 (defun cpio-newc-make-gid (attrs)
   "Return an integer string value for the GID from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-gid")
-	(gid (aref attrs *cpio-gid-parsed-idx*)))
-    (cond ((numberp gid)
-	   (format "%08X" gid))
-	  ((string-match-p "\\`[[:graph:]]\\'" gid)
-	   (cpio-look-up-gid gid))
-	  (t (error "Bad GID: [[%s]]" gid)))))
+	(gid (cpio-gid attrs)))
+    (format "%08X" gid)))
 
 (defun cpio-newc-make-nlink (attrs)
   "Return an integer string value for the number of links from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-nlink"))
-    (format "%08X" (aref attrs *cpio-nlink-parsed-idx*))))
+    (format "%08X" (cpio-nlink attrs))))
 
 (defun cpio-newc-make-mtime (attrs)
   "Return a string value for the mod time from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-mtime")
-	(mod-time (aref attrs *cpio-mtime-parsed-idx*)))
+	(mod-time (cpio-mtime attrs)))
     ;; We're only about 1/2 way through using this up it seems.
     ;; Still, time will eventually overflow a 32 bit unsigned integer.
     (format "%08X" (float-time mod-time))))
@@ -617,44 +607,22 @@ I likely won't need this, but someone might."
 (defun cpio-newc-make-filesize (attrs)
   "Return an 8 digit hex string for the filesize attribute among the given ATTRs."
   (let ((fname "cpio-newc-make-filesize"))
-    (format "%08X" (aref attrs *cpio-entry-size-parsed-idx*))))
+    (format "%08X" (cpio-entry-size attrs))))
 
 (defun cpio-newc-make-dev-maj (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the major device from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-dev-maj")
-	(dev (aref attrs 11)))
-    (cond ((numberp dev)
-	   (format "%08X" (logand (lsh dev -8) #xff)))
-	  ;; The documenation for (file-attributes) says that this is handled
-	  ;; like the inode.
-	  ((consp dev)
-	   (cond ((cddr dev)
-		  (cpio-BIG-inode-to-string))
-		 ((cdr dev)
-		  (cpio-big-inode-to-string))
-		 (t (error "Bad dev value: [[%s]]." ino))))
-	  (t (error "Bad dev value: [[%s]]." ino)))))
+	(dev (cpio-dev-maj attrs)))
+    (format "%08X" dev)))
 
 (defun cpio-newc-make-dev-min (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the minor device from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-dev-min")
-	(dev (aref attrs 11)))
-    (cond ((numberp dev)
-	   (format "%08X" (logand dev #xff)))
-	  ;; The documenation for (file-attributes) says that this is handled
-	  ;; like the inode.
-	  ;; The calculations below are, nonetheless, out of synch
-	  ;; with the cpio(1GNU) code.
-	  ((consp dev)
-	   (cond ((cddr dev)
-		  (cpio-BIG-inode-to-string))
-		 ((cdr dev)
-		  (cpio-big-inode-to-string))
-		 (t (error "Bad dev value: [[%s]]." ino))))
-	  (t (error "Bad dev value: [[%s]]." ino)))))
+	(dev (cpio-dev-min attrs)))
+    (format "%08X" dev)))
 
 (defun cpio-newc-make-rdev-maj (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the major rdev from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-rdev-maj")
 	(rdev))
     ;; MAINTENANCE Every concrete example I look at has this value for rdev-maj.
@@ -663,7 +631,7 @@ I likely won't need this, but someone might."
     "00000000"))
 
 (defun cpio-newc-make-rdev-min (attrs)
-  "Return a string value for the WWWW from the file attributes ATTRS."
+  "Return a string value for the minor rdev from the file attributes ATTRS."
   (let ((fname "cpio-newc-make-rdev-min"))
     ;; MAINTENANCE Every concrete example I look at has this value for rdev-maj.
     ;; See (cpio-newc-make-rdev-maj) for more information.
@@ -688,7 +656,8 @@ I likely won't need this, but someone might."
   "Parse the newc cpio header that begins at point.
 If there is no header there, then signal an error."
   (let ((fname "cpio-newc-parse-header-at-point"))
-    (unless (looking-at-p *cpio-newc-header-re*) (error "%s(): point is not looking at a newc header."))
+    (unless (looking-at-p *cpio-newc-header-re*)
+      (error "%s(): point is not looking at a newc header." fname))
     (cpio-newc-parse-header (match-string-no-properties 0))))
 
 (defun cpio-newc-goto-next-header ()
@@ -736,9 +705,9 @@ CAVEAT: This respects neither narrowing nor the point."
 	     ;; A little bit of arithmétic gymnastics here
 	     ;; because cpio, being written in C, starts counting at 0, but
 	     ;; emacs' points start at 1.
-	     (goto-char (1+ (round-up (1- header-end) *cpio-padding-modulus*)))
+	     (goto-char (1+ (cg-round-up (1- header-end) *cpio-padding-modulus*)))
 	     (setq contents-start (point-marker))
-	     (set-marker-insertion-type contents-start *insert-after*)
+	     (set-marker-insertion-type contents-start *cg-insert-after*)
 	     ;; It feels like I really want a function for getting the contents.
 	     ;; But it's not obvious what is simpler or appropriately more general
 	     ;; than this one-liner.
@@ -761,8 +730,8 @@ for the current cpio archive."
   (let ((fname "cpio-newc-start-of-trailer")
 	(end-of-contents 0))
     (mapc (lambda (ce)
-	    (let ((attrs (cpio-entry-attrs-from-catalog-entry e)))
-	      (setq end-of-contents (+ (cpio-entry-size attrs) (cpio-contents-start e)))))
+	    (let ((attrs (cpio-entry-attrs-from-catalog-entry ce)))
+	      (setq end-of-contents (+ (cpio-entry-size attrs) (cpio-contents-start ce)))))
 	  *cpio-catalog*)
     end-of-contents))
 
@@ -771,7 +740,7 @@ for the current cpio archive."
 once the TRAILER is written and padded."
   (let ((fname "cpio-newc-end-of-archive")
 	(end-of-contents (cpio-newc-start-of-trailer)))
-    (round-up (+ end-of-contents (length *cpio-newc-trailer*)) *cpio-newc-blocksize*)))
+    (cg-round-up (+ end-of-contents (length *cpio-newc-trailer*)) *cpio-newc-blocksize*)))
 
 (defun cpio-newc-adjust-trailer ()
   "Replace thed current trailer in the current cpio newc archive."
@@ -790,7 +759,7 @@ once the TRAILER is written and padded."
     (insert base-trailer)
     (goto-char (point-max))
     ;; ...with padding.
-    (setq len (round-up (1- (point)) *cpio-newc-blocksize*))
+    (setq len (cg-round-up (1- (point)) *cpio-newc-blocksize*))
     (setq len (1+ (- len (point))))
     (insert (make-string len ?\0))
     (setq buffer-read-only t)))
@@ -816,6 +785,13 @@ once the TRAILER is written and padded."
     (delete-region (point) (point-max))
     (setq buffer-read-only t)))
 
+(defun cpio-newc-make-chksum-for-file (filename)
+  "Return the checksum for FILENAME."
+  (let ((fname "cpio-newc-make-chksum-for-file")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    0
+    ))
 
 ;; 
 ;; Test and other development assistance.
@@ -844,10 +820,10 @@ That is show their names and octal and decimal values."
 			     "name")))
     (apply 'concat (mapcar* (lambda (name value)
 			      (setq name name)
-				    ;; (pad-right name 12 " "))
+				    ;; (cg-pad-right name 12 " "))
 			      (format "%s\t%s\t%o\t%d\n"
 				      name
-				      (pad-right value 8 " ")
+				      (cg-pad-right value 8 " ")
 				      (string-to-number value 16)
 				      (string-to-number value 16)))
 			    header-fields header-contents))))
@@ -869,7 +845,12 @@ what the proper way to do it is."
 	(soh)
 	(sofn)
 	(eoh)
+	(eon)
+	(hpad)
 	(filesize 0)
+	(soc)
+	(eoc)
+	(cpad)
 	(name "")
 	(ct 0)
 	(interval 0))

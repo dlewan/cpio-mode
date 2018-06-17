@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.7 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-crc.el,v 1.10 2018/06/17 07:34:11 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -36,8 +36,28 @@
 ;;
 ;; Dependencies
 ;; 
-(require 'cpio-generic)
-(load-file (concat default-directory "cpio-newc.el"))
+(condition-case err
+    (require 'cpio-generic)
+    (error 
+     (if (file-exists-p (concat default-directory "cpio-newc.elc"))
+	 (load (concat default-directory "cpio-newc.elc"))
+       (load (concat default-directory "cpio-newc.el")))))
+(condition-case err
+    (require 'cpio-newc)
+    (error
+     (if (file-exists-p (concat default-directory "cpio-newc.elc"))
+	 (load (concat default-directory "cpio-newc.elc"))
+       (load (concat default-directory "cpio-newc.el")))))
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(declare-function cpio-entry-name "cpio.el" (attrs))
+(declare-function cpio-entry-exists-p "cpio.el" (entry-name))
+(declare-function cpio-contents "cpio.el" (entry-name &optional archive-buffer))
+(declare-function cpio-entry-size "cpio.el" (attrs))
+(declare-function cpio-validate-catalog-entry "cpio.el" (catalog-entry))
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
 
 
 ;; 
@@ -168,7 +188,7 @@ CAVEATS:
 			 (not (setq found (looking-at *cpio-newc-header-re*)))))
 	     (if found 
 		 (match-string-no-properties 0)))))))
-(setq cpio-header-at-point-func 'cpio-newc-header-at-point)
+;; OBSOLETE (setq cpio-header-at-point-func 'cpio-newc-header-at-point)
 
 ;;;;;;;;;;;;;;;;
 ;; 
@@ -257,7 +277,7 @@ This function does NOT include the contents."
 								    name))))
 				 name
 				 "\0"))
-    (setq header-string (pad-right header-string (round-up (length header-string) *cpio-crc-padding-modulus*) "\0"))
+    (setq header-string (cg-pad-right header-string (cg-round-up (length header-string) *cpio-crc-padding-modulus*) "\0"))
     ;; Check (at least during development).
     (if (string-match-p *cpio-crc-header-re* header-string)
 	header-string
@@ -267,8 +287,6 @@ This function does NOT include the contents."
   "Return the magic string for a CRC archive."
   *cpio-crc-magic-re*)
 (defalias 'cpio-crc-make-ino            'cpio-newc-make-ino)
-(defalias 'cpio-crc-BIG-inode-to-string 'cpio-newc-BIG-inode-to-string)
-(defalias 'cpio-crc-big-inode-to-string 'cpio-newc-big-inode-to-string)
 (defalias 'cpio-crc-make-mode           'cpio-newc-make-mode)
 (defalias 'cpio-crc-make-uid            'cpio-newc-make-uid)
 (defalias 'cpio-crc-make-gid            'cpio-newc-make-gid)
@@ -306,7 +324,8 @@ This function does NOT include the contents."
   "Parse the crc cpio header that begins at point.
 If there is no header there, then signal an error."
   (let ((fname "cpio-crc-parse-header-at-point"))
-    (unless (looking-at-p *cpio-crc-header-re*) (error "%s(): point is not looking at a crc header."))
+    (unless (looking-at-p *cpio-crc-header-re*)
+      (error "%s(): point is not looking at a crc header." fname))
     (cpio-crc-parse-header (match-string-no-properties 0))))
 
 (defun cpio-crc-goto-next-header ()
@@ -354,9 +373,9 @@ CAVEAT: This respects neither narrowing nor the point."
 	     ;; A little bit of arithmetic gymnastics here
 	     ;; because cpio, being written in C, starts counting at 0, but
 	     ;; emacs' points start at 1.
-	     (goto-char (1+ (round-up (1- header-end) *cpio-padding-modulus*)))
+	     (goto-char (1+ (cg-round-up (1- header-end) *cpio-crc-padding-modulus*)))
 	     (setq contents-start (point-marker))
-	     (set-marker-insertion-type contents-start *insert-after*)
+	     (set-marker-insertion-type contents-start *cg-insert-after*)
 	     ;; It feels like I really want a function for getting the contents.
 	     ;; But it's not obvious what is simpler or appropriately more general
 	     ;; than this one-liner.
@@ -397,12 +416,22 @@ CAVEAT: This respects neither narrowing nor the point."
     (insert base-trailer)
     (goto-char (point-max))
     ;; ...with padding.
-    (setq len (round-up (1- (point)) *cpio-crc-blocksize*))
+    (setq len (cg-round-up (1- (point)) *cpio-crc-blocksize*))
     (setq len (1+ (- len (point))))
     (insert (make-string len ?\0))
     (setq buffer-read-only t)))
 
 (defalias 'cpio-crc-delete-trailer 'cpio-newc-delete-trailer)
+
+(defun cpio-crc-make-chksum-for-file (filename)
+  "Return the checksum for FILENAME."
+  (let ((fname "cpio-newc-make-chksum-for-file")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (with-temp-buffer
+      (insert-file-contents filename)
+      (cpio-crc-make-chksum (buffer-substring-no-properties (point-min) (point-max))))
+    ))
 
 
 ;; 

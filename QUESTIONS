@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#	$Id: QUESTIONS,v 1.3 2018/06/09 05:48:04 doug Exp $	
+#	$Id: QUESTIONS,v 1.4 2018/06/16 02:18:00 doug Exp $	
 
 cpio(1) related questions:
 • cpio(1) accepts block size on its command line.
@@ -38,3 +38,6 @@ Dired related questions:
 • Should renaming marked files unmark them?
   For example, moving them to a directory.
   They currently remain marked.
+• How should I handle undo?
+  Can you undo an entry's deletion?
+  chown, etc.?

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes.el --- handle modes.
-;	$Id: cpio-modes.el,v 1.4 2018/06/03 14:01:55 doug Exp $	
+;	$Id: cpio-modes.el,v 1.8 2018/06/17 07:34:12 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -37,6 +37,13 @@
 ;;
 ;; Dependencies
 ;; 
+(require 'cl)
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(declare-function cpio-mode-value "cpio.el")
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
 
 
 ;; 
@@ -46,7 +53,7 @@
 ;; Mode-related bits (adapted from /usr/include/linux/stat.h).
 ;; 
 
-(defconst s-iunk   #o1000000)
+(defconst s-ifunk  #o1000000)
 (defconst s-ifmt   #o0170000)
 (defconst s-ifsock #o0140000)
 (defconst s-iflnk  #o0120000)
@@ -104,9 +111,9 @@ fmt, sock, link, block, character, fifo."
 	(mode (cpio-mode-value attrs)))
     (or (= s-ifmt   (logand s-ifmt   mode))
 	(= s-ifsock (logand s-ifsock mode))
-	(= s-iflnk  (logand s-iflnk  mode))	;Does this really belong here? I'm writing this to support (cpio-crc-make-checksum). Do links' checksums get calculated?
+	(= s-iflnk  (logand s-iflnk  mode))	;Does this really belong here? I'm writing this to support (cpio-crc-make-chksum). Do links' checksums get calculated?
 	(= s-ifblk  (logand s-ifblk  mode))
-	(= s-ifdir  (logand s-ifdir  mode)) ;Is a directory a special file? Again, this has to do with calculating a check sum.
+	(= s-ifdir  (logand s-ifdir  mode)) ;Is a directory a special file? Again, this has to do with calculating a checksum.
 	(= s-ifchr  (logand s-ifchr  mode))
 	(= s-ififo  (logand s-ififo  mode)))))
 
@@ -326,7 +333,7 @@ please let me know."
 	  ((= exec-char ?x)
 	   (setq bits (logior bits s-ixusr)))
 	  ((= exec-char ?s)
-	   (setq bits (logior bits s-ixuser s-isuid)))
+	   (setq bits (logior bits s-ixusr s-isuid)))
 	  ((= exec-char ?S)
 	   (setq bits (logior bits s-isuid))))
     bits))
@@ -361,7 +368,11 @@ please let me know."
 
 (defun cpio-other-chars-to-bits (chars)
   "Interpret CHARS as other mode bits."
-  (let ((fname "cpio-other-chars-to-bits"))
+  (let ((fname "cpio-other-chars-to-bits")
+	(read-char)
+	(write-char)
+	(exec-char)
+	(bits 0))
     (unless (and (listp chars)
 		 (= (length chars) 3)
 		 (member (setq read-char  (nth 0 chars)) '(?- ?r))
