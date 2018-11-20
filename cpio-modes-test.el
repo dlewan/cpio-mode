@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes-test.el --- tests of the code in cpio-modes.el.
-;	$Id: cpio-modes-test.el,v 1.3 2018/06/16 18:01:36 doug Exp $	
+;	$Id: cpio-modes-test.el,v 1.4 2018/06/26 15:57:50 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -39,7 +39,8 @@
 ;; Dependencies
 ;; 
 
-(require 'ert)
+(eval-when-compile
+  (require 'ert))
 (load (concat default-directory "cpio-modes.el"))
 
 

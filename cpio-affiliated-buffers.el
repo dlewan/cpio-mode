@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other.
-;	$Id: cpio-affiliated-buffers.el,v 1.6 2018/06/16 14:50:07 doug Exp $	
+;	$Id: cpio-affiliated-buffers.el,v 1.8 2018/11/19 21:25:38 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -90,6 +90,7 @@
 	(b1 (find-file-noselect "b1")))
     (cab-register b1 b0)
     (cab-register b0 b1)))
+
 (defun cab-setup-parenthood-check-1 ()
   "Set up a large situation where the parenthood check should error out."
   (let* ((b0 (find-file-noselect "bb0"))
@@ -110,6 +111,58 @@
 	  (list b1 b2 b3 b4 b5 b6 b7 b8 b9))
     (cab-register b0 b9)))
 
+
+;; HEREHERE Remove the following test code before publishing cpio-mode.
+(defvar *cab-info-buffer* (get-buffer-create "*cab info*")
+  "A buffer for holding information about affiliated buffers.")
+
+(defun cab-test-kill-buffer-hook ()
+  "Hook to run when killing a buffer.
+The intent is to glean information about any buffers
+that cpio-mode might be using
+that are affiliated with each other."
+  (let ((fname "cab-test-kill-buffer-hook")
+	(buf (current-buffer)))
+    ;; (error "%s() is not yet implemented" fname)
+    (with-current-buffer *cab-info-buffer*
+      (goto-char (point-max))
+      (insert (format "Killing buffer [[%s]].
+    It has parent [[%s]].
+    It has subordinates [[%s]].
+"
+		      (buffer-name buf)
+		      (if *cab-parent*
+			  (buffer-name *cab-parent*)
+			"nil")
+		      (with-current-buffer buf
+			*cab-subordinates*))))))
+
+(add-hook 'kill-buffer-hook 'cab-test-kill-buffer-hook)
+
+(defun cab-test-register-buffer-hook ( buffer parent )
+  "Record some information about the registration of a BUFFER
+as an affiliated buffer.
+It's not strictly a hook, but it pairs with the above kill-buffer-hook."
+  (let ((fname "cab-test-register-buffer-hook")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (with-current-buffer *cab-info-buffer*
+      (goto-char (point-max))
+      (insert (format "Registering [[%s]] with [[%s]] as its parent.\n"
+		      (buffer-name buffer) (buffer-name parent)))
+      (insert (format "    [[%s]] currently has the following subordinates.\n"
+		      (buffer-name parent)))
+      (mapc (lambda (b)
+	      (insert (format "        [[%s]]\n" (buffer-name b))))
+	    (with-current-buffer parent
+	      *cab-subordinates*)))
+    ))
+
+(defcustom cab-clear-cab-info-buffer nil
+  "Clear the Affiliated Info Buffer if set."
+  :type 'boolean
+  :group 'cab)
+
 
 ;;
 ;; Generic functions
@@ -121,7 +174,8 @@
 ;;
 ;; Dependencies
 ;; 
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
 
 
 ;; 
@@ -158,7 +212,7 @@ Return NIL if buffer is already affiliated to another parent."
 	  ((with-current-buffer buffer *cab-parent*)
 	   nil)
 	  (t
-	   (unless (cab-registered-p buffer parent)
+	   (unless (cab-registered-p buffer parent) ;HEREHERE This looks redundant.
 	     (with-current-buffer parent
 	       (push buffer *cab-subordinates*)
 	       (make-local-variable 'kill-buffer-hook)
@@ -179,7 +233,10 @@ Return NIL if buffer is already affiliated to another parent."
 		      ;; (with-current-buffer "cpio.el" kill-buffer-hook)
 		      
 		      (local-set-key "\C-x\C-k" 'cab-deregister))
-		     (t t))))))))
+		     (t t))))
+	   ;; HEREHERE Remove this hook before publishing cpio-mode.
+	   (cab-test-register-buffer-hook buffer parent)
+	   ))))
   
 (defun cab-detect-parenthood-cycle (buffer parent)
   "Return non-NIL if affiliating BUFFER with PARENT would create a parenthood cycle."

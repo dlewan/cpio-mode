@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.10 2018/06/17 07:34:11 doug Exp $	
+;	$Id: cpio-crc.el,v 1.12 2018/06/26 15:57:50 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -36,25 +36,43 @@
 ;;
 ;; Dependencies
 ;; 
-(condition-case err
-    (require 'cpio-generic)
+(eval-when-compile
+  (condition-case err
+      (require 'cpio-generic)
     (error 
-     (if (file-exists-p (concat default-directory "cpio-newc.elc"))
-	 (load (concat default-directory "cpio-newc.elc"))
-       (load (concat default-directory "cpio-newc.el")))))
-(condition-case err
-    (require 'cpio-newc)
+     (if (file-exists-p (concat default-directory "cpio-generic.elc"))
+	 (load (concat default-directory "cpio-generic.elc"))
+       (load (concat default-directory "cpio-generic.el")))))
+  (condition-case err
+      (require 'cpio-newc)
     (error
      (if (file-exists-p (concat default-directory "cpio-newc.elc"))
 	 (load (concat default-directory "cpio-newc.elc"))
-       (load (concat default-directory "cpio-newc.el")))))
+       (load (concat default-directory "cpio-newc.el"))))))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
-(declare-function cpio-entry-name "cpio.el" (attrs))
-(declare-function cpio-entry-exists-p "cpio.el" (entry-name))
+(declare-function cg-pad-right "cpio-generic.el")
+(declare-function cg-round-up "cpio-generic.el")
 (declare-function cpio-contents "cpio.el" (entry-name &optional archive-buffer))
+(declare-function cpio-entry-exists-p "cpio.el" (entry-name))
+(declare-function cpio-entry-name "cpio.el" (attrs))
 (declare-function cpio-entry-size "cpio.el" (attrs))
+(declare-function cpio-newc-parse-chksum "cpio-newc.el")
+(declare-function cpio-newc-parse-dev-maj "cpio-newc.el")
+(declare-function cpio-newc-parse-dev-min "cpio-newc.el")
+(declare-function cpio-newc-parse-filesize "cpio-newc.el")
+(declare-function cpio-newc-parse-gid "cpio-newc.el")
+(declare-function cpio-newc-parse-ino "cpio-newc.el")
+(declare-function cpio-newc-parse-mode "cpio-newc.el")
+(declare-function cpio-newc-parse-mtime "cpio-newc.el")
+(declare-function cpio-newc-parse-name "cpio-newc.el")
+(declare-function cpio-newc-parse-namesize "cpio-newc.el")
+(declare-function cpio-newc-parse-nlink "cpio-newc.el")
+(declare-function cpio-newc-parse-rdev-maj "cpio-newc.el")
+(declare-function cpio-newc-parse-rdev-min "cpio-newc.el")
+(declare-function cpio-newc-parse-uid "cpio-newc.el")
+(declare-function cpio-special-file "cpio-modes.el")
 (declare-function cpio-validate-catalog-entry "cpio.el" (catalog-entry))
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
@@ -412,14 +430,13 @@ CAVEAT: This respects neither narrowing nor the point."
 	 (base-len (length base-trailer))
 	 (len))
     ;; ...and insert the new trailer...
-    (setq buffer-read-only nil)
-    (insert base-trailer)
-    (goto-char (point-max))
-    ;; ...with padding.
-    (setq len (cg-round-up (1- (point)) *cpio-crc-blocksize*))
-    (setq len (1+ (- len (point))))
-    (insert (make-string len ?\0))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (insert base-trailer)
+     (goto-char (point-max))
+     ;; ...with padding.
+     (setq len (cg-round-up (1- (point)) *cpio-crc-blocksize*))
+     (setq len (1+ (- len (point))))
+     (insert (make-string len ?\0)))))
 
 (defalias 'cpio-crc-delete-trailer 'cpio-newc-delete-trailer)
 

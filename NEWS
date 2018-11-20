@@ -1,12 +1,22 @@
 # -*- outline -*-
-#	$Id: NEWS,v 1.10 2018/06/16 18:03:21 doug Exp $	
+#	$Id: NEWS,v 1.12 2018/11/19 21:25:37 doug Exp $	
+
+* Version 0.10
+** Finds an appropriate major mode for an entry's contents.
+   It does this with (set-auto-mode).
+   So only entries for which (set-auto-mode) finds a mode get
+   a non-trivial mode.
+** New dired-like commands:
+    + cpio-entry-contents-revert-buffer (no key mapping)
+    + cpio-dired-do-touch ("T")
+** You can now edit and save an entry's contents.
 
 * Version 0.09
 ** There's now a find-file-hook
    and documentation on how to use/invoke cpio-mode.
 ** Changing owner or group no longer removes marks
    on the entries on which the change is being performed.
-** cpio-affiliated-buffers.el has had somae fixes.
+** cpio-affiliated-buffers.el has had some fixes.
    There were lots of issues around the kill-buffer-hook.
    It seems correct now.
    (Of course, bug reports are welcome.)

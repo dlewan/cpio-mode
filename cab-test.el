@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.5 2018/06/16 18:01:35 doug Exp $	
+;	$Id: cab-test.el,v 1.6 2018/06/26 15:57:50 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -35,11 +35,21 @@
 ;;
 ;; Dependencies
 ;; 
-(require 'ert)
-(load (concat default-directory "cpio-affiliated-buffers.el"))
+(eval-when-compile
+  (require 'ert))
+(eval-when-compile
+  (if (file-exists-p (concat default-directory "cpio-affiliated-buffers.elc"))
+      (load (concat default-directory "cpio-affiliated-buffers.elc"))
+    (load (concat default-directory "cpio-affiliated-buffers.el"))))
 
 (local-set-key "\M-\C-i" 'insert-debugger)
 (local-set-key "\M-\C-u" 'update-debuggers)
+
+;;;;;;;;;;;;;;;;
+;; Make the byte compiler happy.
+(defvar *cab-parent)
+(defvar *cab-subordinates*)
+
 
 ;; 
 ;; Vars

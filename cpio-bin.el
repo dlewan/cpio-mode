@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-bin.el --- handle bin cpio entry header formats
-;	$Id: cpio-bin.el,v 1.8 2018/06/17 07:34:11 doug Exp $	
+;	$Id: cpio-bin.el,v 1.10 2018/06/26 15:57:50 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -36,7 +36,8 @@
 ;;
 ;; Dependencies
 ;; 
-(require 'bindat)
+(eval-when-compile
+  (require 'bindat))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -506,14 +507,13 @@ once the TRAILER is written and padded."
 	 (base-len (length base-trailer))
 	 (len))
     ;; ...and insert the new trailer...
-    (setq buffer-read-only nil)
-    (insert base-trailer)
-    (goto-char (point-max))
-    ;; ...with padding.
-    (setq len (cg-round-up (1- (point)) *cpio-bin-blocksize*))
-    (setq len (1+ (- len (point))))
-    (insert (make-string len ?\0))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (insert base-trailer)
+     (goto-char (point-max))
+     ;; ...with padding.
+     (setq len (cg-round-up (1- (point)) *cpio-bin-blocksize*))
+     (setq len (1+ (- len (point))))
+     (insert (make-string len ?\0)))))
 
 (defun cpio-bin-delete-trailer ()
   "Delete the trailer in the current cpio bin archive."
@@ -532,9 +532,8 @@ once the TRAILER is written and padded."
 	      (skip-chars-forward "\0")))
 	  *cpio-catalog*)
     ;; Next, delete what's left...
-    (setq buffer-read-only nil)
-    (delete-region (point) (point-max))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (delete-region (point) (point-max)))))
 
 (defun cpio-bin-make-chcksum-for-file (filename)
   "Return the checksum for FILENAME."

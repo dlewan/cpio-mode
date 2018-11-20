@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.9 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio-odc.el,v 1.10 2018/06/26 14:19:23 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -661,14 +661,13 @@ once the TRAILER is written and padded."
 	 (base-len (length base-trailer))
 	 (len))
     ;; ...and insert the new trailer...
-    (setq buffer-read-only nil)
-    (insert base-trailer)
-    (goto-char (point-max))
-    ;; ...with padding.
-    (setq len (cg-round-up (1- (point)) *cpio-odc-blocksize*))
-    (setq len (1+ (- len (point))))
-    (insert (make-string len ?\0))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (insert base-trailer)
+     (goto-char (point-max))
+     ;; ...with padding.
+     (setq len (cg-round-up (1- (point)) *cpio-odc-blocksize*))
+     (setq len (1+ (- len (point))))
+     (insert (make-string len ?\0)))))
 
 (defun cpio-odc-delete-trailer ()
   "Delete the trailer in the current cpio odc archive."
@@ -687,9 +686,8 @@ once the TRAILER is written and padded."
 	      (skip-chars-forward "\0")))
 	  *cpio-catalog*)
     ;; Next, delete what's left...
-    (setq buffer-read-only nil)
-    (delete-region (point) (point-max))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (delete-region (point) (point-max)))))
 
 
 ;; 

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.13 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio.el,v 1.16 2018/11/19 21:25:38 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 
@@ -60,8 +60,11 @@
 ;;     Early development was done under emacs 24.2
 ;;     on the Fedora 18 distribution of 64 bit GNU/Linux.
 ;; 
-;;     Current development is happening under emacs 24.5
-;;     on Linux Mint, Linux kernel 4.4.0.
+;;     Later development happened under emacs 24.5
+;;     on GNU/Linux Mint, Linux kernel 4.4.0.
+;;
+;;     Current development is happening on emacs 24.5
+;;     on GNU/Linux Trisquel, Linux Kernel 4.4.0.
 ;; 
 ;; RETURN CODE:
 ;; 
@@ -223,51 +226,12 @@
 ;; Dependencies
 ;; 
 
-;;;;;;;;;;;;;;;;
-;; Things to make the byte compiler happy.
-(defvar *cpio-catalog-entry-attrs-idx*)
-(defvar *cpio-catalog-entry-contents-start-idx*)
-(defvar *cpio-catalog-entry-header-start-idx*)
-(defvar *cpio-catalog-entry-length*)
-(defvar *cpio-catalog-entry-modified-flag-idx*)
-(defvar *cpio-chksum-parsed-idx*)
-(defvar *cpio-crc-header-re*)
-(defvar *cpio-crc-padding-char*)
-(defvar *cpio-crc-padding-modulus*)
-(defvar *cpio-crc-padding-str*)
-(defvar *cpio-dev-maj-parsed-idx*)
-(defvar *cpio-dev-min-parsed-idx*)
-(defvar *cpio-entry-size-parsed-idx*)
-(defvar *cpio-gid-parsed-idx*)
-(defvar *cpio-ino-parsed-idx*)
-(defvar *cpio-mode-parsed-idx*)
-(defvar *cpio-mtime-parsed-idx*)
-(defvar *cpio-name-parsed-idx*)
-(defvar *cpio-namesize-parsed-idx*)
-(defvar *cpio-nlink-parsed-idx*)
-(defvar *cpio-odc-header-re*)
-(defvar *cpio-odc-padding-char*)
-(defvar *cpio-odc-padding-modulus*)
-(defvar *cpio-odc-padding-str*)
-(defvar *cpio-parsed-header-length*)
-(defvar *cpio-rdev-maj-parsed-idx*)
-(defvar *cpio-rdev-min-parsed-idx*)
-(defvar *cpio-uid-parsed-idx*)
-(defvar cpio-entry-name)
-(defvar cpio-try-names)
-(declare-function cpio-contents-buffer-name "cpio-dired.el")
-(declare-function cpio-entry-contents-mode "cpio-entry-contents-mode.el")
-(declare-function cpio-dired-move-to-first-entry "cpio-dired.el")
-(declare-function cpio-dired-next-line "cpio-dired.el")
-(declare-function cpio-dired-buffer-name "cpio-dired.el")
-(declare-function cpio-present-ala-dired "cpio-dired.el")
-;; EO things for the byte compiler.
-;;;;;;;;;;;;;;;;
 
 ;; During development I need access to local files.
 (setq load-path (add-to-list 'load-path (substring default-directory -1)))
 
-(require 'dired)
+(eval-when-compile
+  (require 'dired))
 
 ;; (require 'cpio-generic)
 (if (file-exists-p (concat default-directory "cpio-generic.elc"))
@@ -290,6 +254,12 @@
     (load (concat default-directory "cpio-bin.elc"))
   (load (concat default-directory "cpio-bin.el")))
 (message "Loaded cpion")
+;; newc has to precede crc.
+;; (require 'cpio-newc)
+(if (file-exists-p (concat default-directory "cpio-newc.elc"))
+    (load (concat default-directory "cpio-newc.elc"))
+  (load (concat default-directory "cpio-newc.el")))
+(message "Loaded cpio-newc.")
 ;; (require 'cpio-crc)
 (if (file-exists-p (concat default-directory "cpio-crc.elc"))
     (load (concat default-directory "cpio-crc.elc"))
@@ -305,11 +275,6 @@
     (load (concat default-directory "cpio-hpodc.elc"))
   (load (concat default-directory "cpio-hpodc.el")))
 (message "Loaded cpio-hpodl")
-;; (require 'cpio-newc)
-(if (file-exists-p (concat default-directory "cpio-newc.elc"))
-    (load (concat default-directory "cpio-newc.elc"))
-  (load (concat default-directory "cpio-newc.el")))
-(message "Loaded cpio-newc.")
 ;; (require 'cpio-odc)
 (if (file-exists-p (concat default-directory "cpio-odc.elc"))
     (load (concat default-directory "cpio-odc.elc"))
@@ -333,6 +298,51 @@
     (load (concat default-directory "cpio-entry-contents-mode.elc"))
   (load (concat default-directory "cpio-entry-contents-mode.el")))
 (message "Loaded cpio-entry-contents-mode.")
+
+;;;;;;;;;;;;;;;;
+;; Things to make the byte compiler happy.
+(defvar *cpio-catalog-entry-attrs-idx*)
+(defvar *cpio-catalog-entry-contents-start-idx*)
+(defvar *cpio-catalog-entry-header-start-idx*)
+(defvar *cpio-catalog-entry-length*)
+(defvar *cpio-catalog-entry-modified-flag-idx*)
+(defvar *cpio-chksum-parsed-idx*)
+(defvar *cpio-crc-header-re*)
+(defvar *cpio-crc-padding-char*)
+(defvar *cpio-crc-padding-modulus*)
+(defvar *cpio-crc-padding-str*)
+(defvar *cpio-dev-maj-parsed-idx*)
+(defvar *cpio-dev-min-parsed-idx*)
+(defvar *cpio-entry-size-parsed-idx*)
+(defvar *cpio-gid-parsed-idx*)
+(defvar *cpio-ino-parsed-idx*)
+(defvar *cpio-mode-parsed-idx*)
+(defvar *cpio-mtime-parsed-idx*)
+(defvar *cpio-name-parsed-idx*)
+(defvar *cpio-namesize-parsed-idx*)
+(defvar *cpio-newc-header-re*)
+(defvar *cpio-newc-padding-char*)
+(defvar *cpio-newc-padding-modulus*)
+(defvar *cpio-newc-padding-str*)
+(defvar *cpio-nlink-parsed-idx*)
+(defvar *cpio-odc-header-re*)
+(defvar *cpio-odc-padding-char*)
+(defvar *cpio-odc-padding-modulus*)
+(defvar *cpio-odc-padding-str*)
+(defvar *cpio-parsed-header-length*)
+(defvar *cpio-rdev-maj-parsed-idx*)
+(defvar *cpio-rdev-min-parsed-idx*)
+(defvar *cpio-uid-parsed-idx*)
+(defvar cpio-entry-name)
+(defvar cpio-try-names)
+(declare-function cpio-contents-buffer-name "cpio-dired.el")
+(declare-function cpio-dired-buffer-name "cpio-dired.el")
+(declare-function cpio-dired-move-to-first-entry "cpio-dired.el")
+(declare-function cpio-dired-next-line "cpio-dired.el")
+(declare-function cpio-entry-contents-mode "cpio-entry-contents-mode.el")
+(declare-function cpio-present-ala-dired "cpio-dired.el")
+;; EO things for the byte compiler.
+;;;;;;;;;;;;;;;;
 
 
 ;; 
@@ -804,7 +814,7 @@ CAVEAT: See `cpio-magic'."
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-entry-attrs entry-name))
-      (aref (cpio-entry entry-name) 0))))
+      (aref (cpio-entry entry-name) *cpio-catalog-entry-attrs-idx*))))
 
 (defun cpio-entry-header-start (entry)
   "Return the start of the entry specified in ENTRY."
@@ -815,6 +825,17 @@ CAVEAT: See `cpio-magic'."
   "Return the start of the contents of the entry specified in ENTRY."
   (let ((fname "cpio-entry-start"))
     (aref entry *cpio-catalog-entry-contents-start-idx*)))
+
+(defun cpio-entry-contents-end (entry)
+  "Return the end of the contents of the entry specified in ENTRY."
+  (let* ((fname "cpio-entry-contents-end")
+	 (attrs (aref entry *cpio-catalog-entry-attrs-idx*))
+	 (entry-name (cpio-entry-name attrs))
+	 )
+    ;; (error "%s() is not yet implemented" fname)
+    (+ (cpio-entry-contents-start entry)
+       (cpio-entry-size attrs))
+    ))
 
 (defun cpio-set-header-start (entry where)
   "Set the header start marker in ENTRY to the location WHERE."
@@ -848,17 +869,19 @@ WHERE can be an integer or marker."
 	  (*cab-parent*
 	   (with-current-buffer *cab-parent*
 	     (cpio-contents entry-name)))
-	  (t
+	  ((eq major-mode 'cpio-mode)
 	   (let* ((entry-attrs    (cpio-entry-attrs    entry-name))
 		  (contents-start (cpio-contents-start entry-name))
 		  (contents-size  (cpio-entry-size entry-attrs))
-		  (contents-end (+ contents-start contents-size -1))
+		  (contents-end (+ contents-start contents-size))
 		  (result))
 	     (if (null entry-attrs)
 		 (error "%s(): Could not get entry attributes for [[%s]]." fname entry-name))
 	     (goto-char contents-start)
 	     (forward-char contents-size)
-	     (setq result (buffer-substring-no-properties contents-start (point))))))))
+	     (setq result (buffer-substring-no-properties contents-start contents-end))))
+	  (t
+	   (error "%s(): Could not find the archive buffer." fname)))))
 
 (defun cpio-catalog ()
   "Return the catalog relevant to the current buffer."
@@ -1139,7 +1162,7 @@ with one with the correct size fot its contents."
 	  (funcall cpio-delete-trailer-func))
       (funcall cpio-delete-trailer-func))))
 
-(defun cpio-delete-archive-entry (entry)
+0(defun cpio-delete-archive-entry (entry)
   "Delete the entry in the cpio archive specified by ENTRY.
 ENTRY is a catalog entry."
   (let ((fname "cpio-delete-archive-entry"))
@@ -1153,9 +1176,8 @@ ENTRY is a catalog entry."
 	     (entry-end (1+ (cg-round-up (+ (1- contents-start)
 					    (cpio-entry-size attrs))
 					 *cpio-padding-modulus*))))
-	(setq buffer-read-only nil)
-	(delete-region entry-start entry-end)
-	(setq buffer-read-only t)))))
+	(with-writable-buffer
+	 (delete-region entry-start entry-end))))))
 
 (defun cpio-insert-padded-header (header-string)
   "Insert an appropriately padded version of HEADER-STRING.
@@ -1165,9 +1187,8 @@ CONTRACT: You're at the point of insertion."
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-insert-padded-header header-string))
-      (setq buffer-read-only nil)
-      (insert (cpio-padded header-string *cpio-padding-modulus* *cpio-padding-char*))
-      (setq buffer-read-only t))))
+      (with-writable-buffer
+       (insert (cpio-padded header-string *cpio-padding-modulus* *cpio-padding-char*))))))
 
 (defun cpio-insert-padded-contents (contents) ;HEREHERE Generic
   "Insert an appropriately padded version of CONTENTS into the archive buffer.
@@ -1176,11 +1197,9 @@ CONTRACT: Point is at the point of insertion."
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-insert-padded-contents contents))
-      (setq buffer-read-only nil)
-      ;; (cpio-set-contents-start (point))
-      (insert (cpio-padded contents *cpio-padding-modulus* *cpio-padding-char*))
-      (setq buffer-read-only t))))
-
+      (with-writable-buffer
+       ;; (cpio-set-contents-start (point))
+       (insert (cpio-padded contents *cpio-padding-modulus* *cpio-padding-char*))))))
 
 (defun cpio-sort-catalog ()
   "Return a copy of the catalog sorted by entry name (car cpio-catalog-entry)."
@@ -1253,23 +1272,59 @@ a UNIX/GNU/Linux time as an integer."
 (defun cpio-find-entry (entry-name)
   "Find the given ENTRY-NAME and return the buffer holding its contents."
   (let ((fname "cpio-find-entry")
-	(target-buffer))
-    (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
-	(error "%s(): Could not get a buffer for entry [[%s]]." fname entry-name))
-    (cab-register target-buffer *cab-parent*)
+	(target-buffer (get-file-buffer entry-name))
+	(just-created nil)
+	(local-parent *cab-parent*)
+	)
+;;    (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
+;;	(error "%s(): Could not get a buffer for entry [[%s]]." fname entry-name))
+    (unless target-buffer
+      (setq just-created t)
+      (with-current-buffer (setq target-buffer (get-buffer-create entry-name))
+	(cab-register target-buffer local-parent)
+	(setq buffer-file-name entry-name)
+	(setq buffer-file-truename (abbreviate-file-name
+				    (concat (cpio-archive-name) "/"
+					    buffer-file-name)))
+	(set (make-local-variable 'cpio-entry-name) entry-name))
+      )
     (with-current-buffer target-buffer
-      (cond ((or (/= 0 (1- (point)))
-		 (= 0 (length (buffer-string))))
-	     (erase-buffer) 		;This should not be necessary.
-	     (insert (cpio-contents entry-name))
-	     ;; (setq buffer-read-only t)
+      (cond ((and just-created
+		  (= 0 (buffer-size)))
+	     ;; I can't seem to get coding right.
+	     ;; (cpio-set-auto-coding (setq contents (cpio-contents entry-name)))
+	     (with-writable-buffer 
+	      (insert (cpio-contents entry-name)))
 	     (goto-char (point-min)))
 	    (t t))
-      (make-local-variable 'cpio-entry-name)
-      (setq cpio-entry-name entry-name)
-      (set-buffer-modified-p nil)
-      (cpio-entry-contents-mode))
-    (pop-to-buffer target-buffer)))
+      (set-buffer-modified-p nil))
+    target-buffer))
+
+(defun cpio-archive-name ()
+  "Return [the full path to] the cpio archive associated with the current buffer."
+  (let ((fname "cpio-archive-name")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (or *cab-parent*
+		(eq major-mode 'cpio-mode))
+      (error "%s(): You're not in a cpio-archive affiliated buffer." fname))
+    
+    (if *cab-parent*
+	(buffer-file-name *cab-parent*)
+      (buffer-file-name))))
+
+(defun cpio-contents-buffer-name (name)
+  "Return the name of the buffer that would/does hold the contents of entry NAME.
+CAVEAT: Yes, there's a possibility of a collision here.
+However, that would mean that you're editing 
+more than one archive, each containing entries of the same name
+more than one of whose contents you are currently editing.
+Run more than one instance of emacs to avoid such collisions."
+  (let ((fname "cpio-contents-buffer-name"))
+    ;; (format "%s (in cpio archive %s)" name (file-name-nondirectory (buffer-file-name *cab-parent*)))))
+    name))
+;;    (expand-file-name
+;;      (concat name "!"))))
 
 (defun cpio-create-entry-attrs (filename)
   "Create an entry attribute structure based on the given FILENAME."
@@ -1437,6 +1492,160 @@ Signal an error if it isn't."
     ;; The modified flag may not be set yet, so ignore it.
     ))
 
+;; A few functions for a failed attempt at supporting different encodings.
+
+;; Modified from (set-auto-coding) ∈ mule.el.
+(defun cpio-set-auto-coding (contents)
+  "Return coding system for the current buffer.
+See `cpio-find-auto-coding' for how the coding system is found.
+Return nil if an invalid coding system is found.
+
+The variable `set-auto-coding-function' (which see) is set to this
+function by default."
+  (let ((found (cpio-find-auto-coding cpio-entry-name contents)))
+    (if (and found (coding-system-p (car found)))
+	(car found))))
+
+;; Modified from (find-auto-coding) ∈ mule.el.
+(defun cpio-find-auto-coding (entry-name contents)
+  "Find a coding system for an archive entry ENTRY-NAME.
+
+The function checks ENTRY-NAME against the variable `auto-coding-alist'.
+If ENTRY-NAME doesn't match any entries in the variable, it checks the
+contents of the current buffer following point against
+`auto-coding-regexp-alist'.  If no match is found, it checks for a
+`coding:' tag in the first one or two lines following point.  If no
+`coding:' tag is found, it checks any local variables list in the last
+3K bytes out of the SIZE bytes.  Finally, if none of these methods
+succeed, it checks to see if any function in `auto-coding-functions'
+gives a match.
+
+If a coding system is specified, the return value is a cons
+\(CODING . SOURCE), where CODING is the specified coding system and
+SOURCE is a symbol `auto-coding-alist', `auto-coding-regexp-alist',
+`:coding', or `auto-coding-functions' indicating by what CODING is
+specified.  Note that the validity of CODING is not checked;
+it's the caller's responsibility to check it.
+
+If nothing is specified, the return value is nil."
+  (error "%s() is not yet implemented" "cpio-find-auto-coding")
+  (or (let ((coding-system (auto-coding-alist-lookup entry-name)))
+	(if coding-system
+	    (cons coding-system 'auto-coding-alist)))
+      ;; Try using `auto-coding-regexp-alist'.
+      (let ((coding-system (cpio-auto-coding-regexp-alist-lookup contents)))
+	(if coding-system
+	    (cons coding-system 'auto-coding-regexp-alist)))
+      (let* ((case-fold-search t)
+	     (size (length contents))
+	     (head-start 0)
+	     (head-end (+ head-start (min size 1024)))
+	     (head (substring contents head-start head-end))
+	     coding-system head-found tail-found char-trans)
+	;; Try a short cut by searching for the string "coding:"
+	;; and for "unibyte:".
+	(setq head-found (or (string-match "coding:" contents)
+			     (string-match "unibyte:" contents)
+			     (string-match "enable-character-translation:" contents)))
+
+	;; At first check the head.
+	(when head-found
+	  ;; (goto-char head-start)
+	  ;; (setq head-end (set-auto-mode-1))
+	  ;; (setq head-start (point))
+	  (when (and head-end (< head-found head-end))
+	    (goto-char head-start)
+	    (when (and set-auto-coding-for-load
+		       (string-match
+			"\\(.*;\\)?[ \t]*unibyte:[ \t]*\\([^ ;]+\\)"
+			contents))
+              (display-warning 'mule
+                               (format "\"unibyte: t\" (in %s) is obsolete; \
+use \"coding: 'raw-text\" instead."
+                                       (file-relative-name entry-name))
+                               :warning)
+	      (setq coding-system 'raw-text))
+	    (when (and (not coding-system)
+		       (string-match
+			"\\(.*;\\)?[ \t]*coding:[ \t]*\\([^ ;]+\\)"
+			contents)
+	      (setq coding-system (intern (match-string 2 contents))))
+	    (when (string-match
+		   "\\(.*;\\)?[ \t]*enable-character-translation:[ \t]*\\([^ ;]+\\)"
+		   contents)
+	      (setq char-trans (match-string 2 contents)))))
+
+	(if coding-system
+	    ;; If the coding-system name ends with "!", remove it and
+	    ;; set char-trans to "nil".
+	    (let ((name (symbol-name coding-system)))
+	      (if (= (aref name (1- (length name))) ?!)
+		  (setq coding-system (intern (substring name 0 -1))
+			char-trans "nil"))))
+	(when (and char-trans
+		   (not (setq char-trans (intern char-trans))))
+	  (make-local-variable 'enable-character-translation)
+	  (setq enable-character-translation nil))
+	(if coding-system
+	    (cons coding-system :coding))))
+      ;; Finally, try all the `auto-coding-functions'.
+      (let ((funcs auto-coding-functions)
+	    (coding-system nil))
+	(while (and funcs (not coding-system))
+	  (setq coding-system (ignore-errors
+				(save-excursion
+				  (goto-char (point-min))
+				  (funcall (pop funcs) size)))))
+	(if coding-system
+	    (cons coding-system 'auto-coding-functions)))))
+
+(defun cpio-auto-coding-regexp-alist-lookup (contents)
+  "Lookup `auto-coding-regexp-alist' for CONTENTS.
+The value is a coding system is specified for the CONTENTS
+or nil."
+  (let ((fname "cpio-auto-coding-regexp-alist-lookup")
+	(alist auto-coding-regexp-alist)
+	(coding-system))
+    (error "%s() is not yet implemented" fname)
+    (while (and alist (not coding-system))
+      (let ((regexp (car (car alist))))
+	(if enable-multibyte-characters
+	    (setq regexp (string-to-multibyte regexp)))
+	(if (string-match regexp contents)
+	    (setq coding-system (cdr (car alist)))
+	  (setq alist (cdr alist)))))
+    coding-system))
+
+(defun cpio-set-coding-system (entry-name)
+  "Set the coding system for the current buffer based on the contents of the entry-ENTRY-NAME."
+  (let ((fname "cpio-set-coding-system")
+	)
+    (error "%s() is not yet implemented" fname)
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	  (cpio-set-coding-system entry-name))
+      ;; (setq last-coding-system-used
+      ;;       (car (find-coding-systems-region (cpio-contents-start entry-name)
+      ;; 				        (cpio-contents-end   entry-name))))
+      (set-buffer-file-coding-system last-coding-system-used 'force 'nomodify))
+    ))
+
+(defun cpio-not-modified ()
+  "Mark the current cpio-dired-style and archive buffersfas unmodified."
+  (let ((fname "cpio-not-modified")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (message "%s(): called in %s." fname (current-buffer))
+    (cond (*cab-parent*
+	   (not-modified)
+	   (with-current-buffer *cab-parent* (not-modified)))
+	  (t
+	   (not-modified)
+	   (mapc (lambda (b)
+		   (if (buffer-live-p b)
+		       (with-current-buffer b
+			 (not-modified))))
+		 *cab-subordinates*)))))
 
 ;; 
 ;; Commands

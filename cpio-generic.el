@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.7 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio-generic.el,v 1.9 2018/11/19 21:25:38 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -215,6 +215,497 @@ CAVEAT: This deletes any buffer holding /etc/group."
 	   (string-to-number gid))
 	  (t nil))))
 
+(defmacro with-writable-buffer (&rest body)
+  "Run body with the current buffer writable.
+Reset the buffer's read-only (or not) status after execution."
+  `(let ((bro-before buffer-read-only))
+     (setq buffer-read-only nil)
+     ,@body
+     (setq buffer-read-only bro-before)))
+
+(defun current-minor-modes ()
+  "Return a list of currently active minor modes.
+The contents are symbols.
+The definition of \"currently active\" comes
+from the code for \(describe-mode\)."
+  (let ((fname "current-minor-modes")
+	(mode)
+	(result))
+    ;; (error "%s() is not yet implemented." fname)
+    (dolist (mode minor-mode-list result)
+      (let ((fmode (or (get mode :minor-mode-function) mode)))
+	(if (and (boundp mode) (symbol-value mode) (fboundp fmode))
+	    (push mode result))))
+    result))
+
+(defun encode-human-time (human-time)
+  "Return an emacs time from a HUMAN-TIME.
+HUMAN-TIME may be any of many time formats typically used by humans.
+If I've missed one, please let me know.
+Star dates, really, star dates.
+Besides that, with general relativity can we really be sure?
+CAVEAT: This function attampts to handle multiple forms of dates in English.
+Other languages are not yet implemented."
+  (let ((fname "encode-human-time")
+	(year nil)		  ;We'll use this to test for success.
+	(month 0)
+	(day 0)
+	(hour 0)
+	(minute 0)
+	(second 0)
+	(year-re (concat "\\("
+			 "[[:digit:]]\\{4\\}"
+			 "\\)"))
+	(mon-re (concat "\\("
+			"jan"
+			"\\|"
+			"feb"
+			"\\|"
+			"mar"
+			"\\|"
+			"apr"
+			"\\|"
+			"may"
+			"\\|"
+			"jun"
+			"\\|"
+			"jul"
+			"\\|"
+			"aug"
+			"\\|"
+			"sep"
+			"\\|"
+			"oct"
+			"\\|"
+			"nov"
+			"\\|"
+			"dec"
+			"\\)"))
+	(month-re (concat "\\("
+			  "january"
+			  "\\|"
+			  "february"
+			  "\\|"
+			  "march"
+			  "\\|"
+			  "april"
+			  "\\|"
+			  "may"
+			  "\\|"
+			  "june"
+			  "\\|"
+			  "july"
+			  "\\|"
+			  "august"
+			  "\\|"
+			  "september"
+			  "\\|"
+			  "october"
+			  "\\|"
+			  "november"
+			  "\\|"
+			  "december"
+			  "\\)"))
+	(mm-re "\\(0?[[:digit:]]\\|1[012]\\)")
+	(day-re "\\([012]?[[:digit:]]\\|3[01]\\)")
+	(time-re (concat "\\("
+			 "\\([012]?[[:digit:]]\\)"
+			 ":"
+			 "\\([012345][[:digit:]]\\)"
+			 "\\("
+			 ":"
+			 "\\([0123456][[:digit:]]\\)"
+			 "\\)?"
+			 "\\)"))
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (save-match-data
+      (cond 
+       ((string-match (concat "\\`"
+			      year-re
+			      "[-/ ]+"
+			      month-re
+			      "[-/ ]+"
+			      day-re
+			      "[- ]*"
+			      time-re
+			      "?\\'"
+			      )
+		      human-time)
+	(setq year   (string-to-number     (match-string-no-properties 1 human-time)))
+	(setq month  (month-to-number      (match-string-no-properties 2 human-time)))
+	(setq day    (string-to-number     (match-string-no-properties 3 human-time)))
+								    
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0"))))
+
+       ((string-match (concat "\\`"
+			      year-re
+			      "[-/ ]+"
+			      mon-re
+			      "[-/ ]+"				 
+			      day-re
+			      "[- ]*"
+			      time-re
+			      "?\\'"
+			      )
+		      human-time)
+	(setq year   (string-to-number     (match-string-no-properties 1 human-time)))
+	(setq month  (month-to-number      (match-string-no-properties 2 human-time)))
+	(setq day    (string-to-number     (match-string-no-properties 3 human-time)))
+								    
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0"))))
+
+       ((string-match (concat "\\`"
+			      month-re
+			      "[-/ ]+"
+			      day-re				 
+			      "[,]?\\s-+"
+			      year-re
+			      "[-/ ]*"
+			      time-re
+			      "?\\'")
+		      human-time)
+	(setq year  (string-to-number      (match-string-no-properties 3 human-time)))
+	(setq month (month-to-number       (match-string-no-properties 1 human-time)))
+	(setq day   (string-to-number      (match-string-no-properties 2 human-time)))
+								    
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0"))))
+
+       ((string-match (concat "\\`"
+			      mon-re
+			      "[-/ ]+"
+			      day-re				 
+			      "[,]?\\s-*"
+			      year-re
+			      "[-/ ]*"
+			      time-re
+			      "?\\'")
+		      human-time)
+	(setq year   (string-to-number     (match-string-no-properties 3 human-time)))
+	(setq month  (month-to-number      (match-string-no-properties 1 human-time)))
+	(setq day    (string-to-number     (match-string-no-properties 2 human-time)))
+								    
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0")))
+
+	(message "Format: [[Month dd, YYYY hh:mm:ss]]")
+	"[[Month dd, YYYY hh:mm:ss]]")
+
+       ;; Some date forms are ambiguous. Avoid them.
+       ((or (and (string-match (concat "\\`"
+				       year-re
+				       "[-/ ]+"
+				       mm-re
+				       "[-/ ]+"
+				       day-re
+				       "[-/ ]*"
+				       time-re
+				       "?\\'")
+			       human-time)
+		 (string-match (concat "\\`"
+				       year-re
+				       "[-/ ]+"
+				       day-re
+				       "[-/ ]+"
+				       mm-re
+				       "[-/ ]*"
+				       time-re
+				       "?\\'")
+			       human-time))
+	    (and (string-match (concat "\\`"
+				       mm-re
+				       "[-/ ]+"
+				       day-re
+				       "[-/ ]+"
+				       year-re
+				       "[-/ ]*"
+				       time-re
+				       "?\\'")
+			       human-time)
+		 (string-match (concat "\\`"
+				       day-re
+				       "[-/ ]+"
+				       mm-re
+				       "[-/ ]+"
+				       year-re
+				       "[-/ ]*"
+				       time-re
+				       "?\\'")
+			       human-time)))
+	nil)
+       ((string-match (concat "\\`"
+			      year-re
+			      "[-/ ]+"
+			      mm-re
+			      "[-/ ]+"
+			      day-re
+			      "[-/ ]*"
+			      time-re
+			      "?\\'")
+		      human-time)
+	(setq year   (string-to-number     (match-string-no-properties 1 human-time)))
+	(setq month  (string-to-number     (match-string-no-properties 2 human-time)))
+	(setq day    (string-to-number     (match-string-no-properties 3 human-time)))
+								    
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0"))))
+
+       ((string-match (concat "\\`"
+			      mm-re
+			      "[-/ ]+"
+			      day-re
+			      "[-/ ]+"
+			      year-re
+			      "[-/ ]*"
+			      time-re
+			      "?\\'")
+		      human-time)
+	(setq year   (string-to-number     (match-string-no-properties 3 human-time)))
+	(setq month  (string-to-number     (match-string-no-properties 1 human-time)))
+	(setq day    (string-to-number     (match-string-no-properties 2 human-time)))
+								    
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0"))))
+
+       ((string-match (concat "\\`"
+			      year-re
+			      "[-/ ]+"
+			      mm-re
+			      "[-/ ]+"
+			      day-re
+			      "[-/ ]*"
+			      time-re
+			      "?\\'")
+		      human-time)
+	   
+	(setq year   (string-to-number     (match-string-no-properties 1 human-time)))
+	(setq month  (string-to-number     (match-string-no-properties 2 human-time)))
+	(setq day    (string-to-number     (match-string-no-properties 3 human-time)))
+
+	(setq hour   (string-to-number (or (match-string-no-properties 5 human-time) "0")))
+	(setq minute (string-to-number (or (match-string-no-properties 6 human-time) "0")))
+	(setq second (string-to-number (or (match-string-no-properties 8 human-time) "0"))))
+       
+       (t (message "Unknown format.")
+	  nil)))
+    (if year
+	(encode-time second minute hour day month year)
+      nil)
+    ))
+
+(defun month-to-number (month-name)
+  "Convert The MONTH-NAME to a number (1..12)."
+  (let ((fname "month-to-number")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (save-match-data
+      (cond ((string-match "jan" (substring month-name 0 3))
+	     1)
+	    ((string-match "feb" (substring month-name 0 3))
+	     2)
+	    ((string-match "mar" (substring month-name 0 3))
+	     3)
+	    ((string-match "apr" (substring month-name 0 3))
+	     4)
+	    ((string-match "may" (substring month-name 0 3))
+	     5)
+	    ((string-match "jun" (substring month-name 0 3))
+	     6)
+	    ((string-match "jul" (substring month-name 0 3))
+	     7)
+	    ((string-match "aug" (substring month-name 0 3))
+	     8)
+	    ((string-match "sep" (substring month-name 0 3))
+	     9)
+	    ((string-match "oct" (substring month-name 0 3))
+	     10)
+	    ((string-match "nov" (substring month-name 0 3))
+	     11)
+	    ((string-match "dec" (substring month-name 0 3))
+	     12)
+	    (t (message "%s(): Unknown month [[%s]]." fname month-name))))))
+
+(defun test-encode-human-time ()
+  "Test (encode-human-time)."
+  (interactive)
+  (let ((fname "test-encode-human-time")
+	(results-buf (get-buffer-create "*Human time results*"))
+	(time-in)
+	(emacs-time)
+	(time-out)
+	(format "")
+	(test-dates (list
+		     "2018 Nov 9"
+		     "2018 Nov 9 9:53"
+		     "2018 Nov 9 09:53"
+		     "2018 Nov 9 9:53:23"
+		     "2018 Nov 9 09:53:23"
+
+		     "2018 Nov 09"
+		     "2018 Nov 09 9:53"
+		     "2018 Nov 09 09:53"
+		     "2018 Nov 09 9:53:23"
+		     "2018 Nov 09 09:53:23"
+
+		     "2018 Nov 19"
+		     "2018 Nov 19 9:53"
+		     "2018 Nov 19 09:53"
+		     "2018 Nov 19 9:53:23"
+		     "2018 Nov 19 09:53:23"
+
+		     "2018-Nov-29"
+		     "2018-Nov-29 9:53"
+		     "2018-Nov-29 09:53"
+		     "2018-Nov-29 9:53:23"
+		     "2018-Nov-29 09:53:23"
+
+		     "2018/Nov/19"
+		     "2018/Nov/19 9:53"
+		     "2018/Nov/19 09:53"
+		     "2018/Nov/19 9:53:23"
+		     "2018/Nov/19 09:53:23"
+
+
+
+		     "2018 November 9"
+		     "2018 November 9 9:53"
+		     "2018 November 9 09:53"
+		     "2018 November 9 9:53:23"
+		     "2018 November 9 09:53:23"
+
+		     "2018 November 09"
+		     "2018 November 09 9:53"
+		     "2018 November 09 09:53"
+		     "2018 November 09 9:53:23"
+		     "2018 November 09 09:53:23"
+
+		     "2018 November 19"
+		     "2018 November 19 9:53"
+		     "2018 November 19 09:53"
+		     "2018 November 19 9:53:23"
+		     "2018 November 19 09:53:23"
+
+		     "2018-November-29"
+		     "2018-November-29 9:53"
+		     "2018-November-29 09:53"
+		     "2018-November-29 9:53:23"
+		     "2018-November-29 09:53:23"
+
+		     "2018/November/19"
+		     "2018/November/19 9:53"
+		     "2018/November/19 09:53"
+		     "2018/November/19 9:53:23"
+		     "2018/November/19 09:53:23"
+
+
+
+		     
+
+		     "11 09 2018"
+		     "11 09 2018 9:53"
+		     "11 09 2018 09:53"
+		     "11 09 2018 9:53:23"
+		     "11 09 2018 09:53:23"
+
+		     "11 19 2018"
+		     "11 19 2018 9:53"
+		     "11 19 2018 09:53"
+		     "11 19 2018 9:53:23"
+		     "11 19 2018 09:53:23"
+
+		     "11-29-2018"
+		     "11-29-2018 9:53"
+		     "11-29-2018 09:53"
+		     "11-29-2018 9:53:23"
+		     "11-29-2018 09:53:23"
+
+		     "11/19/2018"
+		     "11/19/2018 9:53"
+		     "11/19/2018 09:53"
+		     "11/19/2018 9:53:23"
+		     "11/19/2018 09:53:23"
+
+		     "2018 11 9"
+		     "2018 11 9 9:53"
+		     "2018 11 9 09:53"
+		     "2018 11 9 9:53:23"
+		     "2018 11 9 09:53:23"
+
+		     "2018 11 09"
+		     "2018 11 09 9:53"
+		     "2018 11 09 09:53"
+		     "2018 11 09 9:53:23"
+		     "2018 11 09 09:53:23"
+
+		     "2018 11 19"
+		     "2018 11 19 9:53"
+		     "2018 11 19 09:53"
+		     "2018 11 19 9:53:23"
+		     "2018 11 19 09:53:23"
+
+		     "2018-11-29"
+		     "2018-11-29 9:53"
+		     "2018-11-29 09:53"
+		     "2018-11-29 9:53:23"
+		     "2018-11-29 09:53:23"
+
+		     "2018/11/19"
+		     "2018/11/19 9:53"
+		     "2018/11/19 09:53"
+		     "2018/11/19 9:53:23"
+		     "2018/11/19 09:53:23"
+
+		     "11 09 2018"
+		     "11 09 2018 9:53"
+		     "11 09 2018 09:53"
+		     "11 09 2018 9:53:23"
+		     "11 09 2018 09:53:23"
+
+		     "11 19 2018"
+		     "11 19 2018 9:53"
+		     "11 19 2018 09:53"
+		     "11 19 2018 9:53:23"
+		     "11 19 2018 09:53:23"
+
+		     "11-29-2018"
+		     "11-29-2018 9:53"
+		     "11-29-2018 09:53"
+		     "11-29-2018 9:53:23"
+		     "11-29-2018 09:53:23"
+
+		     "11/19/2018"
+		     "11/19/2018 9:53"
+		     "11/19/2018 09:53"
+		     "11/19/2018 9:53:23"
+		     "11/19/2018 09:53:23"
+		     ))
+	)
+
+    ;; (error "%s() is not yet implemented" fname)
+    (with-current-buffer results-buf (erase-buffer))
+
+    (mapc (lambda (str)
+	    (with-current-buffer results-buf
+	      (setq time-in str)
+	      (if (setq emacs-time (encode-human-time str))
+		  (setq time-out (current-time-string emacs-time))
+		(setq time-out (format "(encode-human-time \"%s\") returned NIL." str)))
+	      (goto-char (point-max))
+	      (insert (format "%s\t-->\t%s\t-->\t%s\n" time-in emacs-time time-out))))
+	  test-dates)
+    (pop-to-buffer results-buf)
+    (goto-char (point-min))
+    ))
+
 
 ;; 
 ;; Commands
@@ -274,52 +765,6 @@ This function respects narrowing."
   (interactive)
   (let ((fname "remove-all-debuggers"))
     (while (remove-debugger))))
-
-;;
-;; Hacks
-;; 
-(defun create-general-cpio-mode-function ()
-  "Create a general cpio-mode function set to the next cpio-newc function.
-Well, that's the intent, but, really, it's a hack."
-  (interactive)
-  (let ((fname "create-general-cpio-mode-function")
-	(cpio-newc-function-name)
-	(cpio-function-definition)
-	(start -1)
-	(end -1)
-	(defun-end -1))
-    
-    (cond ((re-search-forward " \\(cpio-newc\\(-[-[:alnum:]]+\\)\\)" (point-max))
-	   (setq cpio-newc-function-name (match-string-no-properties 1))
-	   (setq cpio-function-definition 
-		 (format "(setq cpio%s-function %s)\n" (match-string-no-properties 2)
-			 cpio-newc-function-name))
-	   (end-of-defun)
-	   (insert cpio-function-definition))
-	  (t nil))))
-
-(defun bbb-newc (header-string)
-  "Return a crudely parsed newc header from the given HEADER-STRING."
-  (let* ((fname "bbb-newc")
-	 (lengths (list 6 8 8 8 8  8 8 8 8 8  8 8 8 8 8))
-	 (stops (let ((i 0)
-		      (j 0)
-		      (n 0))
-		  (mapcar (lambda (l)
-			    (prog1
-				n
-			      (setq n (+ n (nth i lengths)))
-			      (setq i (1+ i))))
-			  lengths)))
-	 (i 0)
-	 (j 1))
-    (setq header-string (cg-strip-right "\0" header-string t))
-    (mapcar (lambda (s)
-	      (prog1 (substring header-string (nth i stops) (nth j stops))
-		(setq i j)
-		(setq j (1+ j))))
-	    stops)))
-
 
 
 (provide 'cpio-generic)

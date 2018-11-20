@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes.el --- handle modes.
-;	$Id: cpio-modes.el,v 1.8 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio-modes.el,v 1.9 2018/06/26 15:57:50 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -37,7 +37,8 @@
 ;;
 ;; Dependencies
 ;; 
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.

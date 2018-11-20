@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired.el --- UI definition à la dired.
-;	$Id: cpio-dired.el,v 1.10 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio-dired.el,v 1.13 2018/11/19 21:22:43 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -98,7 +98,8 @@ Keep any preceding comments."
 ;;
 ;; Dependencies
 ;; 
-(require 'dired-aux)
+(eval-when-compile
+  (require 'dired-aux))
 
 
 ;; 
@@ -673,16 +674,6 @@ Important: the match ends just after the marker.")
 	(if (looking-at *cpio-dired-entry-regexp*)
 	    (match-string-no-properties *cpio-dired-name-idx*))))))
 
-(defun cpio-contents-buffer-name (name)
-  "Return the name of the buffer that would/does hold the contents of entry NAME.
-CAVEAT: Yes, there's a possibility of a collision here.
-However, that would mean that you're editing 
-more than one archive, each containing entries of the same name
-more than one of whose contents you are currently editing.
-Run more than one instance of emacs to avoid such collisions."
-  (let ((fname "cpio-contents-buffer-name"))
-    (format "%s (in cpio archive %s)" name (file-name-nondirectory (buffer-file-name *cab-parent*)))))
-
 (defun cpio-dired-hide-details-update-invisibility-spec ()
   "Toggle cpio-dired-hide-details-mode."
   (let ((fname "cpio-dired-hide-details-update-invisibility-spec"))
@@ -697,7 +688,7 @@ Run more than one instance of emacs to avoid such collisions."
 	     'cpio-dired-hide-details-information)
     (funcall (if (and cpio-dired-hide-details-mode
 		      cpio-dired-hide-details-hide-symlink-targets
-		      (not (derived-mode-p 'wcpio-dired-mode)))
+		      (not (derived-mode-p 'cpio-dired-mode)))
 		 'add-to-invisibility-spec
 	       'remove-from-invisibility-spec)
 	     'cpio-dired-hide-details-link)))
@@ -741,9 +732,8 @@ CONTRACT: You're in that archive's buffer."
       (setq start-marker (aref (cdr entry-info) 1)) ;HEREHERE Shouldn't this have an abstraction?
       (setq end-marker (1+ (cg-round-up (1- (+ (aref (cdr entry-info) 2)
 					    (cpio-entry-size (cpio-entry-attrs entry-name)))) *cpio-padding-modulus*)))
-      (setq buffer-read-only nil)
-      (delete-region start-marker end-marker)
-      (setq buffer-read-only t)
+      (with-writable-buffer
+       (delete-region start-marker end-marker))
       (setq *cpio-catalog* (delete (assoc entry-name *cpio-catalog*) *cpio-catalog*)))))
 
 (defun cpio-dired-marked-entries (char arg)
@@ -790,17 +780,14 @@ then use that to mark the new entry."
       (cpio-delete-trailer)
       (setq header-string (cpio-make-header-string attrs contents))
       
-      (setq buffer-read-only nil)
+      (with-writable-buffer
+       (setq header-start-marker (point-max-marker))
+       (goto-char (point-max))
+       (insert header-string)
       
-      (setq header-start-marker (point-max-marker))
-      (goto-char (point-max))
-      (insert header-string)
-      
-      (setq contents-start-marker (point-max-marker))
-      (goto-char (point-max))
-      (cpio-insert-padded-contents contents)
-
-      (setq buffer-read-only t)
+       (setq contents-start-marker (point-max-marker))
+       (goto-char (point-max))
+       (cpio-insert-padded-contents contents))
 	
       (aset new-catalog-entry *cpio-catalog-entry-attrs-idx* attrs)
       (aset new-catalog-entry *cpio-catalog-entry-header-start-idx* header-start-marker)
@@ -814,9 +801,8 @@ then use that to mark the new entry."
       (with-current-buffer cpio-dired-buffer
 	(save-excursion
 	  (goto-char (point-max))
-	  (setq buffer-read-only nil)
-	  (insert (cpio-dired-format-entry attrs mark) "\n")
-	  (setq buffer-read-only t))))))
+	  (with-writable-buffer
+	   (insert (cpio-dired-format-entry attrs mark) "\n")))))))
 
 (defun cpio-dired-get-marked-entries (&optional arg) ;✓
   "Return a list of the marked entries in the current cpio-dired buffer."
@@ -868,15 +854,15 @@ CONTRACT:
 
     (save-excursion
       (cpio-dired-goto-entry entry-name)
-      (setq buffer-read-only nil)
-      (delete-region (line-beginning-position) (line-end-position))
-      ;; (cpio-dired-goto-entry) needs entry-name in the catalog,
-      ;; so don't update it until after.
-      (cpio-set-entry-name attrs target)
-      (with-current-buffer *cab-parent*
-	(setcar (assoc entry-name *cpio-catalog*) target))
-      (insert (cpio-dired-format-entry attrs mark))
-      (setq buffer-read-only t))
+      (with-writable-buffer
+       (delete-region (line-beginning-position) (line-end-position)))
+       ;; (cpio-dired-goto-entry) needs entry-name in the catalog,
+       ;; so don't update it until after.
+       (cpio-set-entry-name attrs target)
+       (with-current-buffer *cab-parent*
+	 (setcar (assoc entry-name *cpio-catalog*) target))
+       (with-writable-buffer
+	(insert (cpio-dired-format-entry attrs mark))))
     (cpio-dired-move-to-entry-name)))
 
 (defun cpio-dired-mark-read-regexp (operation)
@@ -913,9 +899,8 @@ CONTRACT: You're on the line to be replaced."
       (cpio-move-to-entry entry-name)
       (setq mark (cpio-dired-get-mark))
       (cpio-dired-delete-dired-line entry-name)
-      (setq buffer-read-only nil)
-      (insert (cpio-dired-format-entry attrs mark))
-      (setq buffer-read-only t))))
+      (with-writable-buffer
+       (insert (cpio-dired-format-entry attrs mark))))))
 
 (defun cpio-dired-delete-dired-line (entry-name)
   "Delete the line of ENTRY-NAME not including the new line."
@@ -923,9 +908,8 @@ CONTRACT: You're on the line to be replaced."
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): You're not in a cpio-dired-buffer." fname))
     (cpio-move-to-entry entry-name)
-    (setq buffer-read-only nil)
-    (delete-region (line-beginning-position) (line-end-position))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (delete-region (line-beginning-position) (line-end-position)))))
 
 (defun cpio-dired-buffer-name (archive-name)
   "Return the name of the dired-style buffer for ARCHIVE-NAME."
@@ -939,20 +923,24 @@ This returns the buffer created."
 	 (archive-name (with-current-buffer archive-buffer
 			 (file-name-nondirectory (buffer-file-name))))
 	 (buffer-name (cpio-dired-buffer-name archive-name))
-	 (buffer (get-buffer-create buffer-name)) ;Is this not archive-buffer?
+	 (buffer (get-buffer-create buffer-name))
 	 (entry-string)
 	 (catalog (cpio-catalog)))
     (with-current-buffer buffer
       (setq *cpio-catalog* catalog)
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (insert "CPIO archive: " archive-name ":\n\n")
-      (mapc (lambda (e)
-	      (let ((line (cpio-dired-format-entry (aref (cdr e) 0))))
-		(insert (concat line "\n"))))
-	    (cpio-sort-catalog))
-      (setq buffer-read-only t)
+      (with-writable-buffer
+       (erase-buffer)
+       (insert "CPIO archive: " archive-name ":\n\n")
+       (mapc (lambda (e)
+	       (let ((line (cpio-dired-format-entry (aref (cdr e) 0))))
+		 (insert (concat line "\n"))))
+	     (cpio-sort-catalog)))
       (cpio-dired-mode))
+
+    (if cab-clear-cab-info-buffer
+	(with-current-buffer *cab-info-buffer*
+	  (erase-buffer)))
+
     ;; No, I do not yet understand why this must be done
     ;; every time the presentation is updated.
 
@@ -1065,25 +1053,21 @@ then use the current buffer."
 	   (cpio-delete-trailer)
 	   (setq header-string (cpio-make-header-string entry-attrs))
 	   
-	   (setq buffer-read-only nil)
+	   (with-writable-buffer
+	    (setq header-start-marker (point-max-marker))
+	    (goto-char (point-max))
+	    (insert header-string)
 
-	   (setq header-start-marker (point-max-marker))
-	   (goto-char (point-max))
-	   (insert header-string)
+	    (setq contents-start-marker (point-max-marker))
+	    (goto-char (point-max))
+	    (insert-file-contents filename)
 
-	   (setq contents-start-marker (point-max-marker))
-	   (goto-char (point-max))
-	   (insert-file-contents filename)
-
-	   (goto-char (point-max))
-	   (cpio-insert-trailer)
-
-	   (setq buffer-read-only t)
+	    (goto-char (point-max))
+	    (cpio-insert-trailer))
 	   
 	   (with-current-buffer cpio-dired-buffer
-	     (setq buffer-read-only nil)
-	     (delete-region (line-beginning-position) (1+ (line-end-position)))
-	     (setq buffer-read-only t))))))
+	     (with-writable-buffer
+	      (delete-region (line-beginning-position) (1+ (line-end-position)))))))))
 
 ;; * c		dired-change-marks
 (defun cpio-dired-change-marks (old new) ;✓✓
@@ -1100,13 +1084,12 @@ OLD and NEW are both characters used to mark entries."
     (save-excursion
       (cpio-dired-move-to-first-entry)
       (beginning-of-line)
-      (setq buffer-read-only nil)
-      (while (< (point) (point-max))
-	(when (looking-at-p old)
-	  (delete-char 1)
-	  (insert new))
-	(forward-line 1))
-      (setq buffer-read-only t))))
+      (with-writable-buffer
+       (while (< (point) (point-max))
+	 (when (looking-at-p old)
+	   (delete-char 1)
+	   (insert new))
+	 (forward-line 1))))))
 
 ;; -		negative-argument
 ;; .		dired-clean-directory
@@ -1171,9 +1154,8 @@ This respects umask(1) as available through (default-file-modes)."
 	     (cpio-dired-create-directory directory))
 	   (save-excursion
 	     (goto-char (point-max))
-	     (setq buffer-read-only nil)
-	     (insert (concat (cpio-dired-format-entry (cpio-entry-attrs directory)) "\n"))
-	     (setq buffer-read-only t))
+	     (with-writable-buffer
+	      (insert (concat (cpio-dired-format-entry (cpio-entry-attrs directory)) "\n"))))
 	   (cpio-dired-set-modified))
 	  (t
 	   (unless (eq major-mode 'cpio-mode)
@@ -1187,13 +1169,13 @@ This respects umask(1) as available through (default-file-modes)."
 	   (setq namesize (1+ (length directory)))
 	   (setq attrs (cpio-create-faux-directory-attrs directory))
 	   (cpio-set-mode attrs (logior s-ifdir (default-file-modes)))
-	   (cpio-delete-trailer)
-	   (setq header-start (point-max-marker))
-	   (setq header-string (cpio-make-header-string attrs))
-	   (goto-char (point-max))
-	   (setq buffer-read-only nil)
-	   (insert header-string)
-	   (setq buffer-read-only t)
+	   (with-writable-buffer
+	    (cpio-delete-trailer)
+	    (setq header-start (point-max-marker))
+	    (setq header-string (cpio-make-header-string attrs))
+	    (goto-char (point-max))
+	    (insert header-string)
+	    (setq buffer-read-only t))
 	   (setq contents-start (point-max-marker))
 	   (push (cons directory
 		       (vector attrs
@@ -1260,12 +1242,14 @@ the string of command switches for the third argument of `diff'."
 
 ;; C-o		dired-display-file
 (defun cpio-dired-display-entry () ;✓
-  "In a cpio UI buffer, display the entry on the current line in another window."
+  "In a cpio UI buffer, display the entry on the current line in another window.
+Return the buffer containing the entry's contents."
   (interactive)
   (let ((fname "cpio-dired-display-entry")
 	(target-buffer (cpio-dired-find-entry)))
     (with-current-buffer target-buffer
-      (setq buffer-read-only t))))
+      (setq buffer-read-only t))
+    target-buffer))
 
 ;; %		Prefix Command
 ;; &		dired-do-async-shell-command
@@ -1361,11 +1345,10 @@ in the buffer containing the archive."
 		     (save-excursion
 		       (cpio-dired-goto-entry en)
 		       (setq mark (cpio-dired-get-mark))
-		       (setq buffer-read-only nil)
-		       (delete-region (line-beginning-position)
-				      (line-end-position))
-		       (insert (cpio-dired-format-entry attrs mark))
-		       (setq buffer-read-only t))))
+		       (with-writable-buffer
+			(delete-region (line-beginning-position)
+				       (line-end-position))
+			(insert (cpio-dired-format-entry attrs mark))))))
 		 entry-names)
 	  (cpio-dired-set-modified)))))
 
@@ -1481,11 +1464,10 @@ into the minibuffer."
 		     (save-excursion
 		       (cpio-dired-goto-entry en)
 		       (setq mark (cpio-dired-get-mark))
-		       (setq buffer-read-only nil)
-		       (delete-region (line-beginning-position)
-				      (line-end-position))
-		       (insert (cpio-dired-format-entry attrs mark))
-		       (setq buffer-read-only t))))
+		       (with-writable-buffer
+			(delete-region (line-beginning-position)
+				       (line-end-position))
+			(insert (cpio-dired-format-entry attrs mark))))))
 		 entry-names)
 	  (cpio-dired-set-modified)))))
 
@@ -1565,9 +1547,8 @@ Marks win over ARG."
     (mapc (lambda (en)
 	    (save-excursion
 	      (cpio-dired-goto-entry en)
-	      (setq buffer-read-only nil)
-	      (delete-region (line-beginning-position) (1+ (line-end-position)))
-	      (setq buffer-read-only t)
+	      (with-writable-buffer
+	       (delete-region (line-beginning-position) (1+ (line-end-position))))
 
 	      (cpio-internal-do-deletion en)))
 	  entries)
@@ -1592,10 +1573,9 @@ non-empty directories is allowed."
     (mapc (lambda (en)
 	    (save-excursion
 	      (cond ((cpio-dired-goto-entry en)
-		     (setq buffer-read-only nil)
-		     (delete-region (line-beginning-position)
-				    (1+ (line-end-position)))
-		     (setq buffer-read-only t))
+		     (with-writable-buffer
+		      (delete-region (line-beginning-position)
+				     (1+ (line-end-position)))))
 		    (t t)))
 	    (cpio-internal-do-deletion en))
 	  entries)
@@ -1907,14 +1887,45 @@ See function `dired-do-rename-regexp' for more info."
     (error "%s() is not yet implemented" fname)))
 
 ;; T		dired-do-touch
-(defun cpio-dired-do-touch (arg)	;×
-  "Change the timestamp of the marked (or next ARG) entries.
-Type M-n to pull the entry attributes of the entry at point
-into the minibuffer."
+(defun cpio-dired-do-touch (arg)	;✓
+  "Change the timestamp of the marked (or next ARG) entries."
+  ;; HEREHERE To be done:
+  ;; Type M-n to pull the entry attributes of the entry at point
+  ;; into the minibuffer."
   (interactive "p")
   (let ((fname "cpio-dired-do-touch")
-	(names (cpio-dired-get-marked-entries arg)))
-    (error "%s() is not yet implemented" fname)
+	(entries (cpio-dired-get-marked-entries arg))
+	(prompt)
+	(human-timestamp)
+	(timestamp (current-time))
+	(time-re)
+	(human-time)
+	(time)
+	(entry-name)
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (cond ((= (length entries) 0)
+	   (error "%s(): No cpio archive entries found." fname))
+	  ((or (> arg 1)
+	       (> (length entries) 1))
+	   (setq prompt (format "Change timestamp of %d files to when? [now]? " (length entries))))
+	  ((= arg 1)
+	   (setq prompt (format "Change timestamp of %s to when? [now]? " (car entries))))
+	  (t
+	   (error "%s(): Impossible situation." fname)))
+    (setq human-timestamp (read-from-minibuffer prompt))
+    (while human-timestamp
+      (if (string-equal human-timestamp "")
+	  (setq time (current-time))
+	(setq time (encode-human-time human-timestamp)))
+      (cond (time
+	     (dolist (entry entries)
+	       (cpio-set-mtime (cpio-entry-attrs entry) time)
+	       (cpio-dired-replace-dired-line entry))
+	     (setq human-timestamp nil))
+	    ((y-or-n-p (format "[[%s]] looks ambiguous. Try again?"))
+	     (setq human-timestamp (read-from-minibuffer prompt)))
+	    (t (setq human-timestamp nil))))
     (cpio-dired-set-modified)))
 
 ;; % l		dired-downcase
@@ -1967,10 +1978,14 @@ Return the buffer containing those contents."
   (interactive)
   (let ((fname "cpio-dired-find-entry")
 	(find-file-run-dired t)
-	(local-entry-name (cpio-dired-get-entry-name)))
+	(local-entry-name (cpio-dired-get-entry-name))
+	(entry-buf))
     (cond ((null local-entry-name)
 	   (message "%s(): Could not get entry name." fname))
-	  (t (cpio-find-entry local-entry-name)))))
+	  (t 
+	   (with-current-buffer (setq entry-buf (cpio-find-entry local-entry-name))
+	     (cpio-entry-contents-mode))
+	   (pop-to-buffer entry-buf)))))
 
 ;; n		dired-next-line
 ;; o		dired-find-file-other-window
@@ -2261,10 +2276,9 @@ CONTRACT: You must be allowed to operate on that entry."
   (unless char (setq char cpio-dired-marker-char))
   (let ((fname "cpio-dired-mark-this-entry"))
     (beginning-of-line)
-    (setq buffer-read-only nil)
-    (delete-char 1)
-    (insert (char-to-string char))
-    (setq buffer-read-only t)
+    (with-writable-buffer
+     (delete-char 1)
+     (insert (char-to-string char)))
     (cpio-dired-next-line 1)))
 
 (defun cpio-dired-marker-regexp ()
@@ -2429,51 +2443,49 @@ one.  If non-nil, reset `quit-restore' parameter to nil."
 	   (cpio-dired-set-unmodified))
 	  (t
 	   (cpio-delete-trailer)
-	   (setq buffer-read-only nil)
-	   (mapc (lambda (cen)		;(cons name entry-contents)
-		   (let* ((entry-info (cdr cen))
-			  (attrs (aref entry-info *cpio-catalog-entry-attrs-idx*))
-			  (header-start (marker-position
-					 (aref entry-info 1)))
-			  (header-end   (marker-position
-					 (aref entry-info 2)))
-			  (header-string (cpio-make-header-string
-					  attrs)))
-		     (goto-char header-start)
-		     (delete-region header-start header-end)
-		     (set-marker (aref entry-info 1) (point)) ;Redundant?
-		     (insert header-string)
-		     (goto-char (+ (aref entry-info 1)
-				   (length header-string)))
-		     (set-marker (aref entry-info 2) (point))
-		     (forward-char (cpio-entry-size attrs))
-		     (while (looking-at-p "\0")
-		       (delete-char 1))))
-		 ;; Do the adjustments backwards to ensure that the resulting markers are correct.
-		 (reverse *cpio-catalog*))
-	   ;; Adjust all the entry padding.
-	   (mapc (lambda (cen)
-		   (let* ((entry (cdr cen))
-			  (attrs                         (aref entry *cpio-catalog-entry-attrs-idx*))
-			  (header-start (marker-position (aref entry *cpio-catalog-entry-header-start-idx*)))
-			  (entry-start  (marker-position (aref entry *cpio-catalog-entry-contents-start-idx*)))
-			  (cpio-set-entry-unmodified entry)
-			  (header-string (cpio-make-header-string attrs))
-			  (local-where)
-			  (padding-length))
-		     (goto-char (+ entry-start (cpio-entry-size attrs)))
-		     (setq local-where (mod (1- (point))
-					    *cpio-padding-modulus*))
-		     (cond ((= 0 local-where)
-			    (setq padding-length 0))
-			   (t
-			    (setq padding-length (- *cpio-padding-modulus* local-where))))
-		     (insert (make-string padding-length ?\0))))
-		 *cpio-catalog*)
-	   (cpio-adjust-trailer)
-	   (setq buffer-read-only t)
+	   (with-writable-buffer
+	    (mapc (lambda (cen)		;(cons name entry-contents)
+		    (let* ((entry-info (cdr cen))
+			   (attrs (aref entry-info *cpio-catalog-entry-attrs-idx*))
+			   (header-start (marker-position
+					  (aref entry-info 1)))
+			   (header-end   (marker-position
+					  (aref entry-info 2)))
+			   (header-string (cpio-make-header-string
+					   attrs)))
+		      (goto-char header-start)
+		      (delete-region header-start header-end)
+		      (set-marker (aref entry-info 1) (point)) ;Redundant?
+		      (insert header-string)
+		      (goto-char (+ (aref entry-info 1)
+				    (length header-string)))
+		      (set-marker (aref entry-info 2) (point))
+		      (forward-char (cpio-entry-size attrs))
+		      (while (looking-at-p "\0")
+			(delete-char 1))))
+		  ;; Do the adjustments backwards to ensure that the resulting markers are correct.
+		  (reverse *cpio-catalog*))
+	    ;; Adjust all the entry padding.
+	    (mapc (lambda (cen)
+		    (let* ((entry (cdr cen))
+			   (attrs                         (aref entry *cpio-catalog-entry-attrs-idx*))
+			   (header-start (marker-position (aref entry *cpio-catalog-entry-header-start-idx*)))
+			   (entry-start  (marker-position (aref entry *cpio-catalog-entry-contents-start-idx*)))
+			   (cpio-set-entry-unmodified entry)
+			   (header-string (cpio-make-header-string attrs))
+			   (local-where)
+			   (padding-length))
+		      (goto-char (+ entry-start (cpio-entry-size attrs)))
+		      (setq local-where (mod (1- (point))
+					     *cpio-padding-modulus*))
+		      (cond ((= 0 local-where)
+			     (setq padding-length 0))
+			    (t
+			     (setq padding-length (- *cpio-padding-modulus* local-where))))
+		      (insert (make-string padding-length ?\0))))
+		  *cpio-catalog*)
+	    (cpio-adjust-trailer))
 	   (basic-save-buffer)))))
-
 
 ;; y		dired-show-file-type
 (defun cpio-dired-show-entry-type (entry &optional deref-symlinks) ;×
@@ -2589,20 +2601,19 @@ Type C-h at that time for help."
 	   (save-excursion
 	     (cpio-dired-move-to-first-entry)
 	     (beginning-of-line)
-	     (setq buffer-read-only nil)
 	     (while (< (point) (point-max))
 	       (setq entry (cpio-dired-get-entry-name))
 	       (beginning-of-line)
 	       (if (looking-at-p mark)
-		   (cond ((and arg
-			       (y-or-n-p (format "Unmark entry `%s'? " entry)))
-			  (delete-char 1)
-			  (insert " "))
-			 (t
-			  (delete-char 1)
-			  (insert " "))))
-	       (cpio-dired-next-line 1))
-	     (setq buffer-read-only t))))))
+		   (with-writable-buffer
+		    (cond ((and arg
+				(y-or-n-p (format "Unmark entry `%s'? " entry)))
+			   (delete-char 1)
+			   (insert " "))
+			  (t
+			   (delete-char 1)
+			   (insert " "))))
+		 (cpio-dired-next-line 1))))))))
 
 ;; * !		dired-unmark-all-marks
 ;; U		dired-unmark-all-marks
@@ -2614,13 +2625,12 @@ Type C-h at that time for help."
       (error "%s(): You're not in a cpio-dired buffer." fname))
     (save-excursion
       (cpio-dired-move-to-first-entry)
-      (setq buffer-read-only nil)
-      (while (< (point) (point-max))
-	(beginning-of-line)
-	(delete-char 1)
-	(insert " ")
-	(cpio-dired-next-line 1))
-      (setq buffer-read-only t))))
+      (with-writable-buffer
+       (while (< (point) (point-max))
+	 (beginning-of-line)
+	 (delete-char 1)
+	 (insert " ")
+	 (cpio-dired-next-line 1))))))
 
 ;; DEL		dired-unmark-backward
 ;; * DEL		dired-unmark-backward

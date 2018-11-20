@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.11 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio-newc.el,v 1.14 2018/11/19 21:25:38 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -723,6 +723,8 @@ CAVEAT: This respects neither narrowing nor the point."
 	     (goto-char contents-end))
 	    (t t)))
     (nreverse catalog)))
+    ;; catalog))
+    
 
 (defun cpio-newc-start-of-trailer ()
   "Return the character position of the (ostensible) start of the trailer
@@ -755,14 +757,13 @@ once the TRAILER is written and padded."
 	 (base-len (length base-trailer))
 	 (len))
     ;; ...and insert the new trailer...
-    (setq buffer-read-only nil)
-    (insert base-trailer)
-    (goto-char (point-max))
-    ;; ...with padding.
-    (setq len (cg-round-up (1- (point)) *cpio-newc-blocksize*))
-    (setq len (1+ (- len (point))))
-    (insert (make-string len ?\0))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (insert base-trailer)
+     (goto-char (point-max))
+     ;; ...with padding.
+     (setq len (cg-round-up (1- (point)) *cpio-newc-blocksize*))
+     (setq len (1+ (- len (point))))
+     (insert (make-string len ?\0)))))
 
 (defun cpio-newc-delete-trailer ()
   "Delete the trailer in the current cpio newc archive."
@@ -781,9 +782,8 @@ once the TRAILER is written and padded."
 	      (skip-chars-forward "\0")))
 	  *cpio-catalog*)
     ;; Next, delete what's left...
-    (setq buffer-read-only nil)
-    (delete-region (point) (point-max))
-    (setq buffer-read-only t)))
+    (with-writable-buffer
+     (delete-region (point) (point-max)))))
 
 (defun cpio-newc-make-chksum-for-file (filename)
   "Return the checksum for FILENAME."
@@ -797,7 +797,8 @@ once the TRAILER is written and padded."
 ;; Test and other development assistance.
 ;; 
 
-(require 'cl)				;For (mapcar*)
+(eval-when-compile
+  (require 'cl))				;For (mapcar*)
 (defun cpio-newc-present-header (header-string)
   "Parse the HEADER-STRING and present its fields nicely.
 That is show their names and octal and decimal values."

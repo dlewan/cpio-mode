@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile.in,v 1.6 2018/06/09 16:14:35 doug Exp $	
+#	$Id: Makefile.in,v 1.7 2018/11/19 21:25:37 doug Exp $	
 
 # 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018 
@@ -229,7 +229,7 @@ configure-default:	configure
 # 
 
 clean:
-	-rm -f *~
+	-rm -f *~ ${ELC_FILES}
 
 distclean: check_gnu	clean
 	if [ -e ${distdir} ] ; then rm -rf ${distdir} ; fi

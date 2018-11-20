@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.6 2018/06/17 07:34:12 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.8 2018/11/19 21:25:38 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -129,6 +129,7 @@ If NAME is not given, then use 'aa'."
 ;; Library
 ;; 
 
+
 
 ;; 
 ;; Commands
@@ -142,13 +143,11 @@ If NAME is not given, then use 'aa'."
 	(attrs (cpio-entry-attrs cpio-entry-name))
 	(header-string)
 	(size (buffer-size))
-	(new-contents (buffer-string)))
-    (unless (catch 'minor-mode-check
-	      (mapc (lambda (m)
-		      (if (eq m 'cpio-entry-contents-mode)
-			  (throw 'minor-mode-check t)))
-		    minor-mode-list))
+	(new-contents (buffer-string))
+	(dired-buffer-name))
+    (unless (cpio-entry-contents-buffer-p)
       (error "%s(): You're not in a cpio entry contents buffer." fname))
+
     (with-current-buffer *cab-parent*
       ;; 1. Delete the entry's head and contents (plus padding) in the parent buffer.
       (cpio-delete-archive-entry entry)
@@ -161,17 +160,32 @@ If NAME is not given, then use 'aa'."
       (setq header-string (cpio-make-header-string attrs))
       ;; 5. Write the header in the archive buffer (plus padding).
       (goto-char (cpio-entry-header-start entry))
-      (setq buffer-read-only nil)
-      (insert header-string)
-      (setq buffer-read-only t)
-      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker)))
+      (with-writable-buffer
+       (insert header-string))
+      (aset entry *cpio-catalog-entry-contents-start-idx* (point-marker))
+
+      (setq dired-buffer-name (cpio-dired-buffer-name (buffer-file-name))))
     ;; 6. Mark the contents buffer as unmodified.
     (set-buffer-modified-p nil)
     ;; 6a. But mark the entry in the archive modified.
     (cpio-set-entry-modified entry)
     ;; 7. Update the dired-like interface.
-    (with-current-buffer *cab-parent*
-	(cpio-present-ala-dired (current-buffer)))))
+    (with-current-buffer dired-buffer-name
+      (save-excursion
+	(cpio-dired-goto-entry name)
+	(with-writable-buffer
+	 (delete-region (line-beginning-position) (line-end-position))
+	 (insert (cpio-dired-format-entry attrs)))))
+    (message "Saved into cpio archive buffer `%s'.  Be sure to save that buffer!"
+             (file-name-nondirectory (buffer-file-name *cab-parent*)))))
+
+(defun cpio-entry-contents-buffer-p ()
+  "Return non-NIL if the current buffer is an entry contents buffer."
+  (let ((fname "cpio-entry-contents-buffer-p")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (member 'cpio-entry-contents-mode (current-minor-modes))
+    ))
 
 (defun cpio-entry-contents-kill (&optional buffer-or-name)
   "Kill the buffer specified by BUFFER-OR-NAME.
@@ -186,6 +200,21 @@ A name denotes the name of an entry in the cpio archive."
 	     (yes-or-no-p "Buffer is modified. Really kill? "))
 	(kill-buffer buffer))))
 
+(defun cpio-entry-contents-revert-buffer ()
+  "Discard any changes to the current CPIO archive entry and
+reload the [current] entry contents."
+  (interactive)
+  (let ((fname "cpio-entry-contents-revert-buffer")
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (unless (cpio-entry-contents-buffer-p)
+      (error "%s(): You're not in an entry contetnts buffer." fname))
+    (with-writable-buffer
+     (erase-buffer)
+     (cpio-find-entry cpio-entry-name)
+     (set-auto-mode 'keep-mode-if-same))
+    ))
+
 
 ;; 
 ;; Mode definition (IF APPROPRIATE)
@@ -198,6 +227,7 @@ A name denotes the name of an entry in the cpio archive."
   (let ((fname "cpio-entry-contents-make-keymap"))
     (define-key *cpio-entry-contents-mode-map* "\C-x\C-s" 'cpio-entry-contents-save)
     (define-key *cpio-entry-contents-mode-map* "\C-x\C-k" 'cpio-entry-contents-kill)
+    ;; HEREHERE Does the following make sense any more?
     (define-key *cpio-entry-contents-mode-map* "\M-,"     'cpio-tags-loop-continue)))
 
 (define-minor-mode cpio-entry-contents-mode
@@ -206,7 +236,30 @@ This mode is automatically invoked when the contents of a cpio entry are
 prepared for editing."
   nil
   " entry contents"
-  :keymap *cpio-entry-contents-mode-map* :global nil)
+  :keymap *cpio-entry-contents-mode-map*
+  :global nil
+  :lighter "(cpio entry)"
+  ;; Major modes kill local variables.
+  ;; Keep the ones we need for cpio entry contents.
+  (let ((cab-parent *cab-parent*)
+	(entry-name cpio-entry-name)
+	(attrs (cpio-entry-attrs cpio-entry-name))
+	(local-buffer-file-name buffer-file-name)
+	)
+    ;; For some reason (decode-coding-region) seems to need a writable buffer.
+    ;; (with-writable-buffer
+    ;;  (decode-coding-region (cpio-entry-contents-start (cpio-entry entry-name))
+    ;; 			(cpio-entry-contents-end (cpio-entry entry-name))
+    ;; 			nil)))
+    ;; (point-min) (point-max) nil)
+    ;; (set-buffer-file-coding-system last-coding-system-used t)
+
+    ;; (normal-mode)
+    (set-auto-mode 'keep-mode-if-same)
+    (setq *cab-parent* cab-parent)
+    (setq cpio-entry-name entry-name)
+    (setq buffer-file-name local-buffer-file-name)
+    (setq cpio-entry-contents-mode t)))
 
 (cpio-entry-contents-make-keymap)
 

@@ -1,5 +1,5 @@
 # -*- mode: org; encoding: utf-8 -*-
-#	$Id: README,v 1.7 2018/06/16 02:08:25 doug Exp $	
+#	$Id: README,v 1.8 2018/11/19 21:25:37 doug Exp $	
 
 
 * Intent
@@ -125,23 +125,27 @@ cpio-mode includes a few ERT tests.
 All the testing is sunny day day testing.
 Rarely are any error conditions tested.
 
-cpio-generic-tests.el provides basic testing of some of the funciton
-implemented in cpio-generic.el.
+For any testing to succeed set your umask to 022,
+otherwise all of the data in the tests are incorrect.
 
-cpio-modes-test.el provides basic testing of some of the function
-implemented in cpio-modes.el.
+- cpio-generic-tests.el provides basic testing of some of the funciton
+  implemented in cpio-generic.el.
 
-cab-test.el provides basic testing of cpio-affiliated-buffers.el.
-(Yes, cpio-affiliated-buffers.el still has bugs.)
+- cpio-modes-test.el provides basic testing of some of the function
+  implemented in cpio-modes.el.
 
-cpio-newc-test.el provides basic testing of some of the function
-implemented in cpio-newc.el.
+- cab-test.el provides basic testing of cpio-affiliated-buffers.el.
+  (Yes, cpio-affiliated-buffers.el still has bugs.)
+
+- cpio-newc-test.el provides basic testing of some of the function
+  implemented in cpio-newc.el.
 
 The following files contain tests that exercise cpio function
 through the dired-style interface.
-    * cpio-dired-test.el -- tests of the newc format.
+    * cpio-dired-bin-test.el
     * cpio-dired-crc-test.el
     * cpio-dired-odc-test.el
+    * cpio-dired-test.el -- tests of the newc format.
 
 The general form of a check is the following:
     1. Do something.
