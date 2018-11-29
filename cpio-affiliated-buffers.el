@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other.
-;	$Id: cpio-affiliated-buffers.el,v 1.8 2018/11/19 21:25:38 doug Exp $	
+;	$Id: cpio-affiliated-buffers.el,v 1.9 2018/11/29 01:57:14 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -38,7 +38,6 @@
 ;; and killing the archive's buffer kills
 ;; all remaining affiliated buffers.
 ;; 
-;; HEREHERE (Well, that's the intent. It doesn't seem to work correctly yet.)
 
 ;;; Documentation:
 
@@ -66,18 +65,15 @@
 ;; (cab-deregister (&optional buffer))
 ;;     Kill BUFFER and its subordinates.
 ;;     Deregister BUFFER with its parent.
-;;     HEREHERE This doesn't seem to do what it's supposed to.
 ;; (cab-simple-deregister (buffer))
 ;;     The internal function for (cab-deregister).
 ;;     Don't use this directly.
-;;     HEREHERE Again, this doesn't look like it does the right thing.
 ;; (cab-clean)
 ;;     A temporary function for development
 ;;     that should more forcefully enforce the intent of (cab-deregister).
 
-
 ;; The following incantation should run the tests well.
-;; emacs -quick --fullheight --debug-init --load cab-test.el --eval '(ert t)'&
+;; emacs -batch -l ert -l cab-test.el -f ert-run-tests-batch-and-exit
 
 ;;; Code:
 
@@ -103,8 +99,7 @@
 	 (b7 (find-file-noselect "bb7"))
 	 (b8 (find-file-noselect "bb8"))
 	 (b9 (find-file-noselect "bb9"))
-	 (parent b0)
-	 )
+	 (parent b0))
     (mapc (lambda (b)
 	    (cab-register b parent)
 	    (setq parent b))
@@ -116,36 +111,36 @@
 (defvar *cab-info-buffer* (get-buffer-create "*cab info*")
   "A buffer for holding information about affiliated buffers.")
 
-(defun cab-test-kill-buffer-hook ()
+(defun OBS-cab-test-kill-buffer-hook ()
   "Hook to run when killing a buffer.
 The intent is to glean information about any buffers
 that cpio-mode might be using
 that are affiliated with each other."
   (let ((fname "cab-test-kill-buffer-hook")
 	(buf (current-buffer)))
-    ;; (error "%s() is not yet implemented" fname)
-    (with-current-buffer *cab-info-buffer*
-      (goto-char (point-max))
-      (insert (format "Killing buffer [[%s]].
+    (unless (string-match "\\` " (buffer-name (current-buffer)))
+      (with-current-buffer *cab-info-buffer*
+	(goto-char (point-max))
+	(insert (format "\n\nKilling buffer [[%s]].
     It has parent [[%s]].
-    It has subordinates [[%s]].
 "
-		      (buffer-name buf)
-		      (if *cab-parent*
-			  (buffer-name *cab-parent*)
-			"nil")
-		      (with-current-buffer buf
-			*cab-subordinates*))))))
-
-(add-hook 'kill-buffer-hook 'cab-test-kill-buffer-hook)
-
-(defun cab-test-register-buffer-hook ( buffer parent )
+			(buffer-name buf)
+			(if *cab-parent*
+			    (buffer-name *cab-parent*)
+			  "nil")))
+	(cond ((with-current-buffer buf *cab-subordinates*)
+	       (insert "    It has subordinates:\n")
+	       (mapc (lambda (b)
+		       (insert (format "        [[%s]]\n" b)))
+		     (with-current-buffer buf
+		       *cab-subordinates*)))
+	      (t (insert "    No subordinates.\n")))))))
+  
+(defun OBS-cab-test-register-buffer-hook ( buffer parent )
   "Record some information about the registration of a BUFFER
 as an affiliated buffer.
 It's not strictly a hook, but it pairs with the above kill-buffer-hook."
-  (let ((fname "cab-test-register-buffer-hook")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cab-test-register-buffer-hook"))
     (with-current-buffer *cab-info-buffer*
       (goto-char (point-max))
       (insert (format "Registering [[%s]] with [[%s]] as its parent.\n"
@@ -155,8 +150,7 @@ It's not strictly a hook, but it pairs with the above kill-buffer-hook."
       (mapc (lambda (b)
 	      (insert (format "        [[%s]]\n" (buffer-name b))))
 	    (with-current-buffer parent
-	      *cab-subordinates*)))
-    ))
+	      *cab-subordinates*)))))
 
 (defcustom cab-clear-cab-info-buffer nil
   "Clear the Affiliated Info Buffer if set."
@@ -209,40 +203,22 @@ Return NIL if buffer is already affiliated to another parent."
 
     (cond ((cab-registered-p buffer parent)
 	   t)
-	  ((with-current-buffer buffer *cab-parent*)
+	  ((with-current-buffer buffer
+	     (and (boundp '*cab-parent*)
+		  (buffer-live-p *cab-parent*)))
 	   nil)
 	  (t
-	   (unless (cab-registered-p buffer parent) ;HEREHERE This looks redundant.
-	     (with-current-buffer parent
-	       (push buffer *cab-subordinates*)
-	       (make-local-variable 'kill-buffer-hook)
-	       (add-hook 'kill-buffer-hook 'cab-kill-buffer-hook)
-	       
-	       ;; kill-buffer-hook
-	       ;; (with-current-buffer "cpio.el" kill-buffer-hook)
-	       
-	       (local-set-key "\C-x\C-k" 'cab-deregister))
-	     
-	     (with-current-buffer buffer
-	       (cond ((null *cab-parent*)
-		      (setq *cab-parent* parent)
-		      (make-local-variable 'kill-buffer-hook)
-		      (add-hook 'kill-buffer-hook 'cab-kill-buffer-hook)
-		      
-		      ;; kill-buffer-hook
-		      ;; (with-current-buffer "cpio.el" kill-buffer-hook)
-		      
-		      (local-set-key "\C-x\C-k" 'cab-deregister))
-		     (t t))))
-	   ;; HEREHERE Remove this hook before publishing cpio-mode.
-	   (cab-test-register-buffer-hook buffer parent)
-	   ))))
+	   (with-current-buffer buffer
+	     (setq *cab-parent* parent)
+	     (local-set-key "\C-x\C-k" (lambda () (cab-deregister buffer))))
+	   (with-current-buffer parent
+	     (push buffer *cab-subordinates*)
+	     (add-hook 'kill-buffer-hook 'cab-kill-buffer-hook nil 'local)
+	     (local-set-key "\C-x\C-k" (lambda () (cab-deregister parent))))))))
   
 (defun cab-detect-parenthood-cycle (buffer parent)
   "Return non-NIL if affiliating BUFFER with PARENT would create a parenthood cycle."
-  (let ((fname "cab-detect-parenthood-cycle")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cab-detect-parenthood-cycle"))
     (with-current-buffer parent
       (catch 'detected
 	(while parent
@@ -252,8 +228,7 @@ Return NIL if buffer is already affiliated to another parent."
 		  ((null *cab-parent*)
 		   (setq parent *cab-parent*))
 		  (t
-		   (setq parent *cab-parent*)))))))
-    ))
+		   (setq parent *cab-parent*)))))))))
 
 (defun cab-registered-p (buffer parent)
   "Return non-NIL if BUFFER is already registered to PARENT.
@@ -273,19 +248,28 @@ CONTRACT: BUFFER and PARENT are buffers."
 	     (member buffer *cab-subordinates*))))))
 
 (defun cab-kill-buffer-hook ()
-  "Deregister the current buffer when it is killed."
-  (let ((fname "cab-kill-buffer-hook"))
+  "Kill the current buffer and remove any affiliation (parent or subordinate)."
+  (let ((fname "cab-kill-buffer-hook")
+	(buffer (current-buffer)))
     (cond ((buffer-live-p (current-buffer))
 	   ;; (message "    Deregistering subordinates: [[%s]]." *cab-subordinates*)
-	   (mapc 'cab-deregister *cab-subordinates*))
-	  (t nil))))
+	   (mapc (lambda (b)
+		   (if (buffer-live-p b)
+		       (with-current-buffer b
+			 (makunbound 'cab-parent))))
+		 *cab-subordinates*)
+	   (if (buffer-live-p *cab-parent*)
+	       (with-current-buffer *cab-parent*
+		 (delete buffer *cab-subordinates*))))
+	  (t t))))
 
-(defun cab-deregister (&optional buffer)
+(defun cab-deregister (buffer)
   "Deregister and kill BUFFER and all its subordinate buffers.
 Note that that will include their subordinates too.
-Remove its entry in its parent buffer."
+Remove its registry entry in its parent buffer.
+NOTE: Use this function instead of (kill-buffer)
+if you want to lose registry information."
   (interactive)
-  (unless buffer (setq buffer (current-buffer)))
   (let ((fname "cab-deregister")
 	(parent)
 	(subordinates))
@@ -293,21 +277,15 @@ Remove its entry in its parent buffer."
 	   (with-current-buffer buffer 
 	     (setq parent *cab-parent*)
 	     (setq subordinates *cab-subordinates*))
-	   (cond ((and parent
-		       (bufferp parent)
-		       (buffer-live-p parent)
-		       (cab-registered-p buffer parent))
-		  (mapc 'cab-deregister subordinates)
-		  ;; (message "    About to use parent: [[%s]]." parent)
-		  (with-current-buffer parent
-		    (setq *cab-subordinates* (delete buffer *cab-subordinates*)))
-		  (mapc 'cab-deregister *cab-subordinates*)
-		  (cond ((buffer-live-p buffer)
-			 (with-current-buffer buffer
-			   (remove-hook 'kill-buffer-hook 'cab-simple-deregister))
-			 (kill-buffer buffer))
-			(t t)))
-		 (t nil)))
+	   (mapc 'cab-deregister subordinates)
+	   (if (and parent
+		    (bufferp parent)
+		    (buffer-live-p parent)
+		    (cab-registered-p buffer parent))
+	       (with-current-buffer parent
+		 (setq *cab-subordinates* (delete buffer *cab-subordinates*))))
+	   (if (buffer-live-p buffer)
+	       (kill-buffer buffer)))
 	  (t nil))))
 
 (defun cab-simple-deregister (buffer)
@@ -331,6 +309,19 @@ CAVEAT: This function should disappear as affiliated buffer code stabilizes."
 	    (with-current-buffer b
 	      (if (boundp '*cab-subordinates*)
 		  (setq *cab-subordinates* (delete-duplicates *cab-subordinates*)))))
+	  (buffer-list))))
+
+(defun cab-clean-ruthlessly ()
+  "Get rid of all buffers that are affiliated with other buffers."
+  (let ((fname "cab-clean-2"))
+    (mapc (lambda (b)
+	    (if (buffer-live-p b)
+		(with-current-buffer b
+		  (if (or (and (boundp '*cab-parent*)
+			       *cab-parent*)
+			  (and (boundp '*cab-subordinates*)
+			       *cab-subordinates*))
+		      (cab-deregister b)))))
 	  (buffer-list))))
 
 

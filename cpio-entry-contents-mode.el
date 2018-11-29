@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.8 2018/11/19 21:25:38 doug Exp $	
+;	$Id: cpio-entry-contents-mode.el,v 1.9 2018/11/29 01:57:15 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -181,11 +181,8 @@ If NAME is not given, then use 'aa'."
 
 (defun cpio-entry-contents-buffer-p ()
   "Return non-NIL if the current buffer is an entry contents buffer."
-  (let ((fname "cpio-entry-contents-buffer-p")
-	)
-    ;; (error "%s() is not yet implemented" fname)
-    (member 'cpio-entry-contents-mode (current-minor-modes))
-    ))
+  (let ((fname "cpio-entry-contents-buffer-p"))
+    (member 'cpio-entry-contents-mode (current-minor-modes))))
 
 (defun cpio-entry-contents-kill (&optional buffer-or-name)
   "Kill the buffer specified by BUFFER-OR-NAME.
@@ -204,20 +201,17 @@ A name denotes the name of an entry in the cpio archive."
   "Discard any changes to the current CPIO archive entry and
 reload the [current] entry contents."
   (interactive)
-  (let ((fname "cpio-entry-contents-revert-buffer")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-entry-contents-revert-buffer"))
     (unless (cpio-entry-contents-buffer-p)
       (error "%s(): You're not in an entry contetnts buffer." fname))
     (with-writable-buffer
      (erase-buffer)
      (cpio-find-entry cpio-entry-name)
-     (set-auto-mode 'keep-mode-if-same))
-    ))
+     (set-auto-mode 'keep-mode-if-same))))
 
 
 ;; 
-;; Mode definition (IF APPROPRIATE)
+;; Mode definition
 ;; 
 (defvar *cpio-entry-contents-mode-map* (make-sparse-keymap)
   "Keymap for cpio-entry-contents-mode.")
@@ -244,8 +238,7 @@ prepared for editing."
   (let ((cab-parent *cab-parent*)
 	(entry-name cpio-entry-name)
 	(attrs (cpio-entry-attrs cpio-entry-name))
-	(local-buffer-file-name buffer-file-name)
-	)
+	(local-buffer-file-name buffer-file-name))
     ;; For some reason (decode-coding-region) seems to need a writable buffer.
     ;; (with-writable-buffer
     ;;  (decode-coding-region (cpio-entry-contents-start (cpio-entry entry-name))

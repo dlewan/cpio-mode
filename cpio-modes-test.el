@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes-test.el --- tests of the code in cpio-modes.el.
-;	$Id: cpio-modes-test.el,v 1.4 2018/06/26 15:57:50 doug Exp $	
+;	$Id: cpio-modes-test.el,v 1.5 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -27,9 +27,6 @@
 ;; Keywords: 
 
 ;;; Commentary:
-
-;; To run all the tests here try this:
-;; emacs -Q --load cpio-modes-test.el --eval '(ert t)'
 
 ;;; Documentation:
 
@@ -297,8 +294,15 @@
 	  test-data)))
 
 
-(ert "cm-")
+
 
+(unless noninteractive
+
+  (with-current-buffer *cab-info-buffer* (erase-buffer))
+
+  (ert "cm-")
+
+  (pop-to-buffer *cab-info-buffer*))
 
 
 (provide 'cpio-modes)

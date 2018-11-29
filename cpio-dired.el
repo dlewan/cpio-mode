@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired.el --- UI definition à la dired.
-;	$Id: cpio-dired.el,v 1.13 2018/11/19 21:22:43 doug Exp $	
+;	$Id: cpio-dired.el,v 1.14 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -519,7 +519,6 @@ Important: the match ends just after the marker.")
    ;;
    ;; Directory headers.
    ;;;; (list cpio-dired-subdir-regexp '(1 cpio-dired-header-face))
-   
    ))
 
 (defvar cpio-entry-name ()
@@ -710,7 +709,6 @@ Important: the match ends just after the marker.")
 (defun cpio-internal-do-deletions (l)
   "Delete the entries in the list L."
   (let ((fname "cpio-internal-do-deletions"))
-    ;; HEREHERE Debug this.
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
 	  (cpio-internal-do-deletions l))
@@ -880,7 +878,6 @@ CONTRACT:
 			    ;; ((string-equal operation "Symlink") )
 			    (t (error "%s() called with unknown operation [[%s]]." fname operation))))
 	   (entry-name))
-      ;;(error "%s(): is not yet implemented." fname)
       (save-excursion
 	(goto-char (point-min))
 	(while (re-search-forward *cpio-dired-entry-regexp* (point-max) t)
@@ -992,9 +989,7 @@ The line does not include a trailing <new line>."
 
 (defun cpio-dired-get-mark (&optional entry-name)
   "Get the mark, a character, on ENTRY-NAME."
-  (let ((fname "cpio-dired-get-mark")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-dired-get-mark"))
     (unless (eq major-mode 'cpio-dired-mode)
       (error "%s(): only makes sense in a cpio-dired buffer." fname))
     (unless entry-name
@@ -1002,8 +997,7 @@ The line does not include a trailing <new line>."
     (save-excursion
       (cpio-dired-goto-entry entry-name)
       (string-to-char (buffer-substring (line-beginning-position) 
-					(1+ (line-beginning-position)))))
-    ))
+					(1+ (line-beginning-position)))))))
 
 
 ;;
@@ -1901,9 +1895,7 @@ See function `dired-do-rename-regexp' for more info."
 	(time-re)
 	(human-time)
 	(time)
-	(entry-name)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(entry-name))
     (cond ((= (length entries) 0)
 	   (error "%s(): No cpio archive entries found." fname))
 	  ((or (> arg 1)
@@ -2129,6 +2121,8 @@ along with it's corresponding archive buffer
 and any affiliated buffers thereof."
   (interactive)
   (let ((fname "cpio-dired-kill"))
+    (unless (eq major-mode 'cpio-dired-mode)
+      (error "%s(): You're trying to kill a cpio buffer, but you're not in cpio-mode." fname))
     (if *cab-parent*
 	(cond ((buffer-live-p *cab-parent*)
 	       (if (and (called-interactively-p 'interactive)
@@ -2136,7 +2130,9 @@ and any affiliated buffers thereof."
 		   (if (y-or-n-p "You've made changes to the archive. Save first? ")
 		       (cpio-dired-save-archive)))
 	       (with-current-buffer *cab-parent*
+		 (remove-hook 'kill-buffer-hook 'cab-kill-buffer-hook)
 		 (kill-buffer))
+	       (remove-hook 'kill-buffer-hook 'cab-kill-buffer-hook)
 	       (kill-buffer))
 	      (t
 	       (warn "%s(): Archive buffer [[%s]] is not there." fname (file-name-nondirectory (buffer-file-name *cab-parent*)))
@@ -2921,14 +2917,12 @@ If ARG is the atom `-', scroll upward by nearly full screen."
   "Toggle visibility of detailed information in current Dired buffer.
 When this minor mode is enabled, details such as file ownership and
 permissions are hidden from view."
-  (let ((fname "cpio-dired-hide-details-mode")
-	)
-    (error "%s() is not yet implemented" fname)
-    ))
+  (let ((fname "cpio-dired-hide-details-mode"))
+    (error "%s() is not yet implemented" fname)))
 
 
 ;; 
-;; mode definition (IF APPROPRIATE)
+;; mode definition
 ;; 
 (defvar *cpio-dired-have-made-keymap* nil)
 
@@ -3238,9 +3232,7 @@ permissions are hidden from view."
       (define-key cpio-dired-mode-map (kbd "C-x k") 'cpio-dired-kill) ;✓
       ;; C-x C-s -- save the archive form the cpio-dired-buffer.
       (define-key cpio-dired-mode-map (kbd "C-x C-s") 'cpio-dired-save-archive) ;✓
-      ;; HEREHERE Uncomment this after development
-      ;; (setq *cpio-have-made-keymap)
-      )))
+      (setq *cpio-have-made-keymap))))
 
 (cpio-dired-make-keymap)
 

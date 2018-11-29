@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.10 2018/06/26 14:19:23 doug Exp $	
+;	$Id: cpio-odc.el,v 1.11 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -77,6 +77,9 @@
 ;; 
 ;; Vars
 ;; 
+
+(defconst *cpio-odc-header-length* (length "0707070000000000000000000000000000000000010000000000000000000001300000000000")
+  "The length of an odc header.")
 
 ;; MAINTENANCE The following must remain in synch with *cpio-odc-header-re*.
 ;;     magic	070707		\\(070707\\)
@@ -356,8 +359,7 @@ This function does NOT get the contents."
 		    0			;rdev-min
 		    (setq namesize (cpio-odc-parse-namesize header-string))
 		    0			;checksum
-		    (cpio-odc-parse-name     header-string namesize)
-		    )))
+		    (cpio-odc-parse-name     header-string namesize))))
     (if (cpio-entry-name result)
 	result
       nil)))

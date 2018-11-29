@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile.in,v 1.7 2018/11/19 21:25:37 doug Exp $	
+#	$Id: Makefile.in,v 1.8 2018/11/29 01:57:14 doug Exp $	
 
 # 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018 
@@ -50,6 +50,7 @@ APP_FILES	=	cpio-bin.el			\
 ELC_FILES	=	${EL_FILES:.el=.elc}
 
 TEST_FILES	=	cab-test.el			\
+			cpio-modes-test.el		\
 			cpio-dired-crc-test.el		\
 			cpio-dired-odc-test.el		\
 			cpio-dired-test.el		\
@@ -184,7 +185,7 @@ check_gnu:
 
 .PHONY: check check_cab installcheck
 check:
-	for f in ${TEST_FILES} ; do 								\
+	@for f in ${TEST_FILES} ; do 								\
 		echo "################################################################" ; 	\
 		echo "# " 								; 	\
 		echo "# Running tests in $${f}." 					; 	\
@@ -199,6 +200,60 @@ check:
 
 check_cab:
 	emacs -batch -Q -l ert -l cab-test.el -f ert-run-tests-batch-and-exit
+
+check_bin:
+	@f="cpio-dired-bin-test.el" ; 							\
+	echo "################################################################" ; 	\
+	echo "# " 								; 	\
+	echo "# Running tests in $${f}." 					; 	\
+	echo "# " 								; 	\
+	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
+	echo "# " 								; 	\
+	echo "# EO tests in $${f}." 						; 	\
+	echo "# " 								; 	\
+	echo "################################################################" ; 	\
+	echo ; echo ; echo  							;	\
+
+check_crc:
+	@f="cpio-dired-crc-test.el" ; 							\
+	echo "################################################################" ; 	\
+	echo "# " 								; 	\
+	echo "# Running tests in $${f}." 					; 	\
+	echo "# " 								; 	\
+	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
+	echo "# " 								; 	\
+	echo "# EO tests in $${f}." 						; 	\
+	echo "# " 								; 	\
+	echo "################################################################" ; 	\
+	echo ; echo ; echo  							;	\
+
+check_newc:
+	@f="cpio-dired-test.el" ; 							\
+	echo "################################################################" ; 	\
+	echo "# " 								; 	\
+	echo "# Running tests in $${f}." 					; 	\
+	echo "# " 								; 	\
+	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
+	echo "# " 								; 	\
+	echo "# EO tests in $${f}." 						; 	\
+	echo "# " 								; 	\
+	echo "################################################################" ; 	\
+	echo ; echo ; echo  							;	\
+
+check_odc:
+	@f="cpio-dired-odc-test.el" ; 							\
+	echo "################################################################" ; 	\
+	echo "# " 								; 	\
+	echo "# Running tests in $${f}." 					; 	\
+	echo "# " 								; 	\
+	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
+	echo "# " 								; 	\
+	echo "# EO tests in $${f}." 						; 	\
+	echo "# " 								; 	\
+	echo "################################################################" ; 	\
+	echo ; echo ; echo  							;	\
+
+
 
 installcheck: check
 

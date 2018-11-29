@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic-tests.el --- tests of cpio-generic.el
-;	$Id: cpio-generic-tests.el,v 1.3 2018/06/16 18:01:36 doug Exp $	
+;	$Id: cpio-generic-tests.el,v 1.4 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -64,7 +64,13 @@
 ;; Run tests.
 ;; 
 
-(ert "^cpio-generic-drwx-test$")
+(unless noninteractive
+
+  (with-current-buffer *cab-info-buffer* (erase-buffer))
+
+  (ert "^cpio-generic-drwx-test$")
+
+  (pop-to-buffer *cab-info-buffer*))
 
 
 (provide 'cpio-generic-test)

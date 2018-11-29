@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-bin.el --- handle bin cpio entry header formats
-;	$Id: cpio-bin.el,v 1.10 2018/06/26 15:57:50 doug Exp $	
+;	$Id: cpio-bin.el,v 1.11 2018/11/29 01:57:14 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -62,6 +62,9 @@
 ;; 
 ;; Vars
 ;; 
+
+(defconst *cpio-bin-header-length* (length (string-as-unibyte "\307q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"))
+  "The length of a bin header.")
 
 ;; \307q\0\375c\9\244\201\350\3\350\3\1\0\0\0\377Z\320q\2\0\0\0\4\0a\0
 ;; \307q \0\375 c\9 \244\201 \350\3 \350\3 \1\0 \0\0 \377Z\320q \2\0 \0\0\4\0 a\0
@@ -227,14 +230,11 @@ The function does NOT get the contents of that entry."
 	(mtime)
 	(filesize)
 	(result)
-	(entry-name)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(entry-name))
     (setq header-info (bindat-unpack cpio-bin-index-spec
 				     header-string))
     (setq mtime (list (bindat-get-field header-info :mtime0)
 		      (bindat-get-field header-info :mtime1)))
-    ;; (current-time-string mtime)
     (setq filesize (+ (* 256 256 (bindat-get-field header-info :filesize0))
 		      (bindat-get-field header-info :filesize1)))
     (cond ((string-equal (setq entry-name (bindat-get-field header-info :filename))
@@ -261,8 +261,7 @@ The function does NOT get the contents of that entry."
 		    entry-name))
 	   (if (cpio-entry-name result)
 	       result
-	     nil)))
-    ))
+	     nil)))))
 
 (defun cpio-bin-header-size (header-string namesize)
   "Determine the length of the header implied by the given HEADER-STRING."
@@ -308,15 +307,8 @@ This function does NOT include the contents."
 			(cons :filesize1 (cdr  filesize))
 			(cons :filename  (concat name "\0")))))
     (setq header-string (cg-pad-right header-string (cg-round-up (length header-string)
-							   *cpio-bin-padding-modulus*)
-				   "\0"))
-    ;; (setq header-string (cg-pad-right header-string (cg-round-up (length header-string) *cpio-bin-padding-modulus*) "\0"))
-    ;; Check (at least during development).
-    ;; (if (string-match-p *cpio-bin-header-re* header-string)
-    ;;	header-string
-    ;; (error "%s(): I built a bad header: [[%s]]" fname header-string))))
-    ))
-
+								 *cpio-bin-padding-modulus*)
+				   "\0"))))
 
 (defun cpio-bin-make-magic (attrs)
   "Return the BIN magic header string"
@@ -331,25 +323,21 @@ This function does NOT include the contents."
 (defun cpio-bin-make-mode (attrs)
   "Return a string value for the mode from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-mode"))
-    ;; (error "%s() is not yet implemented." fname)
     (cpio-mode-value attrs)))
 
 (defun cpio-bin-make-uid (attrs)
   "Return an integer string value for the UID from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-uid"))
-    ;; (error "%s() is not yet implemented." fname)
     (cpio-uid attrs)))
 
 (defun cpio-bin-make-gid (attrs)
   "Return an integer string value for the GID from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-gid"))
-    ;; (error "%s() is not yet implemented." fname)
     (cpio-gid attrs)))
 
 (defun cpio-bin-make-nlink (attrs)
   "Return an integer string value for the number of links from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-nlink"))
-    ;; (error "%s() is not yet implemented." fname)
     (cpio-nlink attrs)))
 
 (defun cpio-bin-make-mtime (attrs)
@@ -357,24 +345,19 @@ This function does NOT include the contents."
   (let* ((fname "cpio-bin-make-mtime")
 	 (mod-time (cpio-mtime attrs))
 	 (high-time (car mod-time))
-	 (low-time (cadr mod-time))
-	 )
-    ;;(error "%s() is not yet implemented." fname)
+	 (low-time (cadr mod-time)))
     (cons high-time low-time)))
 
 (defun cpio-bin-make-filesize (attrs)
   "Return an 8 digit hex string for the filesize attribute among the given ATTRs."
   (let ((fname "cpio-bin-make-filesize")
-	(filesize (cpio-entry-size attrs))
-	)
-    ;; (error "%s() is not yet implemented." fname)
+	(filesize (cpio-entry-size attrs)))
     (cons (lsh (logand #xFFFF0000 filesize) 8)
 	       (logand #xFFFF filesize))))
 
 (defun cpio-bin-make-dev-maj (attrs)
   "Return a string value for the major device from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-dev-maj"))
-    ;; (error "%s() is not yet implemented." fname)
     (cpio-dev-maj attrs)))
 
 (defun cpio-bin-make-dev-min (attrs)
@@ -385,7 +368,6 @@ This function does NOT include the contents."
 (defun cpio-bin-make-rdev-maj (attrs)
   "Return a string value for the major rdev from the file attributes ATTRS."
   (let ((fname "cpio-bin-make-rdev-maj"))
-    ;; (error "%s() is not yet implemented." fname)
     (cpio-rdev-maj attrs)))
 
 (defun cpio-bin-make-rdev-min (attrs)
@@ -537,11 +519,8 @@ once the TRAILER is written and padded."
 
 (defun cpio-bin-make-chcksum-for-file (filename)
   "Return the checksum for FILENAME."
-  (let ((fname "cpio-newc-make-chcksum-for-file")
-	)
-    ;; (error "%s() is not yet implemented" fname)
-    0
-    ))
+  (let ((fname "cpio-newc-make-chcksum-for-file"))
+    0))
 
 ;; 
 ;; Commands

@@ -1,4 +1,4 @@
-;	$Id: test-generic.el,v 1.2 2018/11/19 21:25:38 doug Exp $	
+;	$Id: test-generic.el,v 1.3 2018/11/29 01:57:16 doug Exp $	
 
 
 ;;
@@ -62,8 +62,7 @@ If MAKE is non-nil, then run 'make FORMAT' as part of the reset."
 		       (or (eq major-mode 'cpio-mode)
 			   (eq major-mode 'cpio-dired-mode)
 			   (member 'cpio-entry-contents-mode (current-minor-modes)))))
-		(with-current-buffer b
-		   (kill-buffer b))))
+	      (kill-buffer b)))
 	  (buffer-list))
 
 
@@ -228,15 +227,13 @@ Return the new string."
 	(substitutions (list (cons "\\[" "»")
 			     (cons "\\]" "«")
 			     (cons "\\\"" "¨"))))
-    ;; (error "%s() is not yet implemented" fname)
     (mapc (lambda (si)
 	    (let ((match       (car si))
 		  (replacement (cdr si)))
 	      (while (string-match match catalog-string)
 		(setq catalog-string (replace-match replacement nil t catalog-string)))))
 	  substitutions)
-    catalog-string
-    ))
+    catalog-string))
 
 (defun cdmt-test-save (format &optional large)
   "A generic test to run at the end of every test
@@ -305,9 +302,7 @@ In principal, FROM-STR can be a regular expression."
 	(expected-value)
 	(actual-buf (get-buffer-create "actual"))
 	(actual-value)
-	(line-no (1+ (count-lines (point-min) (point))))
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(line-no (1+ (count-lines (point-min) (point)))))
     (cond ((eq (current-buffer) expected-buf)
 	   (setq expected-value (buffer-substring (line-beginning-position) (line-end-position)))
 	   (set-buffer actual-buf)
@@ -333,9 +328,9 @@ In principal, FROM-STR can be a regular expression."
 	   (error "Mismatch at line %d." line-no)
 	  ;; This is a failure. Return it.
 	   nil))
-    (sit-for 1.0)
-    ))
+    (sit-for 1.0)))
 
+
 ;;
 ;; Hacks
 ;; 
@@ -349,7 +344,6 @@ Well, that's the intent, but, really, it's a hack."
 	(start -1)
 	(end -1)
 	(defun-end -1))
-    
     (cond ((re-search-forward " \\(cpio-newc\\(-[-[:alnum:]]+\\)\\)" (point-max))
 	   (setq cpio-function-name (match-string-no-properties 1))
 	   (setq cpio-function-definition 
@@ -411,9 +405,7 @@ Well, that's the intent, but, really, it's a hack."
   "(should (progn (message \"...\"))) --> (should (progn (message \"%s: ...\" test-name)))"
   (interactive)
   (let ((fname "update-checks")
-	(fill-pos (make-marker))
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(fill-pos (make-marker)))
     (while (re-search-forward "^\\s-+(should\\s-+(progn (message \"" (point-max) t)
       (set-marker fill-pos (match-end 0))
       (cond ((search-forward "\")" (line-end-position) t)
@@ -438,9 +430,7 @@ to grab temp- references in sub-directories."
 	(grep-parts)
 	(file)
 	(file-buf)
-	(line)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	(line))
     ;; (with-current-buffer temp-uses-buffer (erase-buffer))
     (mapc (lambda (d)
 	    (setq dir (concat "~/src/3rdParty/GNU/emacs/emacs-24.5/lisp/" d "/"))
@@ -465,8 +455,7 @@ to grab temp- references in sub-directories."
 		(setq func-text (buffer-substring (point) (mark))))
 	      (with-current-buffer temp-uses-buffer
 		(goto-char (point-max))
-		(insert func-text)))
-	    )
+		(insert func-text))))
 	  (list
 	   "calc"
 	   "celendar"
@@ -491,8 +480,7 @@ to grab temp- references in sub-directories."
 	   "term"
 	   "textmodes"
 	   "url"
-	   "vc"))
-    ))
+	   "vc"))))
 
 ;;
 ;; Hacks
@@ -528,9 +516,7 @@ NOTE: Only use this after the definitions of the generic variables."
 		   "odc"))
 	 (beginning)
 	 (end)
-	 (format-specific-name)
-	 )
-    ;; (error "%s() is not yet implemented" fname)
+	 (format-specific-name))
     (unless (string-match (regexp-opt formats) format)
       (error "%s(): Uknown format [[%s]]." fname format))
 
@@ -548,8 +534,7 @@ NOTE: Only use this after the definitions of the generic variables."
 	    ;; Now replace every thing else.
 	    (while (search-forward format-specific-name (point-max) t)
 	      (replace-match v-name nil nil format-specific-name)))
-	  cdmt-generic-vars)
-    ))
+	  cdmt-generic-vars)))
 
 (defvar cdmt-generic-funcs (list
 			    "cdmt-filter-archive-contents"
@@ -588,9 +573,7 @@ NOTE: Only use this after the definitions of the generic variables."
 		   "odc"))
 	 (beginning)
 	 (end)
-	 (format-specific-name)
-	)
-    ;; (error "%s() is not yet implemented" fname)
+	 (format-specific-name))
     (unless (string-match (regexp-opt formats) format)
       (error "%s(): Uknown format [[%s]]." fname format))
 
@@ -608,8 +591,7 @@ NOTE: Only use this after the definitions of the generic variables."
 	    ;; Now replace every thing else.
 	    (while (search-forward format-specific-name (point-max) t)
 	      (replace-match f-name)))
-	  cdmt-generic-funcs)
-    ))
+	  cdmt-generic-funcs)))
 
 (defun cdmt-ediff-results ()
   "Compare the results of a (string-match) on the current line in a buffer of ERT results.
@@ -652,3 +634,134 @@ The results are always presented as (string-match EXPECTED-RE ACTUAL) on that li
     ;; (switch-to-buffer "actual")
     
     (ediff-buffers "actual" "expected")))
+
+(defun aaa ()
+  "Narrow to the next 'Killing buffer' block,
+including any messages after the previous one."
+  (interactive)
+  (let ((fname "aaa")
+	(start -1)
+	(end -1))
+    (widen)
+    (end-of-line)
+    (cond ((re-search-forward "^\\(cdmt-\\|killing buffer \\)" (point-max) t)
+	   (setq start (match-beginning 0))
+	   (if (or (looking-at-p "killing buffer")
+		   (re-search-forward "^killing buffer " (point-max) t))
+	       (end-of-line))
+	   (if (re-search-forward "^[[:graph:]]" (point-max) t)
+	       (setq end (match-beginning 0))
+	     (setq end (point-max)))
+	   (narrow-to-region start end)
+	   (goto-char end))
+	  (t				;We're done.
+	   nil))))
+
+(defun cdmt-message (fmt &rest fills)
+  "Write a message to the *cab-info-buffer*."
+  (let ((fname "cdmt-message"))
+    (if noninteractive
+	(with-current-buffer *cab-info-buffer*
+	  (goto-char (point-max))
+	  (unless (bolp) (insert "\n"))
+	  (insert (apply 'format fmt fills))
+	  (unless (bolp) (insert "\n"))))))
+
+(defun cdmt-message (fmt &rest fills)
+  "A NOOP to replace the functional (cdmt-message)."
+  (let ((fname "cdmt-message"))))
+
+(defun cdmt-ensure-test-names ()
+  "Make sure every message after the point includes the test-name."
+  (interactive)
+  (let ((fname "aaa")
+	(message-func-name "cdmt-message")
+	(msg-end (make-marker)))
+    (while (search-forward (concat "(" message-func-name " ") (point-max) t)
+      (set-marker msg-end (line-end-position))
+      (skip-chars-forward "\" ")
+      (unless (looking-at-p "%s")
+	(insert "%s(): ")
+	(re-search-forward "\"[ )]" msg-end t)
+	(backward-char 1)
+	(insert " test-name")
+	(end-of-line)))))
+
+(defun mmm (test-name line-no)
+  "A little debugger to see if cpio-dired-test.el is still there."
+  (let ((fname "mmm"))
+    (catch 'avoid
+      (throw 'avoid t)
+      (cdmt-message "%s(): (%d)" test-name line-no) ;; (sit-for .1)
+      (mapc (lambda (b)
+	      (if (member b (buffer-list))
+		  (cdmt-message "... and %s is still there. (%d)." b line-no)
+		(cdmt-message "... BUT %s is GONE. (%d)." b line-no)
+		;; (sit-for 10.0)))
+		))
+	    buffers))))
+
+(defun move-mesages-outside ()
+  "Move (progn (message)s) outside of (should) (from this point on)."
+  (interactive)
+  (let ((fname "move-mesages-outside")
+	(start (make-marker))
+	(inner-end (make-marker))
+	(end (make-marker))
+	(limit (make-marker))
+	(last-parse-point (set-marker (make-marker) (point-min)))
+	(parse-data ())
+	(messages ""))
+    ;; Make sure the START marker doesn't move forward.
+    (set-marker-insertion-type start nil)
+    (save-match-data
+      ;; Look for the start of a sequence of messages inside a (should).
+      (while (re-search-forward "(should \\((progn (message\\)" (point-max) t)
+	;; Keep track of parsing.
+	(setq parse-data (parse-partial-sexp last-parse-point (point)))
+	(setq last-parse-point (match-beginning 0))
+	;; Keep track of where things matched.
+	(set-marker start (match-beginning 1))
+	;; Ignore things if you're inside a comment. (No sexps in comments.)
+	(unless (nth 4 parse-data)
+	  ;; Keep track of where the sexp for this match ends.
+	  (set-marker limit (save-excursion
+			      (goto-char (match-beginning 0))
+			      (forward-sexp)
+			      (point)))
+	  ;; Skip past any (message)s before LIMIT.
+	  (goto-char start)
+	  (while (re-search-forward "(message.+$" limit t)
+	    (set-marker end (1+ (match-end 0))))
+	  (set-marker end (point))
+	  ;; Save and delete those (message)s.
+	  (setq messages (buffer-substring start end))
+	  (delete-region start end)
+	  ;; Put them before the (should).
+	  ;; (This is where we care about the insertion type.)
+	  (goto-char start)
+	  (beginning-of-line)
+	  (open-line 1)
+	  (insert messages)
+	  ;; Indent to make emacs parsing happy.
+	  (indent-for-tab-command)
+	  (set-marker inner-end (point)) ;Keep track of the end of (message)s.
+	  (beginning-of-line)
+	  ;; Get rid of the initial '(progn '.
+	  (cond ((looking-at "\\s-*(progn ")
+		 (delete-region (point) (match-end 0))
+		 (indent-for-tab-command))
+		(t
+		 (error "%s(): Bad (messages) block at %d.\n"
+			fname (count-lines (point-min) (point)))))
+
+	  ;; skip over the (should) and...
+	  (goto-char inner-end)
+	  (forward-sexp)
+	  ;; ...delete the now extra closing paren.
+	  (if (looking-at ")")
+	      (delete-char 1)
+	    (error "%s(): No closing paren at %d?"
+		   fname (count-lines (point-min) (point))))))
+      ;; And do it all again.
+      )))

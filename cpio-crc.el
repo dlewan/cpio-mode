@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.12 2018/06/26 15:57:50 doug Exp $	
+;	$Id: cpio-crc.el,v 1.13 2018/11/29 01:57:14 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -81,6 +81,10 @@
 ;; 
 ;; Vars
 ;; 
+
+(defconst *cpio-crc-header-length* (length "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000")
+  "The length of a crc header.")
+
 
 ;; MAINTENANCE The following must remain in synch with *cpio-newc-header-re*.
 (defconst *cpio-crc-magic-re* "070702"
@@ -442,13 +446,10 @@ CAVEAT: This respects neither narrowing nor the point."
 
 (defun cpio-crc-make-chksum-for-file (filename)
   "Return the checksum for FILENAME."
-  (let ((fname "cpio-newc-make-chksum-for-file")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-newc-make-chksum-for-file"))
     (with-temp-buffer
       (insert-file-contents filename)
-      (cpio-crc-make-chksum (buffer-substring-no-properties (point-min) (point-max))))
-    ))
+      (cpio-crc-make-chksum (buffer-substring-no-properties (point-min) (point-max))))))
 
 
 ;; 

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-crc-test.el --- brief description
-;	$Id: cpio-dired-crc-test.el,v 1.10 2018/11/19 21:25:38 doug Exp $	
+;	$Id: cpio-dired-crc-test.el,v 1.11 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -889,185 +889,185 @@ TRAILER!!!	(( filename ))
 ")
 
 (defvar *cdmt-crc-untouched-catalog "((¨a¨ .
-\\s-+[[235538648 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538648 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 253 0 0 0 2 127 ¨a¨«
 \\s-+#<marker at 1 in alphabet_small.crc.cpio> #<marker at 113 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aa¨ .
-\\s-+[[235538674 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538674 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 253 0 0 0 3 224 ¨aa¨«
 \\s-+#<marker at 117 in alphabet_small.crc.cpio> #<marker at 233 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaa¨ .
-\\s-+[[235538688 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538688 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 253 0 0 0 4 321 ¨aaa¨«
 \\s-+#<marker at 241 in alphabet_small.crc.cpio> #<marker at 357 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaaa¨ .
-\\s-+[[235538691 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538691 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+7 253 0 0 0 5 418 ¨aaaa¨«
 \\s-+#<marker at 365 in alphabet_small.crc.cpio> #<marker at 481 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaaaa¨ .
-\\s-+[[235538692 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538692 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+8 253 0 0 0 6 515 ¨aaaaa¨«
 \\s-+#<marker at 489 in alphabet_small.crc.cpio> #<marker at 605 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaaaa.d¨ .
-\\s-+[[235538695 16877 1000 1000 2
-\\s-+(23268 65535)
+\\s-+[[235538695 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 253 0 0 0 8 0 ¨aaaaa.d¨«
 \\s-+#<marker at 613 in alphabet_small.crc.cpio> #<marker at 733 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨b¨ .
-\\s-+[[235538693 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538693 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 253 0 0 0 2 128 ¨b¨«
 \\s-+#<marker at 733 in alphabet_small.crc.cpio> #<marker at 845 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bb¨ .
-\\s-+[[235538694 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538694 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 253 0 0 0 3 226 ¨bb¨«
 \\s-+#<marker at 849 in alphabet_small.crc.cpio> #<marker at 965 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbb¨ .
-\\s-+[[235538696 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538696 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 253 0 0 0 4 324 ¨bbb¨«
 \\s-+#<marker at 973 in alphabet_small.crc.cpio> #<marker at 1089 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbbb¨ .
-\\s-+[[235538697 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538697 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+7 253 0 0 0 5 422 ¨bbbb¨«
 \\s-+#<marker at 1097 in alphabet_small.crc.cpio> #<marker at 1213 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbbbb¨ .
-\\s-+[[235538698 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538698 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+8 253 0 0 0 6 520 ¨bbbbb¨«
 \\s-+#<marker at 1221 in alphabet_small.crc.cpio> #<marker at 1337 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbbbb.d¨ .
-\\s-+[[235538701 16877 1000 1000 2
-\\s-+(23268 65535)
+\\s-+[[235538701 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 253 0 0 0 8 0 ¨bbbbb.d¨«
 \\s-+#<marker at 1345 in alphabet_small.crc.cpio> #<marker at 1465 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨c¨ .
-\\s-+[[235538699 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538699 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 253 0 0 0 2 129 ¨c¨«
 \\s-+#<marker at 1465 in alphabet_small.crc.cpio> #<marker at 1577 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨cc¨ .
-\\s-+[[235538700 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538700 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 253 0 0 0 3 228 ¨cc¨«
 \\s-+#<marker at 1581 in alphabet_small.crc.cpio> #<marker at 1697 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨ccc¨ .
-\\s-+[[235538702 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538702 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 253 0 0 0 4 327 ¨ccc¨«
 \\s-+#<marker at 1705 in alphabet_small.crc.cpio> #<marker at 1821 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨cccc¨ .
-\\s-+[[235538703 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538703 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+7 253 0 0 0 5 426 ¨cccc¨«
 \\s-+#<marker at 1829 in alphabet_small.crc.cpio> #<marker at 1945 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨ccccc¨ .
-\\s-+[[235538704 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538704 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+8 253 0 0 0 6 525 ¨ccccc¨«
 \\s-+#<marker at 1953 in alphabet_small.crc.cpio> #<marker at 2069 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨ccccc.d¨ .
-\\s-+[[235538707 16877 1000 1000 2
-\\s-+(23268 65535)
+\\s-+[[235538707 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 253 0 0 0 8 0 ¨ccccc.d¨«
 \\s-+#<marker at 2077 in alphabet_small.crc.cpio> #<marker at 2197 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«))
 "
   "An string representing an untouched catalog.")
 (setq *cdmt-crc-untouched-catalog "((¨a¨ .
-\\s-+[[235538648 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538648 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 253 0 0 0 2 127 ¨a¨«
 \\s-+#<marker at 1 in alphabet_small.crc.cpio> #<marker at 113 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aa¨ .
-\\s-+[[235538674 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538674 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 253 0 0 0 3 224 ¨aa¨«
 \\s-+#<marker at 117 in alphabet_small.crc.cpio> #<marker at 233 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaa¨ .
-\\s-+[[235538688 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538688 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 253 0 0 0 4 321 ¨aaa¨«
 \\s-+#<marker at 241 in alphabet_small.crc.cpio> #<marker at 357 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaaa¨ .
-\\s-+[[235538691 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538691 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+7 253 0 0 0 5 418 ¨aaaa¨«
 \\s-+#<marker at 365 in alphabet_small.crc.cpio> #<marker at 481 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaaaa¨ .
-\\s-+[[235538692 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538692 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+8 253 0 0 0 6 515 ¨aaaaa¨«
 \\s-+#<marker at 489 in alphabet_small.crc.cpio> #<marker at 605 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨aaaaa.d¨ .
-\\s-+[[235538695 16877 1000 1000 2
-\\s-+(23268 65535)
+\\s-+[[235538695 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 253 0 0 0 8 0 ¨aaaaa.d¨«
 \\s-+#<marker at 613 in alphabet_small.crc.cpio> #<marker at 733 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨b¨ .
-\\s-+[[235538693 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538693 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 253 0 0 0 2 128 ¨b¨«
 \\s-+#<marker at 733 in alphabet_small.crc.cpio> #<marker at 845 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bb¨ .
-\\s-+[[235538694 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538694 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 253 0 0 0 3 226 ¨bb¨«
 \\s-+#<marker at 849 in alphabet_small.crc.cpio> #<marker at 965 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbb¨ .
-\\s-+[[235538696 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538696 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 253 0 0 0 4 324 ¨bbb¨«
 \\s-+#<marker at 973 in alphabet_small.crc.cpio> #<marker at 1089 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbbb¨ .
-\\s-+[[235538697 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538697 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+7 253 0 0 0 5 422 ¨bbbb¨«
 \\s-+#<marker at 1097 in alphabet_small.crc.cpio> #<marker at 1213 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbbbb¨ .
-\\s-+[[235538698 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538698 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+8 253 0 0 0 6 520 ¨bbbbb¨«
 \\s-+#<marker at 1221 in alphabet_small.crc.cpio> #<marker at 1337 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨bbbbb.d¨ .
-\\s-+[[235538701 16877 1000 1000 2
-\\s-+(23268 65535)
+\\s-+[[235538701 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 253 0 0 0 8 0 ¨bbbbb.d¨«
 \\s-+#<marker at 1345 in alphabet_small.crc.cpio> #<marker at 1465 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨c¨ .
-\\s-+[[235538699 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538699 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 253 0 0 0 2 129 ¨c¨«
 \\s-+#<marker at 1465 in alphabet_small.crc.cpio> #<marker at 1577 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨cc¨ .
-\\s-+[[235538700 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538700 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 253 0 0 0 3 228 ¨cc¨«
 \\s-+#<marker at 1581 in alphabet_small.crc.cpio> #<marker at 1697 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨ccc¨ .
-\\s-+[[235538702 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538702 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 253 0 0 0 4 327 ¨ccc¨«
 \\s-+#<marker at 1705 in alphabet_small.crc.cpio> #<marker at 1821 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨cccc¨ .
-\\s-+[[235538703 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538703 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+7 253 0 0 0 5 426 ¨cccc¨«
 \\s-+#<marker at 1829 in alphabet_small.crc.cpio> #<marker at 1945 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨ccccc¨ .
-\\s-+[[235538704 33188 1000 1000 1
-\\s-+(23281 65535)
+\\s-+[[235538704 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+8 253 0 0 0 6 525 ¨ccccc¨«
 \\s-+#<marker at 1953 in alphabet_small.crc.cpio> #<marker at 2069 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
  (¨ccccc.d¨ .
-\\s-+[[235538707 16877 1000 1000 2
-\\s-+(23268 65535)
+\\s-+[[235538707 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 253 0 0 0 8 0 ¨ccccc.d¨«
 \\s-+#<marker at 2077 in alphabet_small.crc.cpio> #<marker at 2197 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«))
 ")
@@ -6789,14 +6789,15 @@ then the entry names will be incorrect."
         (cpio-archive-buffer-contents)
         (cpio-dired-buffer)
         (cpio-dired-buffer-contents))
+
     (cdmt-reset 'make)
 
     (cpio-dired-kill)
 
-    (should (progn (message "%s(): Dired style buffer should not be live." test-name)
-		   (not (buffer-live-p cpio-dired-buffer))))
-    (should (progn (message "%s(): Archive buffer should not be live." test-name)
-		   (not (buffer-live-p cpio-archive-buffer))))))
+    (message "%s(): Dired style buffer should not be live." test-name)
+    (should (not (buffer-live-p cpio-dired-buffer)))
+    (message "%s(): Archive buffer should not be live." test-name)
+    (should (not (buffer-live-p cpio-archive-buffer)))))
 
 (ert-deftest cdmt-crc-cpio-dired-do-isearch ()
   "Test cpio-dired-do-isearch.
@@ -8638,50 +8639,50 @@ cpio-dired-clean-directory is not yet implemented -- expect an error."
   (should-error (cpio-dired-copy-entry-name-as-kill 1)
 		:type 'error))
 
-(ert-deftest NOT-YET-cdmt-crc-cpio-dired-copy-entry-name-as-kill ()
-  "Test cpio-dired-copy-entry-name-as-kill.
-cpio-dired-copy-entry-name-as-kill is not yet implemented -- expect an error."
-  (let ((test-name "cdmt-crc-cpio-dired-copy-entry-name-as-kill")
-        (cpio-archive-buffer)
-        (cpio-archive-buffer-contents)
-        (cpio-dired-buffer)
-        (cpio-dired-buffer-contents)
-	(cpio-contents-buffer-name)
-	(cpio-contents-buffer)
-	(cpio-contents-buffer-string)
-	(cpio-contents-window)
-	(entry-name)
-	(current-kill-before)
-	(kill-ring-before)
-	(entry-names)
-	(interprogram-paste-function nil))
-    (cdmt-reset 'make)
-
-    (progn (setq current-kill-before (current-kill 0 'do-not-move))
-	   (cpio-dired-next-line 2)
-	   (push (cpio-dired-get-entry-name) entry-names)
-	   (cpio-dired-copy-entry-name-as-kill 1))
-
-    (while entry-names
-      (should (string-equal (current-kill 0) (pop entry-names)))
-      (current-kill 1))
-    ;; Use (equal) here because the kill ring could have been empty.
-    (should (equal (current-kill 0) current-kill-before))
-
-    (progn (cpio-dired-next-line 2)
-	   (cpio-dired-copy-entry-name-as-kill 4)
-	   (save-excursion
-	     (let ((i 0))
-	       (while (< i 4)
-		 (push (cpio-dired-get-entry-name) entry-names)
-		 (cpio-dired-next-line 1)
-		 (setq i (1+ i))))))
-
-    (while entry-names
-      (should (string-equal (current-kill 0) (pop entry-names)))
-      (current-kill 1))
-    ;; Use (equal) here because the kill ring could have been empty.
-    (should (equal (current-kill 0) current-kill-before))))
+;;;; (ert-deftest NOT-YET-cdmt-crc-cpio-dired-copy-entry-name-as-kill ()
+;;;;   "Test cpio-dired-copy-entry-name-as-kill.
+;;;; cpio-dired-copy-entry-name-as-kill is not yet implemented -- expect an error."
+;;;;   (let ((test-name "cdmt-crc-cpio-dired-copy-entry-name-as-kill")
+;;;;         (cpio-archive-buffer)
+;;;;         (cpio-archive-buffer-contents)
+;;;;         (cpio-dired-buffer)
+;;;;         (cpio-dired-buffer-contents)
+;;;; 	(cpio-contents-buffer-name)
+;;;; 	(cpio-contents-buffer)
+;;;; 	(cpio-contents-buffer-string)
+;;;; 	(cpio-contents-window)
+;;;; 	(entry-name)
+;;;; 	(current-kill-before)
+;;;; 	(kill-ring-before)
+;;;; 	(entry-names)
+;;;; 	(interprogram-paste-function nil))
+;;;;     (cdmt-reset 'make)
+;;;; 
+;;;;     (progn (setq current-kill-before (current-kill 0 'do-not-move))
+;;;; 	   (cpio-dired-next-line 2)
+;;;; 	   (push (cpio-dired-get-entry-name) entry-names)
+;;;; 	   (cpio-dired-copy-entry-name-as-kill 1))
+;;;; 
+;;;;     (while entry-names
+;;;;       (should (string-equal (current-kill 0) (pop entry-names)))
+;;;;       (current-kill 1))
+;;;;     ;; Use (equal) here because the kill ring could have been empty.
+;;;;     (should (equal (current-kill 0) current-kill-before))
+;;;; 
+;;;;     (progn (cpio-dired-next-line 2)
+;;;; 	   (cpio-dired-copy-entry-name-as-kill 4)
+;;;; 	   (save-excursion
+;;;; 	     (let ((i 0))
+;;;; 	       (while (< i 4)
+;;;; 		 (push (cpio-dired-get-entry-name) entry-names)
+;;;; 		 (cpio-dired-next-line 1)
+;;;; 		 (setq i (1+ i))))))
+;;;; 
+;;;;     (while entry-names
+;;;;       (should (string-equal (current-kill 0) (pop entry-names)))
+;;;;       (current-kill 1))
+;;;;     ;; Use (equal) here because the kill ring could have been empty.
+;;;;     (should (equal (current-kill 0) current-kill-before))))
 
 (ert-deftest cdmt-crc-cpio-dired-diff ()
   "Test cpio-dired-diff) ;.
@@ -8703,6 +8704,7 @@ cpio-dired-diff) ; is not yet implemented -- expect an error."
 	(cpio-catalog-contents-after)
 	(cpio-contents-window)
 	(entry-name))
+
     (cdmt-reset 'make)
 
     (set-buffer (setq cpio-dired-buffer (get-buffer (cpio-dired-buffer-name *cdmt-crc-small-archive*))))
@@ -8733,32 +8735,32 @@ cpio-dired-diff) ; is not yet implemented -- expect an error."
     (with-current-buffer cpio-dired-buffer
       ;;(should (and "Viewing an entry should not change the archive buffer."
       (should	   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
-      (should (progn (message "%s(): Viewing an entry should not change the dired-style buffer." test-name)
-		     (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-      (should (progn (message "%s(): The contents buffer should not be null." test-name)
-		     (not (null cpio-contents-buffer))))
-      (should (progn (message "%s(): The contents buffer should be live." test-name)
-		     (buffer-live-p cpio-contents-buffer)))
-      (should (progn (message "%s(): Check the entry's contents buffer." test-name)
-		     (string-equal cpio-contents-buffer-string "\naaa\n\n")))
-      (should (progn (message "%s(): The entry's contents' window should be live." test-name)
-		     (window-live-p cpio-contents-window)))
-      (should (progn (message "%s(): Expecting no change to the catalog." test-name)
-		     (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+      (message "%s(): Viewing an entry should not change the dired-style buffer." test-name)
+      (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+      (message "%s(): The contents buffer should not be null." test-name)
+      (should (not (null cpio-contents-buffer)))
+      (message "%s(): The contents buffer should be live." test-name)
+      (should (buffer-live-p cpio-contents-buffer))
+      (message "%s(): Check the entry's contents buffer." test-name)
+      (should (string-equal cpio-contents-buffer-string "\naaa\n\n"))
+      (message "%s(): The entry's contents' window should be live." test-name)
+      (should (window-live-p cpio-contents-window))
+      (message "%s(): Expecting no change to the catalog." test-name)
+      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (cdmt-reset)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (setq entry-name "ccc")
-	   (goto-char (point-min))
-	   (re-search-forward " ccc$" (point-max))
-	   (cpio-dired-display-entry)
+	   (cpio-dired-goto-entry entry-name)
+	   
+	   (setq cpio-contents-buffer (cpio-dired-display-entry))
 
 	   (with-current-buffer cpio-dired-buffer
-	     (setq cpio-contents-buffer (get-buffer (cpio-contents-buffer-name entry-name)))
-	     (setq cpio-contents-buffer-string (with-current-buffer cpio-contents-buffer
-						 (buffer-substring-no-properties (point-min)
-										 (point-max))))
+	     (setq cpio-contents-buffer-string
+		   (with-current-buffer cpio-contents-buffer
+		     (buffer-substring-no-properties (point-min)
+						     (point-max))))
 	     (setq cpio-contents-window (get-buffer-window cpio-contents-buffer))
 	     (setq cpio-archive-buffer-contents
 		   (cdmt-crc-filter-archive-contents
@@ -8770,16 +8772,16 @@ cpio-dired-diff) ; is not yet implemented -- expect an error."
 	     (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog))))
 
     (with-current-buffer cpio-dired-buffer
-      (should (progn (message "%s(): Checking the archive buffer." test-name)
-		     (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-      (should (progn (message "%s(): Checking the dired-style buffer." test-name)
-		     (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
+      (message "%s(): Checking the archive buffer." test-name)
+      (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+      (message "%s(): Checking the dired-style buffer." test-name)
+      (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
       (should (not (null cpio-contents-buffer)))
       (should (buffer-live-p cpio-contents-buffer))
       (should (string-equal cpio-contents-buffer-string "\nccc\n\n"))
       (should (window-live-p cpio-contents-window))
-      (should (progn (message "%s(): Expecting no change to the catalog." test-name)
-		     (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))))
+      (message "%s(): Expecting no change to the catalog." test-name)
+      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
 
 (ert-deftest cdmt-crc-cpio-dired-do-async-shell-command ()
   "Test cpio-dired-do-async-shell-command) ;.
@@ -8796,6 +8798,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -8810,10 +8813,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 		 (with-current-buffer cpio-dired-buffer
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
-    (should (progn (message "%s(): Expecting an unchanged archive. (8814)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting 'a' to have group 9999." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive. (8814)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting 'a' to have group 9999." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  9999        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -8833,10 +8836,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting entry »a« to have group 9999 in the catalog." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting entry »a« to have group 9999 in the catalog." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ 9999 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -8926,7 +8929,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-reset)
 
@@ -8942,10 +8945,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The archive buffer doesn't change until saving." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting the first 4 entries to have group 8888." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): The archive buffer doesn't change until saving." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting the first 4 entries to have group 8888." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  8888        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  8888        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -8965,10 +8968,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting the first four catalog entries to have group 8888." test-name)
-		   (string-match"((¨a¨ \.
+    (message "%s(): Expecting a catalog with the first 3 entries having group 8888." test-name)
+    (should (string-match"((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ 8888 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -9058,7 +9061,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-reset)
 
@@ -9075,10 +9078,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The archive is not changed until saved. (8894)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting \`...\' to have group 7777." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): The archive is not changed until saved. (8894)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting \`...\' to have group 7777." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -9098,10 +9101,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting \`...\' to have group 7777." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting \`...\' to have group 7777." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -9191,7 +9194,7 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -9219,8 +9222,8 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting the first entry to have mode -rwxr-xr-x." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting the first entry to have mode -rwxr-xr-x." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rwxr-xr-x   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -9240,9 +9243,10 @@ cpio-dired-do-async-shell-command) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting a mode of 0755 on the first entry." test-name)
-		   (string-equal "070702	(( magic    ))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting a mode of 0755 on the first entry." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -9573,10 +9577,10 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents)))
+" cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a mode of 0755 (33261) on the first entry." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting a mode of 0755 (33261) on the first entry." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -9666,7 +9670,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-line 2)
@@ -9681,9 +9685,9 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting aaa, aaaa, aaaaa to have mode -rw------." test-name)
-		   (message "%s(): Expecting aaaaa.d to have mode dr--------." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting aaa, aaaa, aaaaa to have mode -rw------." test-name)
+    (message "%s(): Expecting aaaaa.d to have mode dr--------." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rwxr-xr-x   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -9703,14 +9707,15 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (message "%s(): The archive is not modified until saving." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting aaa, aaaa, aaaaa to have mode 0100600 (33152)." test-name)
-		   (message "%s(): Expecting aaaaa.d to have mode 040600 (16768)." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (message "%s(): The archive is not modified until saving." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    
+    (message "%s(): Expecting aaa, aaaa, aaaaa to have mode 0100600 (33152)." test-name)
+    (message "%s(): Expecting aaaaa.d to have mode 040600 (16768)." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -9800,7 +9805,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-mark-entries-regexp "\\`...\\'")
@@ -9815,8 +9820,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting ... to have mode -rw-rw----." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting ... to have mode -rw-rw----." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rwxr-xr-x   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -9836,13 +9841,13 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an untouched archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): Expecting an untouched archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting ... to have mode 0100660 (33200)." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting ... to have mode 0100660 (33200)." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -9932,7 +9937,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-save-archive)
@@ -9945,12 +9950,12 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting all the above mode changes in the archive buffer." test-name)
-		   (message "%s(): • a has mode 0100755 (000081ED)." test-name)
-		   (message "%s(): • aaa, aaaa, aaaaa have mode 0100600 (00008180)." test-name)
-		   (message "%s(): • aaaaa.d has mode 040600 (00004180)." test-name)
-		   (message "%s(): • ... have mode 0660 (000081B0 for files or 000041B0 for directories)." test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting all the above mode changes in the archive buffer." test-name)
+    (message "%s(): • a has mode 0100755 (000081ED)." test-name)
+    (message "%s(): • aaa, aaaa, aaaaa have mode 0100600 (00008180)." test-name)
+    (message "%s(): • aaaaa.d has mode 040600 (00004180)." test-name)
+    (message "%s(): • ... have mode 0660 (000081B0 for files or 000041B0 for directories)." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081ED	(( mode     ))
 000003E8	(( uid      ))
@@ -10281,12 +10286,13 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting all the above mode changes in the dired buffer." test-name)
-		   (message "%s(): • a has mode -rwxr-xr-x" test-name)
-		   (message "%s(): • aaa, aaaa, aaaaa, aaaaa.d have mode -rw-r--r--" test-name)
-		   (message "%s(): • ... have mode -rw-rw----" test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting all the above mode changes in the dired buffer." test-name)
+    (message "%s(): • a has mode -rwxr-xr-x" test-name)
+    (message "%s(): • aaa, aaaa, aaaaa, aaaaa.d have mode -rw-r--r--" test-name)
+    (message "%s(): • ... have mode -rw-rw----" test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rwxr-xr-x   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -10306,15 +10312,15 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting all the above mode changes in the catalog." test-name)
-		   (message "%s(): • a has mode 33261." test-name)
-		   (message "%s(): • aaa, aaaa, aaaaa have mode 33152." test-name)
-		   (message "%s(): • aaaaa.d has mode 16768." test-name)
-		   (message "%s(): • ... have mode 33200 for files." test-name)
-		   (message "%s():                 16816 for directories." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting all the above mode changes in the catalog." test-name)
+    (message "%s(): • a has mode 33261." test-name)
+    (message "%s(): • aaa, aaaa, aaaaa have mode 33152." test-name)
+    (message "%s(): • aaaaa.d has mode 16768." test-name)
+    (message "%s(): • ... have mode 33200 for files." test-name)
+    (message "%s():                 16816 for directories." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33261 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -10404,7 +10410,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -10432,11 +10438,11 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The archive buffer is not modified until saved. (10741)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): The archive buffer is not modified until saved. (10741)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with the owner of 'a' being 9999." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting a cpio-dired buffer with the owner of 'a' being 9999." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  9999  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -10456,9 +10462,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): The owner of 'a' should be 9999." test-name)
-		   (string-match "((¨a¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): The owner of 'a' should be 9999." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 9999 [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -10548,7 +10555,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-reset)
 
@@ -10565,11 +10572,11 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The archive buffer is not modified until saved. (11111)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): The archive buffer is not modified until saved. (11111)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting 4 entries with owner 8888." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting 4 entries with owner 8888." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -10589,9 +10596,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting 4 catalog entries with owner 8888." test-name)
-		   (string-match "((¨a¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting 4 catalog entries with owner 8888." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -10681,7 +10689,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-reset)
 
@@ -10697,11 +10705,12 @@ TRAILER!!!	(( filename ))
 		 (with-current-buffer cpio-dired-buffer
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
-    (should (progn (message "%s(): The archive buffer is not modified until saved. (10818)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
 
-    (should (progn (message "%s(): Expecting \`...\' to be owned by 7777." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): The archive buffer is not modified until saved. (10818)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting \`...\' to be owned by 7777." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -10721,10 +10730,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting ... to be owned by 7777." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting ... to be owned by 7777." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -10814,19 +10823,20 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
 (ert-deftest cdmt-crc-cpio-dired-do-chown-1 ()
   "Test the change-owner-user function of M-x cpio-dired-do-chown."
-  (let ((test-name "cdmt-crc-cpio-dired-do-chown")
+  (let ((test-name "cdmt-crc-cpio-dired-do-chown-1")
         (cpio-archive-buffer)
         (cpio-archive-buffer-contents)
         (cpio-dired-buffer)
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -10841,11 +10851,11 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expect an untouched archive. (17974)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): Expect an untouched archive. (17974)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting entry 'a' to have owner 9999 and group 1111." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting entry 'a' to have owner 9999 and group 1111." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  9999  1111        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -10865,9 +10875,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting entry 'a' to have owner 9999 and group 1111." test-name)
-		   (string-match "((¨a¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting entry 'a' to have owner 9999 and group 1111." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 9999 1111 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -10957,7 +10968,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-reset)
 
@@ -10974,10 +10985,10 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched archive. (9918)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting 4 entries with owner 8888 and group 2222." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an untouched archive. (9918)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting 4 entries with owner 8888 and group 2222." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -10997,10 +11008,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting 4 entries with owner 8888 and group 2222." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting 4 entries with owner 8888 and group 2222." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -11090,7 +11101,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-reset)
 
@@ -11107,10 +11118,10 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched archive. (9958)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive*  cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting \`...\' to have owner 7777 and group 3333." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an untouched archive. (9958)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive*  cpio-archive-buffer-contents))
+    (message "%s(): Expecting \`...\' to have owner 7777 and group 3333." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -11130,10 +11141,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting ... to have owner 7777 and group 3333." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting ... to have owner 7777 and group 3333." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -11223,7 +11234,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -11257,8 +11268,8 @@ cpio-dired-do-compress is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Checking that entry »a« has been copied to »d«."  test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Checking that entry »a« has been copied to »d«."  test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -11592,9 +11603,10 @@ d	(( filename ))
 a
 
 
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Checking that there is an entry »d« in the dired style buffer." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Checking that there is an entry »d« in the dired style buffer." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -11615,10 +11627,10 @@ a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting to see an entry »d«." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting to see an entry »d«." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -11713,13 +11725,13 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨d¨«
 \\s-+#<marker at 2197 in alphabet_small\.crc\.cpio> #<marker at 2309 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
 (ert-deftest cdmt-crc-cpio-dired-do-copy-1 () ;✓
   "Test the function of M-x cpio-do-copy."
-  :expected-result :failed
+  ;; :expected-result :failed
   (let ((test-name "cdmt-crc-cpio-dired-do-copy")
         (cpio-archive-buffer)
         (cpio-archive-buffer-contents)
@@ -11743,21 +11755,396 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    ;; HEREHERE I think that this expected value is incorrect.
-    ;; It implies an archive with two entries
-    ;; whose padding does not end after a (mod ... *cpio-padding-modulus*) = 0
-    ;; character position.
-    ;; However, cpio(1GNU) seems to cope with it.
-    ;; Note the use of the term character position, since cpio counts characters
-    ;; starting at 0, while emacs starts counting (point) at 1.
-    (should (progn (message "%s(): Checking for »aaa«, »aaaa«, »aaaaa«, »aaaaa« copied to newDirectory in the archive." test-name)
-		   (message "%s():12168: [[%s]]." test-name "uNlIkElY")
-		   (message "%s():12169: [[%s]]." test-name cpio-archive-buffer-contents)
+    (message "%s(): Checking for »aaa«, »aaaa«, »aaaaa«, »aaaaa« copied to newDirectory in the archive." test-name)
+    (should (string-equal "070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000004	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000002	(( namesize ))
+0000007F	(( chksum   ))
+a	(( filename ))
 
-		   (string-equal "uNlIkElY" cpio-archive-buffer-contents)))
+a
 
-    (should (progn (message "%s(): Checking for the presence of »newDirectory/aaa«, »newDirectory/aaaa«, »newDirectory/aaaaa«, »newDirectory/aaaaa«." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000005	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000003	(( namesize ))
+000000E0	(( chksum   ))
+aa	(( filename ))
+\\0\\0\\0
+aa
+
+\\0\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000006	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000004	(( namesize ))
+00000141	(( chksum   ))
+aaa	(( filename ))
+\\0\\0
+aaa
+
+\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000007	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000005	(( namesize ))
+000001A2	(( chksum   ))
+aaaa	(( filename ))
+\\0
+aaaa
+
+\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000008	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000006	(( namesize ))
+00000203	(( chksum   ))
+aaaaa	(( filename ))
+
+aaaaa
+
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000041ED	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000002	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000000	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000008	(( namesize ))
+00000000	(( chksum   ))
+aaaaa.d	(( filename ))
+\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000004	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000002	(( namesize ))
+00000080	(( chksum   ))
+b	(( filename ))
+
+b
+
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000005	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000003	(( namesize ))
+000000E2	(( chksum   ))
+bb	(( filename ))
+\\0\\0\\0
+bb
+
+\\0\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000006	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000004	(( namesize ))
+00000144	(( chksum   ))
+bbb	(( filename ))
+\\0\\0
+bbb
+
+\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000007	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000005	(( namesize ))
+000001A6	(( chksum   ))
+bbbb	(( filename ))
+\\0
+bbbb
+
+\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000008	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000006	(( namesize ))
+00000208	(( chksum   ))
+bbbbb	(( filename ))
+
+bbbbb
+
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000041ED	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000002	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000000	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000008	(( namesize ))
+00000000	(( chksum   ))
+bbbbb.d	(( filename ))
+\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000004	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000002	(( namesize ))
+00000081	(( chksum   ))
+c	(( filename ))
+
+c
+
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000005	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000003	(( namesize ))
+000000E4	(( chksum   ))
+cc	(( filename ))
+\\0\\0\\0
+cc
+
+\\0\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000006	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000004	(( namesize ))
+00000147	(( chksum   ))
+ccc	(( filename ))
+\\0\\0
+ccc
+
+\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000007	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000005	(( namesize ))
+000001AA	(( chksum   ))
+cccc	(( filename ))
+\\0
+cccc
+
+\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000008	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000006	(( namesize ))
+0000020D	(( chksum   ))
+ccccc	(( filename ))
+
+ccccc
+
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000041ED	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000002	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000000	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000008	(( namesize ))
+00000000	(( chksum   ))
+ccccc.d	(( filename ))
+\\0\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000041ED	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000002	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000000	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000015	(( namesize ))
+00000000	(( chksum   ))
+newDirectory/aaaaa.d	(( filename ))
+\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000008	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000013	(( namesize ))
+00000203	(( chksum   ))
+newDirectory/aaaaa	(( filename ))
+\\0\\0\\0
+aaaaa
+
+070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000007	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000012	(( namesize ))
+000001A2	(( chksum   ))
+newDirectory/aaaa	(( filename ))
+
+aaaa
+
+\\0070702	(( magic    ))
+DEADBEEF	(( ino      ))
+000081A4	(( mode     ))
+000003E8	(( uid      ))
+000003E8	(( gid      ))
+00000001	(( nlink    ))
+DEADBEEF	(( mtime    ))
+00000006	(( filesize ))
+DEADBEEF	(( dev maj  ))
+DEADBEEF	(( dev min  ))
+DEADBEEF	(( rdev maj ))
+DEADBEEF	(( rdev min ))
+00000011	(( namesize ))
+00000141	(( chksum   ))
+newDirectory/aaa	(( filename ))
+\\0
+aaa
+
+\\0\\0
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Checking for the presence of »newDirectory/aaa«, »newDirectory/aaaa«, »newDirectory/aaaaa«, »newDirectory/aaaaa«." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -11777,12 +12164,123 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-  drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaaaa.d
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaaaa
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaaa
-  -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaa
-" cpio-dired-buffer-contents)))
-    (should (string-match " uNlIkElY" cpio-catalog-contents-after))
+c drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaaaa.d
+c -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaaaa
+c -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaaa
+c -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory/aaa
+" cpio-dired-buffer-contents))
+
+    (should (string-match "((¨a¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 252 2 0 0 2 127 ¨a¨«
+\\s-+#<marker at 1 in alphabet_small.crc.cpio> #<marker at 113 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨aa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 252 2 0 0 3 224 ¨aa¨«
+\\s-+#<marker at 117 in alphabet_small.crc.cpio> #<marker at 233 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨aaa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 252 2 0 0 4 321 ¨aaa¨«
+\\s-+#<marker at 241 in alphabet_small.crc.cpio> #<marker at 357 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨aaaa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 252 2 0 0 5 418 ¨aaaa¨«
+\\s-+#<marker at 365 in alphabet_small.crc.cpio> #<marker at 481 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨aaaaa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 252 2 0 0 6 515 ¨aaaaa¨«
+\\s-+#<marker at 489 in alphabet_small.crc.cpio> #<marker at 605 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨aaaaa.d¨ .
+\\s-+»»[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 252 2 0 0 8 0 ¨aaaaa.d¨«
+\\s-+#<marker at 613 in alphabet_small.crc.cpio> #<marker at 733 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨b¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 252 2 0 0 2 128 ¨b¨«
+\\s-+#<marker at 733 in alphabet_small.crc.cpio> #<marker at 845 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨bb¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 252 2 0 0 3 226 ¨bb¨«
+\\s-+#<marker at 849 in alphabet_small.crc.cpio> #<marker at 965 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨bbb¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 252 2 0 0 4 324 ¨bbb¨«
+\\s-+#<marker at 973 in alphabet_small.crc.cpio> #<marker at 1089 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨bbbb¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 252 2 0 0 5 422 ¨bbbb¨«
+\\s-+#<marker at 1097 in alphabet_small.crc.cpio> #<marker at 1213 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨bbbbb¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 252 2 0 0 6 520 ¨bbbbb¨«
+\\s-+#<marker at 1221 in alphabet_small.crc.cpio> #<marker at 1337 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨bbbbb.d¨ .
+\\s-+»»[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 252 2 0 0 8 0 ¨bbbbb.d¨«
+\\s-+#<marker at 1345 in alphabet_small.crc.cpio> #<marker at 1465 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨c¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+4 252 2 0 0 2 129 ¨c¨«
+\\s-+#<marker at 1465 in alphabet_small.crc.cpio> #<marker at 1577 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨cc¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+5 252 2 0 0 3 228 ¨cc¨«
+\\s-+#<marker at 1581 in alphabet_small.crc.cpio> #<marker at 1697 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨ccc¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 252 2 0 0 4 327 ¨ccc¨«
+\\s-+#<marker at 1705 in alphabet_small.crc.cpio> #<marker at 1821 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨cccc¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 252 2 0 0 5 426 ¨cccc¨«
+\\s-+#<marker at 1829 in alphabet_small.crc.cpio> #<marker at 1945 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨ccccc¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 252 2 0 0 6 525 ¨ccccc¨«
+\\s-+#<marker at 1953 in alphabet_small.crc.cpio> #<marker at 2069 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨ccccc.d¨ .
+\\s-+»»[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 252 2 0 0 8 0 ¨ccccc.d¨«
+\\s-+#<marker at 2077 in alphabet_small.crc.cpio> #<marker at 2197 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨newDirectory/aaaaa.d¨ .
+\\s-+»»[[:digit:]]+ 16877 [[:digit:]]+ [[:digit:]]+ 2
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+0 252 2 0 0 21 0 ¨newDirectory/aaaaa.d¨«
+\\s-+#<marker at 2197 in alphabet_small.crc.cpio> #<marker at 2329 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨newDirectory/aaaaa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+8 252 2 0 0 19 515 ¨newDirectory/aaaaa¨«
+\\s-+#<marker at 2329 in alphabet_small.crc.cpio> #<marker at 2461 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨newDirectory/aaaa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+7 252 2 0 0 18 418 ¨newDirectory/aaaa¨«
+\\s-+#<marker at 2469 in alphabet_small.crc.cpio> #<marker at 2597 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«)
+\\s-+(¨newDirectory/aaa¨ .
+\\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
+\\s-+([[:digit:]]+ [[:digit:]]+)
+\\s-+6 252 2 0 0 17 321 ¨newDirectory/aaa¨«
+\\s-+#<marker at 2605 in alphabet_small.crc.cpio> #<marker at 2733 in alphabet_small.crc.cpio> cpio-mode-entry-unmodified«))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -11810,8 +12308,8 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an archive with each 3 letter entry copied to newDirectory-1." test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting an archive with each 3 letter entry copied to newDirectory-1." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -12181,9 +12679,10 @@ newDirectory-1/aaa	(( filename ))
 aaa
 
 \\0\\0
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with ... under newDirectory-1." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting a cpio-dired buffer with ... under newDirectory-1." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -12206,10 +12705,10 @@ aaa
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/ccc
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/bbb
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-1/aaa
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting to see ... entries in newDirectory-1." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting to see ... entries in newDirectory-1." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -12314,7 +12813,7 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 321 ¨newDirectory-1/aaa¨«
 \\s-+#<marker at 2477 in alphabet_small\.crc\.cpio> #<marker at 2609 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -12343,10 +12842,8 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    ;; HEREHERE Once again, I think this archive has some incorrect
-    ;; entry padding.
-    (should (progn (message "%s(): Expecting an archive with each entry named with at least 3 letters copied to newDirectory-3." test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting an archive with each entry named with at least 3 letters copied to newDirectory-3." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -12869,10 +13366,10 @@ newDirectory-3/aaa	(( filename ))
 aaa
 
 \\0\\0
-" cpio-archive-buffer-contents)))
+" cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting all entries named with at least 3 letters to have copies in newDirectory-3." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting all entries named with at least 3 letters to have copies in newDirectory-3." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -12904,9 +13401,10 @@ C drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|de
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaaa
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaaa
 C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory-3/aaa
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting all entries named with at least 3 letters to have copies in newDirectory-3." test-name)
-		   (string-match "((¨a¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting all entries named with at least 3 letters to have copies in newDirectory-3." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -13056,7 +13554,7 @@ C -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+6 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 19 321 ¨newDirectory-3/aaa¨«
 \\s-+#<marker at 3725 in alphabet_small\.crc\.cpio> #<marker at 3857 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -13075,6 +13573,7 @@ cpio-dired-do-copy-regexp is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -13088,8 +13587,8 @@ cpio-dired-do-copy-regexp is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting entry »a« to be deleted." test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting entry »a« to be deleted." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -13402,9 +13901,10 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting entry »a« to be deleted." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting entry »a« to be deleted." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
@@ -13423,9 +13923,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting a catalog with entry »a« deleted." test-name)
-		   (string-match "((¨aa¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting a catalog with entry »a« deleted." test-name)
+    (should (string-match "((¨aa¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 224 ¨aa¨«
@@ -13510,7 +14011,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 1961 in alphabet_small\.crc\.cpio> #<marker at 2081 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (dired-next-line 2)
@@ -13524,8 +14025,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting sn archive with 4 entries deleted." test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting sn archive with 4 entries deleted." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -13769,9 +14270,10 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with 4 entries deleted." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting 4 more consecutive deletions." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        6 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aaa
@@ -13786,10 +14288,11 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting a catalog with entries" test-name)
-		   (message "%s():     »aaaa«, »aaaaa«, »aaaaa.d« and »b« deleted." test-name)
-		   (string-match "((¨aa¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting a catalog with entries" test-name)
+    (message "%s():     »aaaa«, »aaaaa«, »aaaaa.d« and »b« deleted." test-name)
+    (should (string-match "((¨aa¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 224 ¨aa¨«
@@ -13854,7 +14357,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 1477 in alphabet_small\.crc\.cpio> #<marker at 1597 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-mark-entries-regexp "\\`...\\'")
@@ -13869,8 +14372,8 @@ TRAILER!!!	(( filename ))
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an archive with ... deleted." test-name)
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting an archive with ... deleted." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -14060,10 +14563,10 @@ DEADBEEF	(( rdev min ))
 00000000	(( chksum   ))
 TRAILER!!!	(( filename ))
 \\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0
-" cpio-archive-buffer-contents)))
+" cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with ... deleted." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting a cpio-dired buffer with ... deleted." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} bb
@@ -14075,10 +14578,10 @@ TRAILER!!!	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a catalog with further entries \`...\' deleted." test-name)
-		   (string-match "((¨aa¨ \.
+    (message "%s(): Expecting a catalog with further entries \`...\' deleted." test-name)
+    (should (string-match "((¨aa¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 224 ¨aa¨«
@@ -14128,7 +14631,7 @@ TRAILER!!!	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 1105 in alphabet_small\.crc\.cpio> #<marker at 1225 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -14197,12 +14700,12 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched archive." test-name)
-		   (message "%s(): The archive gets updated on save." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): Expecting an untouched archive." test-name)
+    (message "%s(): The archive gets updated on save." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a dired buffer with no entry »a«, but an entry »d«." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting a dired buffer with no entry »a«, but an entry »d«." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -14222,10 +14725,10 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting catalog with first entry »d«." test-name)
-		   (string-match "((¨d¨ \.
+    (message "%s(): Expecting catalog with first entry »d«." test-name)
+    (should (string-match "((¨d¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨d¨«
@@ -14315,7 +14818,7 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-line 2)
@@ -14330,11 +14833,11 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an as yet unchanged archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): Expecting an as yet unchanged archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a dired style buffer with entries »aaaa«, »aaaaa«, »aaaaa.d« and »b« moved to »newDirectory«." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting a dired style buffer with entries »aaaa«, »aaaaa«, »aaaaa.d« and »b« moved to »newDirectory«." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -14354,10 +14857,10 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a catalog with the above changes." test-name)
-		   (string-match "((¨d¨ \.
+    (message "%s(): Expecting a catalog with the above changes." test-name)
+    (should (string-match "((¨d¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨d¨«
@@ -14447,7 +14950,7 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-mark-entries-regexp "\\`...\\'")
@@ -14462,11 +14965,11 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an as yet unchanged archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): Expecting an as yet unchanged archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a dired buffer with \`...\' all under newDirectory-1." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting a dired buffer with \`...\' all under newDirectory-1." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} d
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -14486,9 +14989,10 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting a catalog with \`...\' entries in newDirectory-1." test-name)
-		   (string-match "((¨d¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting a catalog with \`...\' entries in newDirectory-1." test-name)
+    (should (string-match "((¨d¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨d¨«
@@ -14578,7 +15082,7 @@ cpio-dired-do-redisplay is not yet implemented -- expect an error."
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\.crc\.cpio> #<marker at 2197 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -14588,9 +15092,9 @@ cpio-dired-do-rename-regexp is not yet implemented -- expect an error."
   (should-error (cpio-dired-do-rename-regexp)
 		:type 'error))
 
-(ert-deftest cdmt-crc-cpio-dired-do-search () ;HEREHERE ()
-  "Test cpio-dired-do-search) ;HEREHERE.
-cpio-dired-do-search) ;HEREHERE is not yet implemented -- expect an error."
+(ert-deftest cdmt-crc-cpio-dired-do-search ()
+  "Test cpio-dired-do-search.
+cpio-dired-do-search is not yet implemented -- expect an error."
   (should-error (cpio-dired-do-search)
 		:type 'error))
 
@@ -14648,11 +15152,12 @@ They reflect an outstanding bug in cpio-affiliated buffers."
         (cpio-dired-buffer-contents)
 	(cpio-contents-buffer)
 	(cpio-contents-buffer-string)
-	(cpio-contents-window)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after)
+	(cpio-contents-window)
 	(entry-name)
 	(past-entries ()))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -14676,15 +15181,15 @@ They reflect an outstanding bug in cpio-affiliated buffers."
 
 
     (with-current-buffer cpio-dired-buffer
-      (should (progn (message "%s(): Expect an untouched archive. (17975)" test-name)
-		     (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+      (message "%s(): Expect an untouched archive. (17975)" test-name)
+      (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
       (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
       (should (not (null cpio-contents-buffer)))
       (should (buffer-live-p cpio-contents-buffer))
       (should (string-equal cpio-contents-buffer-string (concat "\n" entry-name "\n\n")))
       (should (window-live-p cpio-contents-window))
-      (should (progn (message "%s(): Expecting an unchanged catalog. (17949)" test-name)
-		     (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+      (message "%s(): Expecting an unchanged catalog. (17949)" test-name)
+      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     (push entry-name past-entries)
 
@@ -14709,15 +15214,15 @@ They reflect an outstanding bug in cpio-affiliated buffers."
 		     (buffer-substring-no-properties (point-min) (point-max))))))
 
     (with-current-buffer cpio-dired-buffer
-      (should (progn (message "%s(): Expect an untouched archive. (17976)" test-name)
-		     (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+      (message "%s(): Expect an untouched archive. (17976)" test-name)
+      (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
       (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
       (should (not (null cpio-contents-buffer)))
       (should (buffer-live-p cpio-contents-buffer))
       (should (string-equal cpio-contents-buffer-string "\nccc\n\n"))
       (should (window-live-p cpio-contents-window))
-      (should (progn (message "%s(): Expecting an unchanged catalog. (17950)" test-name)
-		     (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
+      (message "%s(): Expecting an unchanged catalog. (17950)" test-name)
+      (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
 
     ;; Now make sure that any past entries are still there.
     (mapc (lambda (en)
@@ -14754,6 +15259,7 @@ cpio-dired-find-entry-other-window is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -14771,10 +15277,10 @@ cpio-dired-find-entry-other-window is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an archive with autosave entries" test-name)
-		   (message "for each single character entry.")
-		   (message "(The copy used to create them must update the archive.)")
-		   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting an archive with autosave entries" test-name)
+    (message "%s(): for each single character entry." test-name)
+    (message "%s(): (The copy used to create them must update the archive.)" test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -15144,9 +15650,10 @@ DEADBEEF	(( rdev min ))
 c
 
 
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with single character backup files." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting a cpio-dired buffer with single character backup files." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15169,10 +15676,10 @@ c
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #a
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #b
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} #c
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a catalog with autosave entries for single character names." test-name)
-		   (string-match "((¨a¨ \.
+    (message "%s(): Expecting a catalog with autosave entries for single character names." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -15277,7 +15784,7 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 3 129 ¨#c¨«
 \\s-+#<marker at 2437 in alphabet_small\.crc\.cpio> #<marker at 2553 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))))
+" cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-flag-backup-entries ()
   "Test cpio-dired-flag-backup-entries.
@@ -15300,6 +15807,7 @@ cpio-dired-flag-entries-regexp is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -15313,10 +15821,10 @@ cpio-dired-flag-entries-regexp is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expect an untouched archive. (17977)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with one entry flagged for deletion." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expect an untouched archive. (17977)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a cpio-dired buffer with one entry flagged for deletion." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15336,9 +15844,10 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17951)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting an unchanged catalog. (17951)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (dired-next-line 2)
@@ -15352,10 +15861,11 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expect an untouched archive. (17978)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with 4 entries flagged for deletion." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expect an untouched archive. (17978)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting a cpio-dired buffer with 4 entries flagged for deletion." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15375,9 +15885,10 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17952)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting an unchanged catalog. (17952)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-flag-garbage-entries ()
   "Test cpio-dired-flag-garbage-entries."
@@ -15407,9 +15918,10 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|de
 		 (with-current-buffer cpio-dired-buffer
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
-    (should (progn (message "%s(): Expecting an archive with entries for suffixes" test-name)
-		   (message "%s():     aux bak dvi log orig reg toc." test-name)
-		   (string-equal "070702	(( magic    ))
+
+    (message "%s(): Expecting an archive with entries for suffixes" test-name)
+    (message "%s():     aux bak dvi log orig reg toc." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -15851,11 +16363,12 @@ aa.toc	(( filename ))
 aa
 
 \\0\\0\\0
-" cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with marked entries" test-name)
-		   (message "    for the suffixes")
-		   (message "    aux bak dvi log orig reg toc.")
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+" cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting a dired-style buffer with marked entries" test-name)
+    (message "    %s(): for the suffixes" test-name)
+    (message "    %s(): aux bak dvi log orig reg toc." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -15882,10 +16395,11 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa.orig
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa.rej
 D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa.toc
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting a catalog with entries with the suffixes" test-name)
-		   (message "    aux bak dvi log orig reg toc.")
-		   (string-match "((¨a¨ \.
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting a catalog with entries with the suffixes" test-name)
+    (message "%s(): aux bak dvi log orig reg toc." test-name)
+    (should (string-match "((¨a¨ \.
 \\s-+»»[[:digit:]]+ 33188 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+4 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 2 127 ¨a¨«
@@ -16010,7 +16524,7 @@ D -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+5 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 7 224 ¨aa\.toc¨«
 \\s-+#<marker at 2965 in alphabet_small\.crc\.cpio> #<marker at 3085 in alphabet_small\.crc\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -16047,6 +16561,7 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16060,10 +16575,11 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expect an untouched archive. (17979)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with one entry marked." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expect an untouched archive. (17979)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting a cpio-dired buffer with one entry marked." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16083,9 +16599,10 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17953)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting an unchanged catalog. (17953)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (dired-next-line 2)
@@ -16099,10 +16616,10 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive. (17986)" test-name)
-		   (string-equal cpio-archive-buffer-contents *cdmt-crc-untouched-small-archive*)))
-    (should (progn (message "%s(): Expecting 4 more marks in a cpio-dired buffer." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged small archive. (17986)" test-name)
+    (should (string-equal cpio-archive-buffer-contents *cdmt-crc-untouched-small-archive*))
+    (message "%s(): Expecting 4 more marks in a cpio-dired buffer." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16122,9 +16639,10 @@ cpio-dired-hide-subdir) ; is not yet implemented -- expect an error."
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17954)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting an unchanged catalog. (17954)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-mark-directories ()
   "Test cpio-dired-mark-directories.
@@ -16146,6 +16664,7 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16159,10 +16678,11 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expect an untouched archive. (17980)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a cpio-dired buffer with ... marked." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expect an untouched archive. (17980)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+
+    (message "%s(): Expecting a cpio-dired buffer with ... marked." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16182,10 +16702,10 @@ cpio-dired-mark-entries-containing-regexp is not yet implemented -- expect an er
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17955)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+    (message "%s(): Expecting an unchanged catalog. (17955)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-mark-executables ()
   "Test cpio-dired-mark-executables.
@@ -16221,6 +16741,7 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after)
 	(entry-name))
+
     (cdmt-reset 'make 'large)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16235,14 +16756,14 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The current entry should be aaaaa.d" test-name)
-		   (string-equal "aaaaa.d" entry-name)))
-    (should (progn (message "%s(): Expecting an untouched large archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): The dired style buffer should be untouched." test-name)
-		   (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog." test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): The current entry should be aaaaa.d" test-name)
+    (should (string-equal "aaaaa.d" entry-name))
+    (message "%s(): Expecting an untouched large archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (message "%s(): The dired style buffer should be untouched." test-name)
+    (should (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog." test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-dirline 2)
@@ -16256,14 +16777,14 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The current entry should be ccccc.d" test-name)
-		   (string-equal "ccccc.d" entry-name)))
-    (should (progn (message "%s(): The archive buffer should be untouched. (1)" test-name)
-		   (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): The dired style buffer should be untouched. (1)" test-name)
-		   (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog." test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): The current entry should be ccccc.d" test-name)
+    (should (string-equal "ccccc.d" entry-name))
+    (message "%s(): The archive buffer should be untouched. (1)" test-name)
+    (should (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (message "%s(): The dired style buffer should be untouched. (1)" test-name)
+    (should (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog." test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-dirline 4)
@@ -16277,14 +16798,14 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The current entry should be ggggg.d" test-name)
-		   (string-equal "ggggg.d" entry-name)))
-    (should (progn (message "%s(): The archive buffer should be untouched. (2)" test-name)
-		   (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): The dired style buffer shouold be untouched (2)" test-name)
-		   (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog." test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): The current entry should be ggggg.d" test-name)
+    (should (string-equal "ggggg.d" entry-name))
+    (message "%s(): The archive buffer should be untouched. (2)" test-name)
+    (should (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (message "%s(): The dired style buffer shouold be untouched (2)" test-name)
+    (should (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog." test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-dirline 8)
@@ -16298,14 +16819,14 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The current entry should be ooooo.d." test-name)
-		   (string-equal "ooooo.d" entry-name)))
-    (should (progn (message "%s(): The archive buffer should be untouched. (3)" test-name)
-		   (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): The dired style buffer should be untouched. (3)" test-name)
-		   (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog." test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): The current entry should be ooooo.d." test-name)
+    (should (string-equal "ooooo.d" entry-name))
+    (message "%s(): The archive buffer should be untouched. (3)" test-name)
+    (should (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (message "%s(): The dired style buffer should be untouched. (3)" test-name)
+    (should (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog." test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-dirline 16)
@@ -16319,14 +16840,14 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The current entry should be zzzzz.d." test-name)
-		   (string-equal "zzzzz.d" entry-name)))
-    (should (progn (message "%s(): The archive buffer should be untouched. (4)" test-name)
-		   (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): The dired style buffer should be untouched. (4)" test-name)
-		   (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog." test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): The current entry should be zzzzz.d." test-name)
+    (should (string-equal "zzzzz.d" entry-name))
+    (message "%s(): The archive buffer should be untouched. (4)" test-name)
+    (should (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (message "%s(): The dired style buffer should be untouched. (4)" test-name)
+    (should (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog." test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-dirline 1)
@@ -16340,14 +16861,14 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): The current entry should still be zzzzz.d." test-name)
-		   (string-equal "zzzzz.d" entry-name)))
-    (should (progn (message "%s(): The archive buffer should be untouched. (5)" test-name)
-		   (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): The dired style buffer should be untouched. (5)" test-name)
-		   (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog." test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+    (message "%s(): The current entry should still be zzzzz.d." test-name)
+    (should (string-equal "zzzzz.d" entry-name))
+    (message "%s(): The archive buffer should be untouched. (5)" test-name)
+    (should (string-equal *cdmt-crc-untouched-large-archive-buffer* cpio-archive-buffer-contents))
+    (message "%s(): The dired style buffer should be untouched. (5)" test-name)
+    (should (string-match *cdmt-crc-untouched-large-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog." test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-next-line () ;✓
   "Test the function of M-x cpio-dired-next-line."
@@ -16359,6 +16880,8 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after)
 	(entry-name))
+
+    (message test-name)
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16373,12 +16896,12 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
     (should (string-equal "a" entry-name))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17987)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expect an untouched archive. (17981)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17956)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an untouched dired buffer. (17987)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expect an untouched archive. (17981)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17956)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-line 2)
@@ -16393,10 +16916,10 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
     (should (string-equal "aaa" entry-name))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17988)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expect an untouched archive. (17982)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
+    (message "%s(): Expecting an untouched dired buffer. (17988)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expect an untouched archive. (17982)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-line 4)
@@ -16411,12 +16934,12 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
     (should (string-equal "b" entry-name))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17989)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expect an untouched archive. (17983)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17957)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an untouched dired buffer. (17989)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expect an untouched archive. (17983)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17957)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-line 100)
@@ -16431,12 +16954,12 @@ cpio-dired-mouse-find-entry-other-window is not yet implemented -- expect an err
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
     (should (equal nil entry-name))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17990)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expect an untouched archive. (17984)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17958)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+    (message "%s(): Expecting an untouched dired buffer. (17990)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expect an untouched archive. (17984)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17958)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-next-marked-entry ()
   "Test cpio-dired-next-marked-entry.
@@ -16481,6 +17004,7 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after)
 	(where))
+
     (cdmt-reset)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16498,10 +17022,10 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 
     (should (= where 1155))
     (should (string-match *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17991)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17959)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an untouched dired buffer. (17991)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17959)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-previous-line 2)
@@ -16517,10 +17041,10 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 
     (should (= where 1019))
     (should (string-match *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17992)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17960)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an untouched dired buffer. (17992)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17960)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-previous-line 4)
@@ -16536,16 +17060,10 @@ cpio-dired-prev-marked-entry is not yet implemented -- expect an error."
 
     (should (= where 774))
     (should (string-match *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17993)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17961)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
-
-(ert-deftest cdmt-crc-cpio-dired-previous-line ()
-  "Test cpio-dired-previous-line.
-cpio-dired-previous-line is not yet implemented -- expect an error."
-  (should-error (cpio-dired-previous-line)
-		:type 'error))
+    (message "%s(): Expecting an untouched dired buffer. (17993)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17961)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-previous-line ()
   "Test cpio-dired-previous-line.
@@ -16602,12 +17120,6 @@ cpio-dired-toggle-read-only is not yet implemented -- expect an error."
   (should-error (cpio-dired-toggle-read-only)
 		:type 'error))
 
-(ert-deftest cdmt-crc-cpio-dired-toggle-read-only ()
-  "Test cpio-dired-toggle-read-only.
-cpio-dired-toggle-read-only is not yet implemented -- expect an error."
-  (should-error (cpio-dired-toggle-read-only)
-		:type 'error))
-
 (ert-deftest cdmt-crc-cpio-dired-undo ()
   "Test cpio-dired-undo.
 cpio-dired-undo is not yet implemented -- expect an error."
@@ -16623,6 +17135,7 @@ cpio-dired-undo is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16637,10 +17150,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched small archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with every entry except the first marked." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an untouched small archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with every entry except the first marked." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16660,9 +17173,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17962)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting an unchanged catalog. (17962)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-next-line 2)
@@ -16676,10 +17190,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched small archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecing a dired bugger with all but two entries marked." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an untouched small archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecing a dired bugger with all but two entries marked." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16699,9 +17213,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17963)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+" cpio-dired-buffer-contents))
+
+    (message "%s(): Expecting an unchanged catalog. (17963)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (dired-next-line 4)
@@ -16715,10 +17230,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched small archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with another 4 entries unmarked." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an untouched small archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with another 4 entries unmarked." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16738,10 +17253,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17964)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an unchanged catalog. (17964)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (dired-next-line 4)
@@ -16755,10 +17270,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an untouched archive." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with yet the last entry unmarked." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an untouched archive." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with yet the last entry unmarked." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16778,10 +17293,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17965)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+    (message "%s(): Expecting an unchanged catalog. (17965)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-unmark-all-entries ()
   "Test cpio-dired-unmark-all-entries."
@@ -16792,6 +17307,7 @@ cpio-dired-undo is not yet implemented -- expect an error."
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -16812,10 +17328,10 @@ cpio-dired-undo is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a variety of marks in a dired-style buffer." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a variety of marks in a dired-style buffer." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16835,10 +17351,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17966)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an unchanged catalog. (17966)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-unmark-all-entries "" nil)
@@ -16851,10 +17367,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with no marks." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with no marks." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16874,10 +17390,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17967)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an unchanged catalog. (17967)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-mark-entries-regexp ".")
@@ -16897,10 +17413,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a variety of marks in a dired-style buffer." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a variety of marks in a dired-style buffer." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16920,10 +17436,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17968)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an unchanged catalog. (17968)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-unmark-all-entries "B" nil)
@@ -16936,10 +17452,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with no B marks." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with no B marks." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16959,10 +17475,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17969)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an unchanged catalog. (17969)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-unmark-all-entries "F" nil)
@@ -16975,10 +17491,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with neither B nor F marks." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with neither B nor F marks." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -16998,10 +17514,10 @@ E -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17970)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+    (message "%s(): Expecting an unchanged catalog. (17970)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-unmark-all-marks ()
   "Test cpio-dired-unmark-all-marks."
@@ -17012,6 +17528,7 @@ E -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|de
         (cpio-dired-buffer-contents)
 	(cpio-catalog-contents-before)
 	(cpio-catalog-contents-after))
+    (message test-name)
     (cdmt-reset 'make)
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
@@ -17032,10 +17549,10 @@ E -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a variety of marks in a dired-style buffer." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a variety of marks in a dired-style buffer." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -17055,10 +17572,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
 \\* -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
 \\* drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17971)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))
+    (message "%s(): Expecting an unchanged catalog. (17971)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))
 
     (progn (setq cpio-catalog-contents-before (cdmt-tidy-up-catalog))
 	   (cpio-dired-unmark-all-marks)
@@ -17071,10 +17588,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expecting an unchanged archive buffer." test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting a dired-style buffer with no marks." test-name)
-		   (string-match "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting an unchanged archive buffer." test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting a dired-style buffer with no marks." test-name)
+    (should (string-match "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -17094,10 +17611,10 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        7 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} cccc
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17972)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
+    (message "%s(): Expecting an unchanged catalog. (17972)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-unmark-all-marks () ;✓
   "Test the function of M-x cpio-unmark-all-marks."
@@ -17130,18 +17647,12 @@ F -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|de
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-    (should (progn (message "%s(): Expect an untouched archive. (17985)" test-name)
-		   (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents)))
-    (should (progn (message "%s(): Expecting an untouched dired buffer. (17994)" test-name)
-		   (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents)))
-    (should (progn (message "%s(): Expecting an unchanged catalog. (17973)" test-name)
-		   (string-equal cpio-catalog-contents-before cpio-catalog-contents-after)))))
-
-(ert-deftest cdmt-crc-cpio-dired-unmark-backward ()
-  "Test cpio-dired-unmark-backward.
-cpio-dired-unmark-backward is not yet implemented -- expect an error."
-  (should-error (cpio-dired-unmark-backward)
-		:type 'error))
+    (message "%s(): Expect an untouched archive. (17985)" test-name)
+    (should (string-equal *cdmt-crc-untouched-small-archive* cpio-archive-buffer-contents))
+    (message "%s(): Expecting an untouched dired buffer. (17994)" test-name)
+    (should (string-match *cdmt-crc-untouched-small-dired-buffer* cpio-dired-buffer-contents))
+    (message "%s(): Expecting an unchanged catalog. (17973)" test-name)
+    (should (string-equal cpio-catalog-contents-before cpio-catalog-contents-after))))
 
 (ert-deftest cdmt-crc-cpio-dired-unmark-backward ()
   "Test cpio-dired-unmark-backward.
@@ -17172,6 +17683,7 @@ cpio-dired-upcase is not yet implemented -- expect an error."
 	(cpio-catalog-contents-after)
 	(cpio-archive-window)
 	(cpio-dired-window))
+
     (cdmt-reset 'make)
 
     (setq cpio-dired-window (get-buffer-window (get-buffer cpio-dired-buffer)))
@@ -17333,7 +17845,7 @@ revert-buffer is not yet implemented -- expect an error."
 
 (ert-deftest cdmt-crc-cpio-dired-create-directory ()
   "Test cpio-dired-create-directory."
-  (let ((test-name "cdmt-crc-cpio-dired-view-archive")
+  (let ((test-name "cdmt-crc-cpio-dired-create-archive")
         (cpio-archive-buffer)
         (cpio-archive-buffer-contents)
         (cpio-dired-buffer)
@@ -17342,7 +17854,6 @@ revert-buffer is not yet implemented -- expect an error."
 	(cpio-catalog-contents-after)
 	(cpio-archive-window)
 	(cpio-dired-window))
-    (message "%s(): starting." test-name)
 
     (cdmt-reset 'make)
 
@@ -17357,8 +17868,8 @@ revert-buffer is not yet implemented -- expect an error."
 		   (buffer-substring-no-properties (point-min) (point-max))))
 	   (setq cpio-catalog-contents-after (cdmt-tidy-up-catalog)))
 
-;;     (should (progn (message "%s(): Expecting a cpio archive with newDirectory, a new directory." test-name)
-	(should	   (string-equal "070702	(( magic    ))
+    (message "%s(): Expecting a cpio archive with newDirectory, a new directory." test-name)
+    (should (string-equal "070702	(( magic    ))
 DEADBEEF	(( ino      ))
 000081A4	(( mode     ))
 000003E8	(( uid      ))
@@ -17691,8 +18202,8 @@ newDirectory	(( filename ))
 \\0
 " cpio-archive-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a cpio dired buffer with newDirectory, a new directory." test-name)
-		   (string-match  "CPIO archive: alphabet_small.crc.cpio:
+    (message "%s(): Expecting a cpio dired buffer with newDirectory, a new directory." test-name)
+    (should (string-match  "CPIO archive: alphabet_small.crc.cpio:
 
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        4 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} a
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        5 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} aa
@@ -17713,10 +18224,10 @@ newDirectory	(( filename ))
   -rw-r--r--   1  [[:digit:]]+  [[:digit:]]+        8 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc
   drwxr-xr-x   2  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} ccccc.d
   drwxr-xr-x   1  [[:digit:]]+  [[:digit:]]+        0 \\(?:a\\(?:pr\\|ug\\)\\|dec\\|feb\\|j\\(?:an\\|u[ln]\\)\\|ma[ry]\\|nov\\|oct\\|sep\\) [[:digit:]]\\{2\\} [[:digit:]]\\{2\\}:[[:digit:]]\\{2\\} newDirectory
-" cpio-dired-buffer-contents)))
+" cpio-dired-buffer-contents))
 
-    (should (progn (message "%s(): Expecting a catalog with a new directory called »newDirectory«." test-name)
-		   (string-match "((¨newDirectory¨ \\.
+    (message "%s(): Expecting a catalog with a new directory called »newDirectory«." test-name)
+    (should (string-match "((¨newDirectory¨ \\.
 \\s-+»»1 16877 [[:digit:]]+ [[:digit:]]+ 1
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 13 0 ¨newDirectory¨«
@@ -17811,7 +18322,7 @@ newDirectory	(( filename ))
 \\s-+([[:digit:]]+ [[:digit:]]+)
 \\s-+0 [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ [[:digit:]]+ 8 0 ¨ccccc\\.d¨«
 \\s-+#<marker at 2077 in alphabet_small\\.crc\\.cpio> #<marker at 2197 in alphabet_small\\.crc\\.cpio> cpio-mode-entry-unmodified«))
-" cpio-catalog-contents-after)))
+" cpio-catalog-contents-after))
 
     (cdmt-test-save *cdmt-archive-format*)))
 
@@ -17820,7 +18331,10 @@ newDirectory	(( filename ))
 ;; Run tests
 ;;
 
-(ert "\\`cdmt-crc-")
-
+(unless noninteractive
+  (setq debug-on-error t)
+  (ert "\\`cdmt-crc-"))
+  
+(cdmt-reset)
 
 ;;; cpio-dired-crc-test.el ends here

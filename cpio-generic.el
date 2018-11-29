@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.9 2018/11/19 21:25:38 doug Exp $	
+;	$Id: cpio-generic.el,v 1.10 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -231,7 +231,6 @@ from the code for \(describe-mode\)."
   (let ((fname "current-minor-modes")
 	(mode)
 	(result))
-    ;; (error "%s() is not yet implemented." fname)
     (dolist (mode minor-mode-list result)
       (let ((fmode (or (get mode :minor-mode-function) mode)))
 	(if (and (boundp mode) (symbol-value mode) (fboundp fmode))
@@ -316,9 +315,7 @@ Other languages are not yet implemented."
 			 ":"
 			 "\\([0123456][[:digit:]]\\)"
 			 "\\)?"
-			 "\\)"))
-	)
-    ;; (error "%s() is not yet implemented" fname)
+			 "\\)")))
     (save-match-data
       (cond 
        ((string-match (concat "\\`"
@@ -329,8 +326,7 @@ Other languages are not yet implemented."
 			      day-re
 			      "[- ]*"
 			      time-re
-			      "?\\'"
-			      )
+			      "?\\'")
 		      human-time)
 	(setq year   (string-to-number     (match-string-no-properties 1 human-time)))
 	(setq month  (month-to-number      (match-string-no-properties 2 human-time)))
@@ -348,8 +344,7 @@ Other languages are not yet implemented."
 			      day-re
 			      "[- ]*"
 			      time-re
-			      "?\\'"
-			      )
+			      "?\\'")
 		      human-time)
 	(setq year   (string-to-number     (match-string-no-properties 1 human-time)))
 	(setq month  (month-to-number      (match-string-no-properties 2 human-time)))
@@ -499,14 +494,11 @@ Other languages are not yet implemented."
 	  nil)))
     (if year
 	(encode-time second minute hour day month year)
-      nil)
-    ))
+      nil)))
 
 (defun month-to-number (month-name)
   "Convert The MONTH-NAME to a number (1..12)."
-  (let ((fname "month-to-number")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "month-to-number"))
     (save-match-data
       (cond ((string-match "jan" (substring month-name 0 3))
 	     1)
@@ -534,6 +526,8 @@ Other languages are not yet implemented."
 	     12)
 	    (t (message "%s(): Unknown month [[%s]]." fname month-name))))))
 
+;; HEREHERE Remove this before publishing or
+;; figure out how to put it in test-generic.el.
 (defun test-encode-human-time ()
   "Test (encode-human-time)."
   (interactive)
@@ -686,11 +680,7 @@ Other languages are not yet implemented."
 		     "11/19/2018 9:53"
 		     "11/19/2018 09:53"
 		     "11/19/2018 9:53:23"
-		     "11/19/2018 09:53:23"
-		     ))
-	)
-
-    ;; (error "%s() is not yet implemented" fname)
+		     "11/19/2018 09:53:23")))
     (with-current-buffer results-buf (erase-buffer))
 
     (mapc (lambda (str)
@@ -703,8 +693,7 @@ Other languages are not yet implemented."
 	      (insert (format "%s\t-->\t%s\t-->\t%s\n" time-in emacs-time time-out))))
 	  test-dates)
     (pop-to-buffer results-buf)
-    (goto-char (point-min))
-    ))
+    (goto-char (point-min))))
 
 
 ;; 

@@ -1,8 +1,22 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.16 2018/11/19 21:25:38 doug Exp $	
+;	$Id: cpio.el,v 1.17 2018/11/29 01:57:16 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
+;; All rights reserved.
+;; 
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;; 
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;; 
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
 ;; Maintainer: -- " --
@@ -237,49 +251,41 @@
 (if (file-exists-p (concat default-directory "cpio-generic.elc"))
     (load (concat default-directory "cpio-generic.elc"))
   (load (concat default-directory "cpio-generic.el")))
-(message "Loaded cpio-generic.")
 ;; (require 'cpio-modes)
 (if (file-exists-p (concat default-directory "cpio-modes.elc"))
     (load (concat default-directory "cpio-modes.elc"))
   (load (concat default-directory "cpio-modes.el")))
-(message "Loaded cpio-modes.")
 ;; (require 'cpio-affiliated-buffers)
 (if (file-exists-p (concat default-directory "cpio-affiliated-buffers.elc"))
     (load (concat default-directory "cpio-affiliated-buffers.elc"))
   (load (concat default-directory "cpio-affiliated-buffers.el")))
-(message "Loaded cpio-affiliated-buffers.")
+
 
 ;; (require 'cpio-bin)
 (if (file-exists-p (concat default-directory "cpio-bin.elc"))
     (load (concat default-directory "cpio-bin.elc"))
   (load (concat default-directory "cpio-bin.el")))
-(message "Loaded cpion")
 ;; newc has to precede crc.
 ;; (require 'cpio-newc)
 (if (file-exists-p (concat default-directory "cpio-newc.elc"))
     (load (concat default-directory "cpio-newc.elc"))
   (load (concat default-directory "cpio-newc.el")))
-(message "Loaded cpio-newc.")
 ;; (require 'cpio-crc)
 (if (file-exists-p (concat default-directory "cpio-crc.elc"))
     (load (concat default-directory "cpio-crc.elc"))
   (load (concat default-directory "cpio-crc.el")))
-(message "Loaded cpio-crc.")
 ;; (require 'cpio-hpbin)
 (if (file-exists-p (concat default-directory "cpio-hpbin.elc"))
     (load (concat default-directory "cpio-hpbin.elc"))
   (load (concat default-directory "cpio-hpbin.el")))
-(message "Loaded cpio-hpbil")
 ;; (require 'cpio-hpodc)
 (if (file-exists-p (concat default-directory "cpio-hpodc.elc"))
     (load (concat default-directory "cpio-hpodc.elc"))
   (load (concat default-directory "cpio-hpodc.el")))
-(message "Loaded cpio-hpodl")
 ;; (require 'cpio-odc)
 (if (file-exists-p (concat default-directory "cpio-odc.elc"))
     (load (concat default-directory "cpio-odc.elc"))
   (load (concat default-directory "cpio-odc.el")))
-(message "Loaded cpio-odl")
 ;; (require 'cpio-tar)
 ;; (require 'cpio-ustar)
 
@@ -287,17 +293,14 @@
 (if (file-exists-p (concat default-directory "cpio-wanted.elc"))
     (load (concat default-directory "cpio-wanted.elc"))
   (load (concat default-directory "cpio-wanted.el")))
-(message "Loaded cpio-wanted.")
 ;; (require 'cpio-dired)
 (if (file-exists-p (concat default-directory "cpio-dired.elc"))
     (load (concat default-directory "cpio-dired.elc"))
   (load (concat default-directory "cpio-dired.el")))
-(message "Loaded cpio-dired.")
 ;; (require 'cpio-entry-contents-mode)
 (if (file-exists-p (concat default-directory "cpio-entry-contents-mode.elc"))
     (load (concat default-directory "cpio-entry-contents-mode.elc"))
   (load (concat default-directory "cpio-entry-contents-mode.el")))
-(message "Loaded cpio-entry-contents-mode.")
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -356,21 +359,17 @@ Takes the values 'bin, 'newc, 'odc etc.")
 ;; N.B. The format REs go here since they are what we use
 ;; to discern the type of the archive.
 
-(defvar *cpio-tar-header-re* "nOt yEt iMpLeMeNtEd"
+(defvar *cpio-tar-header-re* "not yet set"
   "RE to match tar format cpio archives.")
-(setq *cpio-tar-header-re* "nOt yEt iMpLeMeNtEd")
 
-(defvar *cpio-ustar-header-re* "nOt yEt iMpLeMeNtEd"
+(defvar *cpio-ustar-header-re* "not yet set"
   "RE to match ustar format cpio archives.")
-(setq *cpio-ustar-header-re* "nOt yEt iMpLeMeNtEd")
 
-(defvar *cpio-hpbin-header-re* "nOt yEt iMpLeMeNtEd"
+(defvar *cpio-hpbin-header-re* "not yet set"
   "RE to match hpbin format cpio archives.")
-(setq *cpio-hpbin-header-re* "nOt yEt iMpLeMeNtEd")
 
-(defvar *cpio-hpodc-header-re* "nOt yEt iMpLeMeNtEd"
+(defvar *cpio-hpodc-header-re* "not yet set"
   "RE to match hpodc format cpio archives.")
-(setq *cpio-hpodc-header-re* "nOt yEt iMpLeMeNtEd")
 
 ;; MAINTENTANCE Order matters; hpodc must precede odc.
 (defvar *cpio-re-type-alist* (list
@@ -646,6 +645,10 @@ A parsed header is a vector of the following form:
 (defvar *cpio-archive-syntax-table* ()
   "Every character in a cpio archive has word syntax.")
 
+(defvar *cpio-header-length* ()
+  "A buffer-local variable to hold the length of the header
+for a cpio archive of the current format.")
+
 
 ;;
 ;; Customizations
@@ -667,12 +670,9 @@ A parsed header is a vector of the following form:
 (defun cpio-mode-find-file-hook ()
   "find-file hook to detect if a file is likely a cpio archive.
 If it is, then put it under cpio-mode."
-  (let ((fname "cpio-mode-find-file-hook")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-mode-find-file-hook"))
     (if (cpio-discern-archive-type)
-	(cpio-mode))
-    ))
+	(cpio-mode))))
 
 (defun cpio-discern-archive-type ()
   "Return a symbol reflecting the type of the cpio archive in the current buffer.
@@ -818,24 +818,30 @@ CAVEAT: See `cpio-magic'."
 
 (defun cpio-entry-header-start (entry)
   "Return the start of the entry specified in ENTRY."
-  (let ((fname "cpio-entry-start"))
+  (let ((fname "cpio-entry-header-start"))
     (aref entry *cpio-catalog-entry-header-start-idx*)))
+
+;; HEREHERE This isn't right yet.
+;; It's being introduced to fix the acrobatics in (cpio-internal-do-deletion).
+(defun cpio-entry-header-end (entry)
+  "Return the end of the unpadded header specified in ENTRY."
+  (let ((fname "cpio-entry-header-end")
+	(attrs (aref entry *cpio-catalog-entry-attrs-idx*)))
+    (+ (cpio-entry-header-start entry) *cpio-header-length* (cpio-name-size attrs))
+    ))
 
 (defun cpio-entry-contents-start (entry)
   "Return the start of the contents of the entry specified in ENTRY."
-  (let ((fname "cpio-entry-start"))
+  (let ((fname "cpio-entry-contents-start"))
     (aref entry *cpio-catalog-entry-contents-start-idx*)))
 
 (defun cpio-entry-contents-end (entry)
   "Return the end of the contents of the entry specified in ENTRY."
   (let* ((fname "cpio-entry-contents-end")
 	 (attrs (aref entry *cpio-catalog-entry-attrs-idx*))
-	 (entry-name (cpio-entry-name attrs))
-	 )
-    ;; (error "%s() is not yet implemented" fname)
+	 (entry-name (cpio-entry-name attrs)))
     (+ (cpio-entry-contents-start entry)
-       (cpio-entry-size attrs))
-    ))
+       (cpio-entry-size attrs))))
 
 (defun cpio-set-header-start (entry where)
   "Set the header start marker in ENTRY to the location WHERE."
@@ -1162,7 +1168,7 @@ with one with the correct size fot its contents."
 	  (funcall cpio-delete-trailer-func))
       (funcall cpio-delete-trailer-func))))
 
-0(defun cpio-delete-archive-entry (entry)
+(defun cpio-delete-archive-entry (entry)
   "Delete the entry in the cpio archive specified by ENTRY.
 ENTRY is a catalog entry."
   (let ((fname "cpio-delete-archive-entry"))
@@ -1274,10 +1280,7 @@ a UNIX/GNU/Linux time as an integer."
   (let ((fname "cpio-find-entry")
 	(target-buffer (get-file-buffer entry-name))
 	(just-created nil)
-	(local-parent *cab-parent*)
-	)
-;;    (if (null (setq target-buffer (get-buffer-create (cpio-contents-buffer-name entry-name))))
-;;	(error "%s(): Could not get a buffer for entry [[%s]]." fname entry-name))
+	(local-parent *cab-parent*))
     (unless target-buffer
       (setq just-created t)
       (with-current-buffer (setq target-buffer (get-buffer-create entry-name))
@@ -1286,8 +1289,7 @@ a UNIX/GNU/Linux time as an integer."
 	(setq buffer-file-truename (abbreviate-file-name
 				    (concat (cpio-archive-name) "/"
 					    buffer-file-name)))
-	(set (make-local-variable 'cpio-entry-name) entry-name))
-      )
+	(set (make-local-variable 'cpio-entry-name) entry-name)))
     (with-current-buffer target-buffer
       (cond ((and just-created
 		  (= 0 (buffer-size)))
@@ -1302,13 +1304,10 @@ a UNIX/GNU/Linux time as an integer."
 
 (defun cpio-archive-name ()
   "Return [the full path to] the cpio archive associated with the current buffer."
-  (let ((fname "cpio-archive-name")
-	)
-    ;; (error "%s() is not yet implemented" fname)
+  (let ((fname "cpio-archive-name"))
     (unless (or *cab-parent*
 		(eq major-mode 'cpio-mode))
       (error "%s(): You're not in a cpio-archive affiliated buffer." fname))
-    
     (if *cab-parent*
 	(buffer-file-name *cab-parent*)
       (buffer-file-name))))
@@ -1372,7 +1371,6 @@ Run more than one instance of emacs to avoid such collisions."
 (defun cpio-make-chksum-for-file (filename)
   "Return the checksum for FILENAME."
   (let ((fname "cpio-make-chksum-for-file"))
-    ;; (error "%s() is not yet implemented" fname)
     (funcall cpio-make-chksum-for-file-func filename)))
 
 (defun cpio-create-faux-directory-attrs (name)
@@ -1426,7 +1424,13 @@ many are simply invented."
   "Return non-nil if there's already an entry called NAME
 in the current archive."
   (let ((fname "cpio-entry-exists-p"))
-    (assoc name (cpio-catalog))))
+    (unless (or (eq major-mode 'cpio-mode)
+		(eq major-mode 'cpio-dired-mode))
+      (error "%s(): You're not in a cpio-dired buffer." fname))
+    (if *cab-parent*
+	(with-current-buffer *cab-parent*
+	    (cpio-entry-exists-p name))
+      (assoc name (cpio-catalog)))))
 
 (defun cpio-move-to-entry (entry-name)
   "Move the point to ENTRY-NAME."
@@ -1618,8 +1622,7 @@ or nil."
 
 (defun cpio-set-coding-system (entry-name)
   "Set the coding system for the current buffer based on the contents of the entry-ENTRY-NAME."
-  (let ((fname "cpio-set-coding-system")
-	)
+  (let ((fname "cpio-set-coding-system"))
     (error "%s() is not yet implemented" fname)
     (if *cab-parent*
 	(with-current-buffer *cab-parent*
@@ -1627,15 +1630,11 @@ or nil."
       ;; (setq last-coding-system-used
       ;;       (car (find-coding-systems-region (cpio-contents-start entry-name)
       ;; 				        (cpio-contents-end   entry-name))))
-      (set-buffer-file-coding-system last-coding-system-used 'force 'nomodify))
-    ))
+      (set-buffer-file-coding-system last-coding-system-used 'force 'nomodify))))
 
 (defun cpio-not-modified ()
   "Mark the current cpio-dired-style and archive buffersfas unmodified."
-  (let ((fname "cpio-not-modified")
-	)
-    ;; (error "%s() is not yet implemented" fname)
-    (message "%s(): called in %s." fname (current-buffer))
+  (let ((fname "cpio-not-modified"))
     (cond (*cab-parent*
 	   (not-modified)
 	   (with-current-buffer *cab-parent* (not-modified)))
@@ -1675,15 +1674,12 @@ or nil."
   "Treat cpio archives like file systems with a dired UI."
   (if (null (setq *cpio-format* (cpio-discern-archive-type)))
       (error "You're not in a supported CPIO buffer. It begins [[%s]]." (buffer-substring-no-properties 1 8)))
-  ;; (message "You're in a cpio buffer of type [[%s]]." (symbol-name *cpio-format*))
-  ;; (sit-for 1.0)
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
     ;; You really only need this for the binary archive formats,
     ;; but, hey it's cheap to set it.
     (set-syntax-table *cpio-archive-syntax-table*)
     (setq buffer-read-only t)
-    ;; (message "Establishing local variables.")
     (cpio-set-locals *cpio-format*)
     (setq *cpio-archive-name* (buffer-file-name))
     (cpio-build-catalog)
@@ -1861,7 +1857,9 @@ See *cpio-local-funcs* for more information."
     (make-local-variable '*cpio-padding-char*)
     (setq *cpio-padding-char* *cpio-bin-padding-char*)
     (make-local-variable '*cpio-padding-str*)
-    (setq *cpio-padding-str* *cpio-bin-padding-str*)))
+    (setq *cpio-padding-str* *cpio-bin-padding-str*)
+    (make-local-variable '*cpio-header-length*)
+    (setq *cpio-header-length* *cpio-bin-header-length*)))
 
 (defun cpio-set-local-newc-vars ()
   "Set buffer local variables appropriate for a NEWC format CPIO archive."
@@ -1871,7 +1869,9 @@ See *cpio-local-funcs* for more information."
     (make-local-variable '*cpio-padding-char*)
     (setq *cpio-padding-char* *cpio-newc-padding-char*)
     (make-local-variable '*cpio-padding-str*)
-    (setq *cpio-padding-str* *cpio-newc-padding-str*)))
+    (setq *cpio-padding-str* *cpio-newc-padding-str*)
+    (make-local-variable '*cpio-header-length*)
+    (setq *cpio-header-length* *cpio-newc-header-length*)))
 
 (defun cpio-set-local-odc-vars ()
   "Set buffer local variables appropriate for a ODC format CPIO archive."
@@ -1881,7 +1881,9 @@ See *cpio-local-funcs* for more information."
     (make-local-variable '*cpio-padding-char*)
     (setq *cpio-padding-char* *cpio-odc-padding-char*)
     (make-local-variable '*cpio-padding-str*)
-    (setq *cpio-padding-str* *cpio-odc-padding-str*)))
+    (setq *cpio-padding-str* *cpio-odc-padding-str*)
+    (make-local-variable '*cpio-header-length*)
+    (setq *cpio-header-length* *cpio-odc-header-length*)))
 
 (defun cpio-set-local-crc-vars ()
   "Set buffer local variables appropriate for a CRC format CPIO archive."
@@ -1891,7 +1893,9 @@ See *cpio-local-funcs* for more information."
     (make-local-variable '*cpio-padding-char*)
     (setq *cpio-padding-char* *cpio-crc-padding-char*)
     (make-local-variable '*cpio-padding-str*)
-    (setq *cpio-padding-str* *cpio-crc-padding-str*)))
+    (setq *cpio-padding-str* *cpio-crc-padding-str*)
+    (make-local-variable '*cpio-header-length*)
+    (setq *cpio-header-length* *cpio-crc-header-length*)))
 
 (defun cpio-set-local-tar-vars ()
   "Set buffer local variables appropriate for a TAR format CPIO archive."

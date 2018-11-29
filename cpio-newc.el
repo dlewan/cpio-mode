@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.14 2018/11/19 21:25:38 doug Exp $	
+;	$Id: cpio-newc.el,v 1.15 2018/11/29 01:57:15 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -88,6 +88,9 @@
 ;; 
 ;; newc header format vars
 ;; 
+
+(defconst *cpio-newc-header-length* (length "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000")
+  "The length of a newc header.")
 
 ;; MAINTENANCE The following must remain in synch with *cpio-newc-header-re*.
 (defconst *cpio-newc-magic-re* "070701"
@@ -234,9 +237,7 @@
 
   (defconst *cpio-newc-filename-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the namesize.")
-  (setq *cpio-newc-filename-re-idx* (setq i (1+ i)))
-
-)
+  (setq *cpio-newc-filename-re-idx* (setq i (1+ i))))
 ;; 
 ;; EO newc header variables.
 ;; 
@@ -753,12 +754,11 @@ once the TRAILER is written and padded."
 (defun cpio-newc-insert-trailer ()
   "Insert a newc trailer into a cpio archive."
   (let* ((fname "cpio-newc-insert-trailer")
-	 (base-trailer "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0")
-	 (base-len (length base-trailer))
+	 (base-len (length *cpio-newc-trailer*))
 	 (len))
     ;; ...and insert the new trailer...
     (with-writable-buffer
-     (insert base-trailer)
+     (insert *cpio-newc-trailer*)
      (goto-char (point-max))
      ;; ...with padding.
      (setq len (cg-round-up (1- (point)) *cpio-newc-blocksize*))
