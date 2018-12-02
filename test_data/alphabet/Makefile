@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile,v 1.4 2018/05/18 23:55:31 doug Exp $	
+#	$Id: Makefile,v 1.7 2018/12/02 00:13:07 doug Exp $	
 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018
 # Douglas Lewan, d.lewan2000@gmail.com.
@@ -131,8 +131,6 @@ default:	check_gnu
 	@echo "instead."
 
 help:	check_gnu	default
-
-all:	nonesense
 
 nonsense:
 	@echo "The target [[${@}]] does not make sense in this directory."
@@ -413,42 +411,55 @@ z:
 #
 # Cpio formats
 #
-.PHONY: all bin crc hpbin hpodc newc odc tar ustar
-all: bin crc hpbin hpodc newc odc tar ustar
+.PHONY: all bin crc hpbin hpodc newc odc tar ustar no_extension
+all: bin crc hpbin hpodc newc odc tar ustar no_extension
 # Yes, these regular expressions are a little brittle,
 # but they work in this directory.
 bin:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 crc:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 hpbin:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 hpodc:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 newc:	alphabet 
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 odc:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 tar:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
 ustar:	alphabet
 	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
 	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
 	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+
+no_extension:
+	for f in *.cpio ; do 				\
+		cp -ip $${f} `basename $${f} .cpio` ; 	\
+	done
 
 ################################
 # 
@@ -484,9 +495,14 @@ install-strip:	nonsense
 # 
 
 clean:
+	-for f in *.cpio ; do 			\
+		rm -f `basename $${f} .cpio` ; 	\
+	done
 	-rm *.cpio
+
 	-for l in a b c d e f g h i j k l m n o p q r s t u v w x y z ; do				\
 		rm $${l} $${l}$${l} $${l}$${l}$${l} $${l}$${l}$${l}$${l} $${l}$${l}$${l}$${l}$${l} ; 	\
+		rmdir $${l}$${l}$${l}$${l}$${l}.d ; 							\
 	done
 
 distclean: clean
