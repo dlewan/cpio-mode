@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile.in,v 1.8 2018/11/29 01:57:14 doug Exp $	
+#	$Id: Makefile.in,v 1.9 2018/12/02 00:13:07 doug Exp $	
 
 # 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018 
@@ -33,7 +33,7 @@ OFILES		=
 
 
 SHELLS		=	
-APP_FILES	=	cpio-bin.el			\
+CPIO_FILES	=	cpio-bin.el			\
 			cpio-crc.el			\
 			cpio.el				\
 			cpio-dired.el			\
@@ -46,8 +46,12 @@ APP_FILES	=	cpio-bin.el			\
 			cpio-tar.el			\
 			cpio-ustar.el			\
 			cpio-wanted.el
+SUPPORT_FILES	=	cpio-affiliated-buffers.el	\
+			cpio-generic.el			\
+			cpio-modes.el
+APP_FILES	=	${CPIO_FILES} ${SUPPORT_FILES}
 
-ELC_FILES	=	${EL_FILES:.el=.elc}
+ELC_FILES	=	${APP_FILES:.el=.elc}
 
 TEST_FILES	=	cab-test.el			\
 			cpio-modes-test.el		\
@@ -56,11 +60,6 @@ TEST_FILES	=	cab-test.el			\
 			cpio-dired-test.el		\
 			cpio-modes-test.el
 
-
-
-SUPPORT_FILES	=	cpio-affiliated-buffers.el	\
-			cpio-generic.el			\
-			cpio-modes.el
 EL_FILES	=	${APP_FILES} ${TEST_FILES} ${SUPPORT_FILES}
 LIB_FILES	=
 DOC_FILES	=
@@ -92,6 +91,7 @@ distdir		=	${PACKAGE}-${PACKAGE_VERSION}
 bindir		=	${prefix}/bin
 libdir		=	${prefix}/lib
 lispdir		=	${prefix}/share/emacs/lisp
+installdir	=	${lispdir}/cpio
 docdir		=	@docdir@
 dvidir		=	@infodir@
 infodir		=	@infodir@
@@ -263,11 +263,20 @@ installcheck: check
 # Installation
 # 
 
-install:	check_gnu
+.PHONY:	install simple_install 
+install:	check_gnu uninstall ${ELC_FILES} installdirs
+	${INSTALL} ${ELC_FILES} ${installdir}
+
+simple_install: check_gnu uninstall installdirs
+	${INSTALL} ${APP_FILES} ${installdir}
+
+# ${ELC_FILES}:	elc
 
 installdirs:	check_gnu
+	test -d ${installdir} || mkdir -p ${installdir}
 
 uninstall:
+	rm -rf ${installdir}/*.el ${installdir}/*.elc
 
 install-html:
 install-dvi:

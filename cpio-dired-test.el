@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-test.el --- Tests of cpio-dired-mode.
-;	$Id: cpio-dired-test.el,v 1.11 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-dired-test.el,v 1.12 2018/11/29 17:46:58 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -51,7 +51,9 @@
 ;; 
 ;; Hacks
 ;; 
-(setq buffers (buffer-list))
+(defvar cdmt-buffers ()
+  "A list of the current set of buffers.")
+(setq cdmt-buffers (buffer-list))
 
 
 ;;
@@ -170,6 +172,10 @@
 (declare-function cpio-image-dired-tag-entries "cpio-dired.el")
 (declare-function cpio-mode "cpio.el")
 (declare-function cpio-view-dired-style-buffer "cpio-dired.el")
+(declare-function cdmt-reset "test-generic.el")
+(declare-function cdmt-tidy-up-catalog "test-generic.el")
+(declare-function cdmt-filter-archive-contents "test-generic.el")
+(declare-function cdmt-test-save "test-generic.el")
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
 
@@ -185,8 +191,11 @@
   "A large archive used for testing.")
 (setq *cdmt-newc-large-archive* "test_data/alphabet/alphabet.newc.cpio")
 
+(defvar *cdmt-small-archive* *cdmt-newc-small-archive*)
 (setq *cdmt-small-archive* *cdmt-newc-small-archive*)
+(defvar *cdmt-large-archive* *cdmt-newc-large-archive*)
 (setq *cdmt-large-archive* *cdmt-newc-large-archive*)
+(defvar *cdmt-archive-format* "newc")
 (setq *cdmt-archive-format* "newc")
 
 (defvar *cdmt-newc-untouched-small-archive* "070701	(( magic    ))
@@ -6736,21 +6745,35 @@ TRAILER!!!	(( filename ))
 ")
 
 
+(defvar *cdmt-small-archive* *cdmt-newc-small-archive*)
 (setq *cdmt-small-archive* *cdmt-newc-small-archive*)
+(defvar *cdmt-large-archive* *cdmt-newc-large-archive*)
 (setq *cdmt-large-archive* *cdmt-newc-large-archive*)
+(defvar *cdmt-header-re* *cpio-newc-header-re*)
 (setq *cdmt-header-re* *cpio-newc-header-re*)
 
+(defvar *cpio-magic-re-idx* *cpio-newc-magic-re-idx*)
 (setq *cpio-magic-re-idx* *cpio-newc-magic-re-idx*)
+(defvar *cpio-mode-re-idx* *cpio-newc-mode-re-idx*)
 (setq *cpio-mode-re-idx* *cpio-newc-mode-re-idx*)
+(defvar *cpio-uid-re-idx* *cpio-newc-uid-re-idx*)
 (setq *cpio-uid-re-idx* *cpio-newc-uid-re-idx*)
+(defvar *cpio-gid-re-idx* *cpio-newc-gid-re-idx*)
 (setq *cpio-gid-re-idx* *cpio-newc-gid-re-idx*)
+(defvar *cpio-nlink-re-idx* *cpio-newc-nlink-re-idx*)
 (setq *cpio-nlink-re-idx* *cpio-newc-nlink-re-idx*)
+(defvar *cpio-mtime-re-idx* *cpio-newc-mtime-re-idx*)
 (setq *cpio-mtime-re-idx* *cpio-newc-mtime-re-idx*)
+(defvar *cpio-filesize-re-idx* *cpio-newc-filesize-re-idx*)
 (setq *cpio-filesize-re-idx* *cpio-newc-filesize-re-idx*)
+(defvar *cpio-namesize-re-idx* *cpio-newc-namesize-re-idx*)
 (setq *cpio-namesize-re-idx* *cpio-newc-namesize-re-idx*)
+(defvar *cpio-chksum-re-idx* *cpio-newc-chksum-re-idx*)
 (setq *cpio-chksum-re-idx* *cpio-newc-chksum-re-idx*)
+(defvar *cpio-filename-re-idx* *cpio-newc-filename-re-idx*)
 (setq *cpio-filename-re-idx* *cpio-newc-filename-re-idx*)
 
+(defvar *cdmt-archive-format* "newc")
 (setq *cdmt-archive-format* "newc")
 
 

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-odc.el --- handle old portable cpio entry header format
-;	$Id: cpio-odc.el,v 1.11 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-odc.el,v 1.12 2018/12/02 00:13:07 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -37,7 +37,8 @@
 ;;
 ;; Dependencies
 ;; 
-(load-file (concat default-directory "cpio-generic.el"))
+
+;; (load-file (concat default-directory "cpio-generic.el"))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.

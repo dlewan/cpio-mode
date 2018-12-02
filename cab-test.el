@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.7 2018/11/29 01:57:14 doug Exp $	
+;	$Id: cab-test.el,v 1.8 2018/11/29 17:46:58 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -52,7 +52,13 @@
 ;; Make the byte compiler happy.
 (defvar *cab-parent)
 (defvar *cab-subordinates*)
-
+(declare-function ert-set-test "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function ert--signal-should-execution "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function ert-fail "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function ert "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function cdmt-message "test-generic.el")
+;; EO making the byte compiler happy.
+;;;;;;;;;;;;;;;;
 
 ;; 
 ;; Vars

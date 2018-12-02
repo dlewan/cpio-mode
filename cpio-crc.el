@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.13 2018/11/29 01:57:14 doug Exp $	
+;	$Id: cpio-crc.el,v 1.14 2018/12/02 00:13:07 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -36,19 +36,22 @@
 ;;
 ;; Dependencies
 ;; 
-(eval-when-compile
-  (condition-case err
-      (require 'cpio-generic)
-    (error 
-     (if (file-exists-p (concat default-directory "cpio-generic.elc"))
-	 (load (concat default-directory "cpio-generic.elc"))
-       (load (concat default-directory "cpio-generic.el")))))
-  (condition-case err
-      (require 'cpio-newc)
-    (error
-     (if (file-exists-p (concat default-directory "cpio-newc.elc"))
-	 (load (concat default-directory "cpio-newc.elc"))
-       (load (concat default-directory "cpio-newc.el"))))))
+
+;; (eval-when-compile
+;;   (condition-case err
+;;       (require 'cpio-generic)
+;;     (error 
+;;      (if (file-exists-p (concat default-directory "cpio-generic.elc"))
+;; 	 (load (concat default-directory "cpio-generic.elc"))
+;;        (load (concat default-directory "cpio-generic.el")))))
+;;   (condition-case err
+;;       (require 'cpio-newc)
+;;     (error
+;;      (if (file-exists-p (concat default-directory "cpio-newc.elc"))
+;; 	 (load (concat default-directory "cpio-newc.elc"))
+;;        (load (concat default-directory "cpio-newc.el"))))))
+
+(require 'cpio-newc)
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -454,8 +457,8 @@ CAVEAT: This respects neither narrowing nor the point."
 
 ;; 
 ;; Commands
-;; 
-
-
+;;
+ 
 
+(provide 'cpio-crc)
 ;;; cpio-crc.el ends here.

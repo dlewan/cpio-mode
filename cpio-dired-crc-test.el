@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-crc-test.el --- brief description
-;	$Id: cpio-dired-crc-test.el,v 1.11 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-dired-crc-test.el,v 1.12 2018/11/29 17:46:58 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -159,6 +159,10 @@
 (declare-function cpio-image-dired-tag-entries "cpio-dired.el")
 (declare-function cpio-mode "cpio.el")
 (declare-function cpio-view-dired-style-buffer "cpio-dired.el")
+(declare-function cdmt-global-sub "test-generic.el")
+(declare-function cdmt-reset "test-generic.el")
+(declare-function cdmt-tidy-up-catalog "test-generic.el")
+(declare-function cdmt-test-save "test-generic.el")
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
 
@@ -174,8 +178,11 @@
   "A large archive used for testing.")
 (setq *cdmt-crc-large-archive* "test_data/alphabet/alphabet.crc.cpio")
 
+(defvar *cdmt-small-archive* *cdmt-crc-small-archive*)
 (setq *cdmt-small-archive* *cdmt-crc-small-archive*)
+(defvar *cdmt-large-archive* *cdmt-crc-large-archive*)
 (setq *cdmt-large-archive* *cdmt-crc-large-archive*)
+(defvar *cdmt-archive-format* "crc")
 (setq *cdmt-archive-format* "crc")
 
 (defvar *cdmt-crc-untouched-small-archive* "070702	(( magic    ))

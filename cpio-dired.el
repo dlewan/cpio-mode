@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired.el --- UI definition à la dired.
-;	$Id: cpio-dired.el,v 1.14 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-dired.el,v 1.15 2018/11/29 17:46:58 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -98,9 +98,14 @@ Keep any preceding comments."
 ;;
 ;; Dependencies
 ;; 
+
+(eval-when-compile
+  (require 'dired))
+(require 'dired)
+
 (eval-when-compile
   (require 'dired-aux))
-
+(require 'dired-aux)
 
 ;; 
 ;; Vars
@@ -1821,7 +1826,7 @@ significance for `dired-do-shell-command', and are passed through
 normally to the shell, but you must confirm first.
 
 If you want to use `*' as a shell wildcard with whitespace around
-it, write `*""' in place of just `*'.  This is equivalent to just
+it, write `*\"\"' in place of just `*'.  This is equivalent to just
 `*' in the shell, but avoids Dired's special handling.
 
 If COMMAND ends in `&', `;', or `;&', it is executed in the
@@ -1915,7 +1920,7 @@ See function `dired-do-rename-regexp' for more info."
 	       (cpio-set-mtime (cpio-entry-attrs entry) time)
 	       (cpio-dired-replace-dired-line entry))
 	     (setq human-timestamp nil))
-	    ((y-or-n-p (format "[[%s]] looks ambiguous. Try again?"))
+	    ((y-or-n-p (format "[[%s]] looks ambiguous. Try again?" time))
 	     (setq human-timestamp (read-from-minibuffer prompt)))
 	    (t (setq human-timestamp nil))))
     (cpio-dired-set-modified)))

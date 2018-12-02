@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-newc.el --- handle portable SVR4 cpio entry header formats.
-;	$Id: cpio-newc.el,v 1.15 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-newc.el,v 1.17 2018/12/02 00:13:07 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -53,12 +53,17 @@
 ;;
 ;; Dependencies
 ;; 
-(condition-case err
-    (require 'cpio-generic)
-    (error
-     (if (file-exists-p (concat default-directory "cpio-generic.elc"))
-	 (load-file (concat default-directory "cpio-generic.elc"))
-       (load-file (concat default-directory "cpio-generic.el")))))
+(eval-when-compile
+  (require 'cl))
+(unless (featurep 'cl)
+  (require 'cl))
+
+;; (condition-case err
+;;     (require 'cpio-generic)
+;;     (error
+;;      (if (file-exists-p (concat default-directory "cpio-generic.elc"))
+;; 	 (load-file (concat default-directory "cpio-generic.elc"))
+;;        (load-file (concat default-directory "cpio-generic.el")))))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.

@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-modes-test.el --- tests of the code in cpio-modes.el.
-;	$Id: cpio-modes-test.el,v 1.5 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-modes-test.el,v 1.6 2018/11/29 17:46:58 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -40,6 +40,14 @@
   (require 'ert))
 (load (concat default-directory "cpio-modes.el"))
 
+;;;;;;;;;;;;;;;;
+;; Make the byte compiler happy.
+(declare-function ert-set-test "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function ert--signal-should-execution "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function ert-fail "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+(declare-function ert "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
+;; EO making the byte compiler happy.
+;;;;;;;;;;;;;;;;
 
 ;; 
 ;; Vars

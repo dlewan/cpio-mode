@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-bin.el --- handle bin cpio entry header formats
-;	$Id: cpio-bin.el,v 1.11 2018/11/29 01:57:14 doug Exp $	
+;	$Id: cpio-bin.el,v 1.13 2018/12/02 00:13:07 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -38,6 +38,7 @@
 ;; 
 (eval-when-compile
   (require 'bindat))
+(require 'bindat)
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -527,4 +528,5 @@ once the TRAILER is written and padded."
 ;; 
 
 
+(provide 'cpio-bin)
 ;;; cpio-bin.el ends here.

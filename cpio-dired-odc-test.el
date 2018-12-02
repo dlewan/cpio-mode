@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio-dired-test.el --- Tests of cpio-dired-mode.
-;	$Id: cpio-dired-odc-test.el,v 1.9 2018/11/29 01:57:15 doug Exp $	
+;	$Id: cpio-dired-odc-test.el,v 1.10 2018/11/29 17:46:58 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -179,6 +179,10 @@
 (declare-function cpio-image-dired-tag-entries "cpio-dired.el")
 (declare-function cpio-mode "cpio.el")
 (declare-function cpio-view-dired-style-buffer "cpio.el")
+(declare-function cdmt-global-sub "test-generic.el")
+(declare-function cdmt-reset "test-generic.el")
+(declare-function cdmt-test-save "test-generic.el")
+(declare-function cdmt-tidy-up-catalog "test-generic.el")
 ;; EO for the byte compiler.
 ;;;;;;;;;;;;;;;;
 
@@ -194,8 +198,11 @@
   "A large archive used for testing.")
 (setq *cdmt-odc-large-archive* "test_data/alphabet/alphabet.odc.cpio")
 
+(defvar *cdmt-small-archive* *cdmt-odc-small-archive*)
 (setq *cdmt-small-archive* *cdmt-odc-small-archive*)
+(defvar *cdmt-large-archive* *cdmt-odc-large-archive*)
 (setq *cdmt-large-archive* *cdmt-odc-large-archive*)
+(defvar *cdmt-archive-format* "odc")
 (setq *cdmt-archive-format* "odc")
 
 (defvar *cdmt-odc-untouched-small-archive* "070707	(( magic    ))

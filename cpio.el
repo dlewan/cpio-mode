@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8 -*-
 ;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.17 2018/11/29 01:57:16 doug Exp $	
+;	$Id: cpio.el,v 1.19 2018/12/02 00:13:07 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.
@@ -242,65 +242,82 @@
 
 
 ;; During development I need access to local files.
-(setq load-path (add-to-list 'load-path (substring default-directory -1)))
 
-(eval-when-compile
+;; (setq load-path (add-to-list 'load-path (substring default-directory -1)))
+
+;; (require 'dired)
+;; (if (file-exists-p (concat default-directory "cpio-generic.elc"))
+;;     (load (concat default-directory "cpio-generic.elc"))
+;;   (load (concat default-directory "cpio-generic.el")))
+;; (if (file-exists-p (concat default-directory "cpio-modes.elc"))
+;;     (load (concat default-directory "cpio-modes.elc"))
+;;   (load (concat default-directory "cpio-modes.el")))
+;; (if (file-exists-p (concat default-directory "cpio-affiliated-buffers.elc"))
+;;     (load (concat default-directory "cpio-affiliated-buffers.elc"))
+;;   (load (concat default-directory "cpio-affiliated-buffers.el")))
+;; (if (file-exists-p (concat default-directory "cpio-bin.elc"))
+;;     (load (concat default-directory "cpio-bin.elc"))
+;;   (load (concat default-directory "cpio-bin.el")))
+;; newc has to precede crc.
+;; (if (file-exists-p (concat default-directory "cpio-newc.elc"))
+;;     (load (concat default-directory "cpio-newc.elc"))
+;;   (load (concat default-directory "cpio-newc.el")))
+;; (if (file-exists-p (concat default-directory "cpio-crc.elc"))
+;;     (load (concat default-directory "cpio-crc.elc"))
+;;   (load (concat default-directory "cpio-crc.el")))
+;; (if (file-exists-p (concat default-directory "cpio-hpbin.elc"))
+;;     (load (concat default-directory "cpio-hpbin.elc"))
+;;   (load (concat default-directory "cpio-hpbin.el")))
+;; (if (file-exists-p (concat default-directory "cpio-hpodc.elc"))
+;;     (load (concat default-directory "cpio-hpodc.elc"))
+;;   (load (concat default-directory "cpio-hpodc.el")))
+;; (if (file-exists-p (concat default-directory "cpio-odc.elc"))
+;;     (load (concat default-directory "cpio-odc.elc"))
+;;   (load (concat default-directory "cpio-odc.el")))
+;; (if (file-exists-p (concat default-directory "cpio-dired.elc"))
+;;     (load (concat default-directory "cpio-dired.elc"))
+;;   (load (concat default-directory "cpio-dired.el")))
+;; (if (file-exists-p (concat default-directory "cpio-entry-contents-mode.elc"))
+;;     (load (concat default-directory "cpio-entry-contents-mode.elc"))
+;;   (load (concat default-directory "cpio-entry-contents-mode.el")))
+
+(unless (featurep 'dired)
   (require 'dired))
 
-;; (require 'cpio-generic)
-(if (file-exists-p (concat default-directory "cpio-generic.elc"))
-    (load (concat default-directory "cpio-generic.elc"))
-  (load (concat default-directory "cpio-generic.el")))
-;; (require 'cpio-modes)
-(if (file-exists-p (concat default-directory "cpio-modes.elc"))
-    (load (concat default-directory "cpio-modes.elc"))
-  (load (concat default-directory "cpio-modes.el")))
-;; (require 'cpio-affiliated-buffers)
-(if (file-exists-p (concat default-directory "cpio-affiliated-buffers.elc"))
-    (load (concat default-directory "cpio-affiliated-buffers.elc"))
-  (load (concat default-directory "cpio-affiliated-buffers.el")))
+(unless (featurep 'cpio-generic)
+  (require 'cpio-generic))
+(unless (featurep 'cpio-modes)
+  (require 'cpio-modes))
 
+(unless (featurep 'cpio-affiliated-buffers)
+  (require 'cpio-affiliated-buffers))
 
-;; (require 'cpio-bin)
-(if (file-exists-p (concat default-directory "cpio-bin.elc"))
-    (load (concat default-directory "cpio-bin.elc"))
-  (load (concat default-directory "cpio-bin.el")))
-;; newc has to precede crc.
-;; (require 'cpio-newc)
-(if (file-exists-p (concat default-directory "cpio-newc.elc"))
-    (load (concat default-directory "cpio-newc.elc"))
-  (load (concat default-directory "cpio-newc.el")))
-;; (require 'cpio-crc)
-(if (file-exists-p (concat default-directory "cpio-crc.elc"))
-    (load (concat default-directory "cpio-crc.elc"))
-  (load (concat default-directory "cpio-crc.el")))
-;; (require 'cpio-hpbin)
-(if (file-exists-p (concat default-directory "cpio-hpbin.elc"))
-    (load (concat default-directory "cpio-hpbin.elc"))
-  (load (concat default-directory "cpio-hpbin.el")))
-;; (require 'cpio-hpodc)
-(if (file-exists-p (concat default-directory "cpio-hpodc.elc"))
-    (load (concat default-directory "cpio-hpodc.elc"))
-  (load (concat default-directory "cpio-hpodc.el")))
-;; (require 'cpio-odc)
-(if (file-exists-p (concat default-directory "cpio-odc.elc"))
-    (load (concat default-directory "cpio-odc.elc"))
-  (load (concat default-directory "cpio-odc.el")))
-;; (require 'cpio-tar)
-;; (require 'cpio-ustar)
+(unless (featurep 'cpio-bin)
+  (require 'cpio-bin))
+;; While I like things to be alphabetical, newc /must/ precede crc.
+(unless (featurep 'cpio-newc)
+  (require 'cpio-newc))
+(unless (featurep 'cpio-crc)
+  (require 'cpio-crc))
+(unless (featurep 'cpio-hpbin)
+  (require 'cpio-hpbin))
+(unless (featurep 'cpio-hpodc)
+  (require 'cpio-hpodc))
+(unless (featurep 'cpio-odc)
+  (require 'cpio-odc))
+(unless (featurep 'cpio-dired)
+  (require 'cpio-dired))
+(unless (featurep 'cpio-entry-contents-mode)
+  (require 'cpio-entry-contents-mode))
 
-;; (require 'cpio-wanted)
-(if (file-exists-p (concat default-directory "cpio-wanted.elc"))
-    (load (concat default-directory "cpio-wanted.elc"))
-  (load (concat default-directory "cpio-wanted.el")))
-;; (require 'cpio-dired)
-(if (file-exists-p (concat default-directory "cpio-dired.elc"))
-    (load (concat default-directory "cpio-dired.elc"))
-  (load (concat default-directory "cpio-dired.el")))
-;; (require 'cpio-entry-contents-mode)
-(if (file-exists-p (concat default-directory "cpio-entry-contents-mode.elc"))
-    (load (concat default-directory "cpio-entry-contents-mode.elc"))
-  (load (concat default-directory "cpio-entry-contents-mode.el")))
+;; Formats not supported:
+;;   (require 'cpio-tar)
+;;   (require 'cpio-ustar)
+;; Obsolete files:
+;;   (require 'cpio-wanted)
+;;   (if (file-exists-p (concat default-directory "cpio-wanted.elc"))
+;;       (load (concat default-directory "cpio-wanted.elc"))
+;;     (load (concat default-directory "cpio-wanted.el")))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -338,7 +355,7 @@
 (defvar *cpio-uid-parsed-idx*)
 (defvar cpio-entry-name)
 (defvar cpio-try-names)
-(declare-function cpio-contents-buffer-name "cpio-dired.el")
+;;;; (declare-function cpio-contents-buffer-name "cpio-dired.el")
 (declare-function cpio-dired-buffer-name "cpio-dired.el")
 (declare-function cpio-dired-move-to-first-entry "cpio-dired.el")
 (declare-function cpio-dired-next-line "cpio-dired.el")
@@ -827,7 +844,7 @@ CAVEAT: See `cpio-magic'."
   "Return the end of the unpadded header specified in ENTRY."
   (let ((fname "cpio-entry-header-end")
 	(attrs (aref entry *cpio-catalog-entry-attrs-idx*)))
-    (+ (cpio-entry-header-start entry) *cpio-header-length* (cpio-name-size attrs))
+    (+ (cpio-entry-header-start entry) *cpio-header-length* (cpio-namesize attrs))
     ))
 
 (defun cpio-entry-contents-start (entry)
@@ -1591,15 +1608,15 @@ use \"coding: 'raw-text\" instead."
 	  (make-local-variable 'enable-character-translation)
 	  (setq enable-character-translation nil))
 	(if coding-system
-	    (cons coding-system :coding))))
-      ;; Finally, try all the `auto-coding-functions'.
-      (let ((funcs auto-coding-functions)
-	    (coding-system nil))
-	(while (and funcs (not coding-system))
-	  (setq coding-system (ignore-errors
-				(save-excursion
-				  (goto-char (point-min))
-				  (funcall (pop funcs) size)))))
+	    (cons coding-system :coding)))
+	;; Finally, try all the `auto-coding-functions'.
+	(let ((funcs auto-coding-functions)
+	      (coding-system nil))
+	  (while (and funcs (not coding-system))
+	    (setq coding-system (ignore-errors
+				  (save-excursion
+				    (goto-char (point-min))
+				    (funcall (pop funcs) size))))))
 	(if coding-system
 	    (cons coding-system 'auto-coding-functions)))))
 
