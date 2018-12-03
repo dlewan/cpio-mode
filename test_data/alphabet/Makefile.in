@@ -1,1 +1,307 @@
+# -*- mode: makefile; coding: utf-8 -*-
+#	$Id: Makefile.in,v 1.2 2018/12/03 00:43:40 doug Exp $	
+
+# Copyright © 2013, 2014, 2015, 2016, 2017, 2018
+# Douglas Lewan, d.lewan2000@gmail.com.
+# All rights reserved.
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+PROJECT		=	@PACKAGE_NAME@
+PROJECT_VERSION	=	@PACKAGE_VERSION@
+
+################################
+# 
+# What we're building
+# 
+CFILES		=	
+HFILES		=	
+OFILES		=	${CFILES:.o=.c}
+
+
+SHELLS		=	
+EL_FILES	=	
+SRC_FILES	=	Makefile.in
+
+################################
+# 
+# Where things are
+# 
+prefix		=	@prefix@
+distdir		=	${abs_srcdir}/${PACKAGE}-${PACKAGE_VERSION}/test_data/alphabet
+
+# And where they go
+bindir		=	${prefix}/bin
+docdir		=	${prefix}/share/doc
+exec_prefix	=	${prefix}
+execdir		=	${exec_prefix}
+libdir		=	${exec_prefix}/lib
+libexecdir	=	${exec_prefix}/libexec
+sbindir		=	${exec_prefix}/sbin
+
+datarootdir	=	${prefix}/share
+datadir		=	${datarootdir}
+infodir		=	${datarootdir}/info
+sysconfdir	=	${prefix}/etc
+sharedstatedir	=	${prefix}/com
+localstatdir	=	${prefix}/var
+runstatedir	=	${localstatdir}/run
+
+includedir	=	${prefix}/include
+oldincludedir	=	/usr/include
+docdir		=	@docdir@
+infodir		=	@infodir@
+htmldir		=	${docdir}
+dvidir		=	${docdir}
+pdfdir		=	${docdir}
+psdir		=	${docdir}
+libdir		=	${exec_prefix}/lib
+lispdir		=	${prefix}/share/${PROJECT}/${PROJECT_VERSION}/lisp
+localedir	=	${datarootdir}/locale
+mandir		=	${datarootdir}/man
+man1dir		=	${mandir}/man1
+man2dir		=	${mandir}/man2
+man3dir		=	${mandir}/man3
+man4dir		=	${mandir}/man4
+man5dir		=	${mandir}/man5
+man6dir		=	${mandir}/man6
+man7dir		=	${mandir}/man7
+manext		=	.1
+man1ext		=	.1
+man2ext		=	.2
+man3ext		=	.3
+man4ext		=	.4
+man5ext		=	.5
+man6ext		=	.6
+man7ext		=	.7
+srcdir		=	@srcdir@
+abs_srcdir	=	@abs_srcdir@
+
+################################
+# 
+# Distribution information
+# 
+TAR_OPTS	=	@tar_opts@
+TAR_SUFFIX	=	@tar_suffix@
+
+TARBALL		=	${PROJECT}-${PROJECT_VERSION}-${shell date +%Y%m%d%H%M%S}.${TAR_SUFFIX}
+
+
+################################
+# 
+# Programs we use
+# 
+
+INSTALL	=	@INSTALL@
+CC	=	@CC@
+CFLAGS	=	
+
+
+################################
+#
+# Keys for building test data.
+# 
+LETTERS	=	a b c d e f g h i j k l m n o p q r s t u v w x y z
+
+
+################################################################
+
+################################
+# 
+# Building
+# 
+
+.PHONY: default help all alphabet nonsense check_gnu
+
+default:	check_gnu
+	@echo "This Makefile has no defaults."
+	@echo "Please type one of the archive format targets:"
+	@echo "    ${MAKE} all"
+	@echo "    ${MAKE} bin"
+	@echo "    ${MAKE} crc"
+	@echo "    ${MAKE} hpbin"
+	@echo "    ${MAKE} hpodc"
+	@echo "    ${MAKE} newc"
+	@echo "    ${MAKE} odc"
+	@echo "    ${MAKE} tar"
+	@echo "    ${MAKE} ustar"
+	@echo "instead."
+
+help:	check_gnu	default
+
+nonsense:
+	@echo "The target [[${@}]] does not make sense in this directory."
+
+check_gnu:
+	@${MAKE} --version >/dev/null 2>&1 || ( echo "This makefile requires GNU Make." && exit 1 )
+
+.PHONY: alphabet ${LETTERS}
+
+alphabet: check_gnu ${LETTERS}
+
+small_alphabet: check_gnu a b c
+
+${LETTERS}:
+	@for i in ${@} ${@}${@} ${@}${@}${@} ${@}${@}${@}${@} ${@}${@}${@}${@}${@} ; do	\
+		>  $${i} ; 								\
+		echo       >> $${i} ; 							\
+		echo $${i} >> $${i} ; 							\
+		echo       >> $${i} ; 							\
+	done
+	@if ! [ -d ${@}${@}${@}${@}${@}.d ] ; then 					\
+		mkdir ${@}${@}${@}${@}${@}.d ; 						\
+	fi
+
+################################
+#
+# Cpio formats
+#
+.PHONY: all bin crc hpbin hpodc newc odc tar ustar
+all: bin crc hpbin hpodc newc odc tar ustar
+# Yes, these regular expressions are a little brittle,
+# but they work in this directory.
+bin:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+crc:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+hpbin:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+hpodc:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+newc:	alphabet 
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+odc:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+tar:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+ustar:	alphabet
+	ls -1 -d ? ?? ??? ???? ????? ?????.d | grep -v CVS | cpio -o -H ${@} > alphabet.${@}.cpio
+	ls -1 -d a aa aaa aaaa aaaaa aaaaa.d b bb bbb bbbb bbbbb bbbbb.d c cc ccc cccc ccccc ccccc.d | cpio -o -H ${@} > alphabet_small.${@}.cpio
+	ls -1 -d a aa aaaaa.d b bb | cpio -o -H ${@} > alphabet_tiny.${@}.cpio
+	ls -1 -d a aaaaa.d | cpio -o -H ${@} > alphabet_mini.${@}.cpio
+
+################################
+# 
+# Testing
+# 
+
+check: nonsense
+
+installcheck: nonsense
+
+.PHONY: check_copyrights
+check_copyrights: ${SRC_FILES}
+	@EXIT=0 ; 								\
+	for f in ${SRC_FILES} ; do						\
+		if grep -q -i copyright $${f} ; then 				\
+			: ; 							\
+		else 								\
+			echo "$${f} looks like it is missing a copyright" ; 	\
+			EXIT=1 ; 						\
+		fi ; 								\
+	done ; 									\
+	exit ${EXIT}
+
+################################
+# 
+# Installation
+# 
+
+install:	nonsense
+
+installdirs:	nonsense
+
+uninstall:	nonsense
+
+install-html:	nonsense
+install-dvi:	nonsense
+install-pdf:	nonsense
+install-ps:	nonsense
+install-strip:	nonsense
+
+
+################################
+# 
+# Hygiene
+# 
+
+clean:
+	-rm *.cpio
+	-for l in ${LETTERS} ; do									\
+		rm $${l} $${l}$${l} $${l}$${l}$${l} $${l}$${l}$${l}$${l} $${l}$${l}$${l}$${l}$${l} ; 	\
+		rmdir $${l}$${l}$${l}$${l}$${l}.d ; 							\
+	done
+
+distclean: clean
+	-rm -f *~
+
+mostlyclean: clean
+
+maintainer-clean: distclean
+
+
+################################
+# 
+# Documentation
+# 
+
+dvi:	nonsense
+
+html:	nonsense
+
+pdf:	nonsense
+
+ps:	nonsense
+
+################################
+# 
+# Distribution
+# 
+
+dist:	check_gnu distdir
+	${INSTALL} Makefile.in ${distdir}
+
+distdir:	check_gnu
+	test -d ${distdir} || mkdir -o ${distdir}
+
+
+
+################################
+# 
+# Miscellany
+# 
+
+info:	nonsense
 
