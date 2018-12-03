@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-wanted.el --- Stuff cpio-mode wants from emacs lisp, but that isn't there.
-;	$Id: cpio-wanted.el,v 1.2 2018/05/12 16:36:04 doug Exp $	
+;;; cpio-wanted.el --- Stuff cpio-mode wants from emacs lisp, but that isn't there. -*- coding: utf-8 -*-
+;	$Id: cpio-wanted.el,v 1.4 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -20,11 +19,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2015 Dec 26
-;; Version: 0.02
-;; Keywords: wanted, not provided
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 

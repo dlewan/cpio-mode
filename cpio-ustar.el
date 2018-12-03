@@ -1,9 +1,9 @@
-;; -*- coding: utf-8 -*-
-;; $Id: cpio-ustar.el,v 1.4 2018/05/12 16:36:03 doug Exp $
+;; cpio-ustar.el --- Let tar-mode handle tar archives. -*- coding: utf-8 -*-
+;; $Id: cpio-ustar.el,v 1.6 2018/12/03 19:57:22 doug Exp $
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2015, 2018 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2015, 2018 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify

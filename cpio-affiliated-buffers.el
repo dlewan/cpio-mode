@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other.
-;	$Id: cpio-affiliated-buffers.el,v 1.9 2018/11/29 01:57:14 doug Exp $	
+;;; cpio-affiliated-buffers.el --- Establish and manage buffers affiliated with each other. -*- coding: utf-8 -*-
+;	$Id: cpio-affiliated-buffers.el,v 1.11 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -20,11 +19,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Nov 22
-;; Version: 
-;; Keywords: 
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 

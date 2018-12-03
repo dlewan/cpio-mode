@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-dired.el --- UI definition à la dired.
-;	$Id: cpio-dired.el,v 1.15 2018/11/29 17:46:58 doug Exp $	
+;;; cpio-dired.el --- UI definition à la dired. -*- coding: utf-8 -*-
+;	$Id: cpio-dired.el,v 1.18 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -20,11 +19,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Dec 01
-;; Version: 
-;; Keywords: cpio, cpio-mode, dired
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 
@@ -1231,11 +1230,10 @@ the string of command switches for the third argument of `diff'."
 	 (format "Diff %s with%s: " current
 		 (if default (format " (default %s)" default) ""))
 	 target-dir default t))
-      (if current-prefix-arg
-	  (read-string "Options for diff: "
-		       (if (stringp diff-switches)
-			   diff-switches
-			 (mapconcat 'identity diff-switches " ")))))))
+      (if current-prefix-arg (read-string "Options for diff: "
+					  (if (stringp diff-switches)
+					      diff-switches
+					    (mapconcat 'identity diff-switches " ")))))))
   (let ((fname "cpio-dired-diff"))
     (error "%s() is not yet implemented" fname)))
 
@@ -1305,6 +1303,8 @@ in the buffer containing the archive."
 			     ()))
 	(local-group (if group
 			 group
+		       ;; HEREHERE This (read-string) doesn't play nicely
+		       ;; with make check.
 		       (read-string "Group? "
 				    nil
 				    *cpio-dired-do-chgrp-history*)))
@@ -1406,9 +1406,11 @@ into the minibuffer."
 			     ()))
 	(local-owner (if owner
 			 owner
-		       (read-string "Owner? "
-				    nil
-				    *cpio-dired-do-chown-history*)))
+		       ;; HERREHERE The following (read-string) doesn't play nicely
+		       ;; with make check*.
+ 		       (read-string "Owner? "
+ 				    nil
+ 				    *cpio-dired-do-chown-history*)))
 	(local-group)
 	(local-cpio-dired-buffer (if cpio-dired-buffer
 				     cpio-dired-buffer))

@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-crc.el --- handle crc cpio entry header formats
-;	$Id: cpio-crc.el,v 1.14 2018/12/02 00:13:07 doug Exp $	
+;;; cpio-crc.el --- handle crc cpio entry header formats -*- coding: utf-8 -*-
+;	$Id: cpio-crc.el,v 1.16 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -21,11 +20,11 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;; 
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.02
-;; Keywords: cpio, crc header
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 

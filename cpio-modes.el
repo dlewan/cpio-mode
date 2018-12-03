@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-modes.el --- handle modes.
-;	$Id: cpio-modes.el,v 1.9 2018/06/26 15:57:50 doug Exp $	
+;;; cpio-modes.el --- handle file modes/permissions. -*- coding: utf-8 -*-
+;	$Id: cpio-modes.el,v 1.11 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -20,11 +19,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Nov 28
-;; Version: 
-;; Keywords: 
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 

@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cab-text.el --- brief description
-;	$Id: cab-test.el,v 1.8 2018/11/29 17:46:58 doug Exp $	
+;;; cab-test.el --- automated tests for cpio-affiliated-buffers. -*- coding: utf-8 -*-
+;	$Id: cab-test.el,v 1.10 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 
@@ -20,11 +19,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <(d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Nov 22
-;; Version: 
-;; Keywords: 
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 
@@ -73,19 +72,18 @@
   (let ((fname "cab-test-registry-1")
 	(parent (get-buffer-create "r-1-p"))
 	(child  (get-buffer-create "r-1-c")))
-    (message "%s(): Entering." fname)
-    (if (buffer-live-p parent)
-	(message "    Parent buffer is live.")
-      (message "    Parent buffer is NOT live."))
-    (if (buffer-live-p child)
-	(message "    Child buffer is live.")
-      (message "    Child buffer is NOT live."))
+    ;; (if (buffer-live-p parent)
+    ;;     (message "    Parent buffer is live.")
+    ;;   (message "    Parent buffer is NOT live."))
+    ;; (if (buffer-live-p child)
+    ;;     (message "    Child buffer is live.")
+    ;;   (message "    Child buffer is NOT live."))
     
     (cab-register child parent)
-    (message "parent of child is [[%s]]." (with-current-buffer child *cab-parent*))
-    (message "subordinates of child are [[%s]]." (with-current-buffer child *cab-subordinates*))
-    (message "parent of parent is [[%s]]." (with-current-buffer parent *cab-parent*))
-    (message "subordinates of parent are [[%s]]." (with-current-buffer parent *cab-subordinates*))
+    ;; (message "parent of child is [[%s]]." (with-current-buffer child *cab-parent*))
+    ;; (message "subordinates of child are [[%s]]." (with-current-buffer child *cab-subordinates*))
+    ;; (message "parent of parent is [[%s]]." (with-current-buffer parent *cab-parent*))
+    ;; (message "subordinates of parent are [[%s]]." (with-current-buffer parent *cab-subordinates*))
 
     (should (equal (with-current-buffer parent *cab-parent*)
 		   nil))
@@ -94,8 +92,7 @@
     (should (equal (with-current-buffer child *cab-parent*)
 		   parent))
     (should (equal (with-current-buffer child *cab-subordinates*)
-		   ()))
-    (message "%s(): Leaving." fname)))
+		   ()))))
 
 (ert-deftest cab-test-registry-2 ()
   "Tests registering two buffers under the same parent."
@@ -103,8 +100,6 @@
 	(parent   (get-buffer-create "r-2-p2"))
 	(buffer-1 (get-buffer-create "r-2-b21"))
 	(buffer-2 (get-buffer-create "r-2-b22")))
-    (message "%s(): Entering." fname)
-
     (cab-register buffer-1 parent)
     (cab-register buffer-2 parent)
 
@@ -119,8 +114,7 @@
     (should (equal (with-current-buffer buffer-1 *cab-subordinates*)
 		   ()))
     (should (equal (with-current-buffer buffer-2 *cab-subordinates*)
-		   ()))
-    (message "%s(): Leaving." fname)))
+		   ()))))
 
 (ert-deftest cab-test-registry-3 ()
   "Tests registering a 3 level hierarchy."
@@ -133,8 +127,6 @@
 	(grandchild-313 (get-buffer-create "r-3-b313"))
 	(grandchild-321 (get-buffer-create "r-3-b321"))
 	(grandchild-322 (get-buffer-create "r-3-b322")))
-    (message "%s(): Entering." fname)
-    
     (cab-register parent-1       grandparent)
     (cab-register parent-2       grandparent)
     (cab-register grandchild-311 parent-1)
@@ -155,16 +147,13 @@
     (should (member grandchild-312 (with-current-buffer parent-1 *cab-subordinates*)))
     (should (member grandchild-313 (with-current-buffer parent-1 *cab-subordinates*)))
     (should (member grandchild-321 (with-current-buffer parent-2 *cab-subordinates*)))
-    (should (member grandchild-322 (with-current-buffer parent-2 *cab-subordinates*)))
-    (message "%s(): Leaving." fname)))
+    (should (member grandchild-322 (with-current-buffer parent-2 *cab-subordinates*)))))
 
 (ert-deftest cab-test-deregister-1 ()
   "Test deregistering the registry established in (cab-test-registry-1)."
   (let ((fname "cab-test-registry-1")
 	(parent (get-buffer-create "dr-1-p1"))
 	(buffer (get-buffer-create "dr-1-b2")))
-    (message "%s(): Entering." fname)
-    
     (cab-register buffer parent)
     (cab-deregister buffer)
     
@@ -178,8 +167,7 @@
     (cab-register buffer parent)
     (cab-deregister parent)
     (should-not (buffer-live-p parent))
-    (should-not (cab-registered-p buffer parent))
-    (message "%s(): Leaving." fname)))
+    (should-not (cab-registered-p buffer parent))))
 
 (ert-deftest cab-test-deregister-2 ()
   "Test deregistering the registry established in (cab-test-registry-2)."
@@ -187,8 +175,6 @@
 	(parent   (get-buffer-create "dr-2-p2"))
 	(buffer-1 (get-buffer-create "dr-2-b21"))
 	(buffer-2 (get-buffer-create "dr-2-b22")))
-    (message "%s(): Entering." fname)
-
     (cab-register buffer-1 parent)
     (cab-register buffer-2 parent)
     (cab-deregister buffer-1)
@@ -214,9 +200,7 @@
     (should-not (cab-registered-p buffer-1 parent))
 
     (should-not (buffer-live-p buffer-2))
-    (should-not (cab-registered-p buffer-2 parent))
-
-    (message "%s(): Leaving." fname)))
+    (should-not (cab-registered-p buffer-2 parent))))
 
 (ert-deftest cab-test-deregister-3 ()
   "Test deregistering the registry established in (cab-test-registry-3)."
@@ -229,8 +213,6 @@
 	(grandchild-313 (get-buffer-create "dr-3-b313"))
 	(grandchild-321 (get-buffer-create "dr-3-b321"))
 	(grandchild-322 (get-buffer-create "dr-3-b322")))
-    (message "%s(): Entering." fname)
-
     (cab-register parent-1       grandparent)
     (cab-register parent-2       grandparent)
     (cab-register grandchild-311 parent-1)
@@ -276,9 +258,7 @@
 		grandchild-312
 		grandchild-313
 		grandchild-321
-		grandchild-322))
-
-    (message "%s(): Leaving." fname)))
+		grandchild-322))))
 
 (ert-deftest cab-test-kill-1 ()
   "Tests killing in the hierarchy created in (cab-test-registry-1)."
@@ -286,20 +266,8 @@
   (let ((fname "cab-test-kill-1")
 	(parent (get-buffer-create "k-1-p1"))
 	(child  (get-buffer-create "k-1-b2")))
-    (cdmt-message "%s(): Entering." fname)
-
-    (should (cond ((buffer-live-p parent)
-		   (cdmt-message "    Parent buffer is live.")
-		   t)
-		  (t
-		   (cdmt-message "    Parent buffer is not live!")
-		   nil)))
-    (should (cond ((buffer-live-p child)
-		   (cdmt-message "    Child buffer is live.")
-		   t)
-		  (t
-		   (cdmt-message "    Child buffer is not live!")
-		   nil)))
+    (should (buffer-live-p parent))
+    (should (buffer-live-p child))
 
     (cab-register child parent)
     (kill-buffer child)
@@ -321,9 +289,7 @@
     (should-not (if (buffer-live-p parent)
 		    (with-current-buffer parent
 		      (member child *cab-subordinates*))
-		  nil))
-		  
-    (cdmt-message "%s(): Leaving." fname)))
+		  nil))))
 
 (ert-deftest cab-test-kill-2 ()
   "Tests killing in the hierarchy established in (cab-test-registry-2)."
@@ -331,8 +297,6 @@
 	(parent  (get-buffer-create "k-2-p2"))
 	(child-1 (get-buffer-create "k-2-b21"))
 	(child-2 (get-buffer-create "k-2-b22")))
-    (cdmt-message "%s(): Entering." fname)
-
     (cab-register child-1 parent)
     (cab-register child-2 parent)
 
@@ -365,9 +329,7 @@
     (kill-buffer parent)
 
     (should-not (buffer-live-p parent))
-    (should     (buffer-live-p child-1))
-
-    (cdmt-message "%s(): Leaving." fname)))
+    (should     (buffer-live-p child-1))))
 
 (ert-deftest cab-test-kill-3 ()
   "Test killing a 3 level hierarchy."
@@ -380,8 +342,6 @@
 	(grandchild-313 (get-buffer-create "k-3-b313"))
 	(grandchild-321 (get-buffer-create "k-3-b321"))
 	(grandchild-322 (get-buffer-create "k-3-b322")))
-    (cdmt-message "%s(): Entering." fname)
-
     (cab-register parent-1       grandparent)
     (cab-register parent-2       grandparent)
     (cab-register grandchild-311 parent-1)
@@ -469,10 +429,7 @@
       (should-not (buffer-live-p grandchild-312))
       (should     (buffer-live-p grandchild-313))
       (should     (buffer-live-p grandchild-321))
-      (should-not (buffer-live-p grandchild-322))
-
-      ;; This bothers the byte compiler for some reason.
-      (cdmt-message "%s(): Leaving." fname))))
+      (should-not (buffer-live-p grandchild-322)))))
 
 (ert-deftest cab-test-register-negatively-0 ()
   "Test of the things that (cab-register) should not do.

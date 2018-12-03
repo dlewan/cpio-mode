@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio.el --- cpio-mode for emacs
-;	$Id: cpio.el,v 1.19 2018/12/02 00:13:07 doug Exp $	
+;;; cpio.el --- Handle cpio archives in the style of dired. -*- coding: utf-8 -*-
+;	$Id: cpio.el,v 1.20 2018/12/03 00:43:40 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.
@@ -18,15 +17,16 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
-;; Maintainer: -- " --
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.02
-;; Keywords: cpio, archive
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 
-;;; Documentation:
+;; This package implements cpio-mode, a mode for viewing cpio archives
+;; through a dired-like interface.
 
 ;; 
 ;; NAME: cpio-mode
@@ -95,6 +95,9 @@
 ;;     (for example, a set-uid executable)
 ;;     when unpacked by root.
 ;; 
+
+;;; Documentation:
+
 
 ;; 
 ;; cpio.el is the entry point to all of cpio-mode.

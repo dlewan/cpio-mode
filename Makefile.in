@@ -1,5 +1,5 @@
 # -*- mode: makefile; coding: utf-8 -*-
-#	$Id: Makefile.in,v 1.9 2018/12/02 00:13:07 doug Exp $	
+#	$Id: Makefile.in,v 1.11 2018/12/03 18:03:57 doug Exp $	
 
 # 
 # Copyright © 2013, 2014, 2015, 2016, 2017, 2018 
@@ -60,6 +60,11 @@ TEST_FILES	=	cab-test.el			\
 			cpio-dired-test.el		\
 			cpio-modes-test.el
 
+SUPPORT_FILES	=	cpio-affiliated-buffers.el	\
+			cpio-generic.el			\
+			cpio-modes.el
+
+
 EL_FILES	=	${APP_FILES} ${TEST_FILES} ${SUPPORT_FILES}
 LIB_FILES	=
 DOC_FILES	=
@@ -76,6 +81,8 @@ SRC_FILES	=	configure	\
 			stamp-h.in	\
 			THANKS		\
 			${EL_FILES}
+
+subdirs		=	test_data/alphabet
 
 ################################
 # 
@@ -98,6 +105,8 @@ infodir		=	@infodir@
 sharedir	=	${prefix}/share/${PACKAGE}/${PACKAGE_VERSION}
 sharelibdir	=	${sharedir}/lib
 sharelispdir	=	${sharedir}/lisp
+srcdir		=	@srcdir@
+abs_srcdir	=	@abs_srcdir@
 
 
 ################################
@@ -137,7 +146,6 @@ BYTE_COMPILE_FLAGS = $(BIG_STACK_OPTS) \
 # EO stuff from emacs' lisp/Makefile.in
 ################################
 
-
 ################################################################
 
 ################################
@@ -148,115 +156,105 @@ BYTE_COMPILE_FLAGS = $(BIG_STACK_OPTS) \
 default:	check_gnu
 	@echo 
 	@echo "There is no default action in this Makefile."
-	@echo "Please type one of the following"
-	@for t in all check configure-default install uninstall dist help; do	\
-		echo "    make $${t}" ;			\
-	done
-	@echo 
+	${MAKE} help
 
 help:	check_gnu
-	@echo "make all"
-	@echo "make check"
-	@echo "make configure-default"
-	@echo "make install"
-	@echo "make uninstall"
-	@echo "make dist        builds a tarball of this source tree."
-	@echo "make help	shows this help."
-	@echo "    Look in the parent directory for it."
-	@echo ""
-	@echo "make help        gets this help."
+	@echo "The Makefile has the following targets:"
+	@echo "    make check -- check_cab and check_modes."
+	@echo "    make check_cab -- run automated tests of cpio-affilitated-buffers.el."
+	@echo "    make check_copyrights -- scan files for copyrights."
+	@echo "    make check_modes -- run automated tests agains cpio-modes.el."
+	@echo "    make clean -- remove byte compiled files."
+	@echo "    make dist -- build a distributable tarball."
+	@echo "    make distclean -- clean, leaving only distribution files."
+	@echo "    make help -- present this help."
+	@echo "    make maintainer-clean -- clean and remove crufty files."
+	@echo "    make mostlyclean -- like distclean."
+	@echo "    make simple_install -- install the code for cpio-mode."
+	@echo "    make tags -- run tags on the cpio-mode source."
+	@echo "    make uninstall -- uninstall cpio-mode."
+	@echo "    make update_versions -- update the Version: fields in cpio-mode code."
+	@echo "    make version -- print the version of cpio-mode."
+	@echo "The following targets are incomplete, incorrect or just not implemented:"
+	@echo "    X make check -- run automated tests."
+	@echo "    X make elc -- byte compile cpio-mode."
+	@echo "    X make install -- install a byte compiled instance of cpio-mode."
+	@echo "    X make check_bin -- run automated tests of binary format handling."
+	@echo "    X make check_crc -- run automated tests of crc format handling."
+	@echo "    X make check_newc -- run automated tests of newc format handling."
+	@echo "    X make check_odc -- run automated tests of odc format handling."
 
 version:
 	@echo ${PACKAGE} ${PACKAGE_VERSION}
 
 all:	default
 
-.PHONY:	check_gnu elc
+.PHONY:	check_gnu elc update_versions
 
 elc:	${ELC_FILES}
 
 check_gnu:
 	@${MAKE} --version >/dev/null 2>&1 || ( echo "This makefile requires GNU Make." && exit 1 )
 
+update_versions:	configure.ac
+	@for f in ${EL_FILES} ; do 											\
+		sed -n -E -e 's/^;; Version: (.*)$$/;; Version: '${PACKAGE_VERSION}'/' -ep < $${f} >$${f}.tmp ; 	\
+		mv -f $${f}.tmp $${f} ; 										\
+	done
+
 ################################
 # 
 # Testing
 # 
 
-.PHONY: check check_cab installcheck
-check:
-	@for f in ${TEST_FILES} ; do 								\
-		echo "################################################################" ; 	\
-		echo "# " 								; 	\
-		echo "# Running tests in $${f}." 					; 	\
-		echo "# " 								; 	\
-		emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
-		echo "# " 								; 	\
-		echo "# EO tests in $${f}." 						; 	\
-		echo "# " 								; 	\
-		echo "################################################################" ; 	\
-		echo ; echo ; echo  							;	\
-	done
+.PHONY: check check_cab check_bin check_crc check_newc check_odc installcheck
+check:	check_cab check_modes # check_bin check_crc check_newc check_odc
+
+file_check:
+	@echo "################################################################"
+	@echo "# "
+	@echo "# Running tests in ${check_file}."
+	@echo "# "
+	emacs -batch -Q -eval "(setq load-path (add-to-list 'load-path \"${abs_srcdir}\"))" -l ert -l ${check_file} -f ert-run-tests-batch-and-exit 2>&1 | grep -v -e 'Modification-flag cleared' -e 'Wrote /'
+	@echo "# "
+	@echo "# EO tests in ${check_file}."
+	@echo "# "
+	@echo "################################################################"
+	@echo ; echo ; echo 
 
 check_cab:
-	emacs -batch -Q -l ert -l cab-test.el -f ert-run-tests-batch-and-exit
-
+	make check_file=cab-test.el file_check
+check_modes:
+	make check_file=cpio-modes-test.el file_check
 check_bin:
-	@f="cpio-dired-bin-test.el" ; 							\
-	echo "################################################################" ; 	\
-	echo "# " 								; 	\
-	echo "# Running tests in $${f}." 					; 	\
-	echo "# " 								; 	\
-	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
-	echo "# " 								; 	\
-	echo "# EO tests in $${f}." 						; 	\
-	echo "# " 								; 	\
-	echo "################################################################" ; 	\
-	echo ; echo ; echo  							;	\
-
+	make check_file=cpio-dired-bin-test.el file_check
 check_crc:
-	@f="cpio-dired-crc-test.el" ; 							\
-	echo "################################################################" ; 	\
-	echo "# " 								; 	\
-	echo "# Running tests in $${f}." 					; 	\
-	echo "# " 								; 	\
-	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
-	echo "# " 								; 	\
-	echo "# EO tests in $${f}." 						; 	\
-	echo "# " 								; 	\
-	echo "################################################################" ; 	\
-	echo ; echo ; echo  							;	\
-
+	make check_file=cpio-dired-crc-test.el file_check
 check_newc:
-	@f="cpio-dired-test.el" ; 							\
-	echo "################################################################" ; 	\
-	echo "# " 								; 	\
-	echo "# Running tests in $${f}." 					; 	\
-	echo "# " 								; 	\
-	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
-	echo "# " 								; 	\
-	echo "# EO tests in $${f}." 						; 	\
-	echo "# " 								; 	\
-	echo "################################################################" ; 	\
-	echo ; echo ; echo  							;	\
-
+	make check_file=cpio-dired-test.el file_check
 check_odc:
-	@f="cpio-dired-odc-test.el" ; 							\
-	echo "################################################################" ; 	\
-	echo "# " 								; 	\
-	echo "# Running tests in $${f}." 					; 	\
-	echo "# " 								; 	\
-	emacs -batch -Q -l ert -l $${f} -f ert-run-tests-batch-and-exit 	; 	\
-	echo "# " 								; 	\
-	echo "# EO tests in $${f}." 						; 	\
-	echo "# " 								; 	\
-	echo "################################################################" ; 	\
-	echo ; echo ; echo  							;	\
-
-
+	make check_file=cpio-dired-odc-test.el file_check
 
 installcheck: check
 
+.PHONY: check_copyrights
+check_copyrights: ${SRC_FILES}
+	@EXIT=0 ; 								\
+	for f in ${SRC_FILES} ; do						\
+		if grep -q -i copyright $${f} ; then 				\
+			: ; 							\
+		else 								\
+			echo "$${f} looks like it is missing a copyright" ; 	\
+			EXIT=1 ; 						\
+		fi ; 								\
+	done ; 									\
+	exit ${EXIT}
+	pd=`pwd` ; 								\
+	for d in ${subdirs} ; do						\
+		cd $${d} ; 							\
+		make check_copyrights ; 					\
+		cd $${pd} ; 							\
+	done
 
 ################################
 # 
@@ -351,7 +349,7 @@ $(srcdir)/configure: configure.ac # aclocal.m4
 # autoheader might not change config.h.in, so touch a stamp file.
 $(srcdir)/config.h.in: stamp-h.in
 $(srcdir)/stamp-h.in: configure.ac # aclocal.m4
-	cd '$(srcdir)' && autoheader
+	cd '$(srcdir)' # && autoheader
 	echo timestamp > '$(srcdir)/stamp-h.in'
 
 config.h: stamp-h

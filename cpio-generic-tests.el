@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-generic-tests.el --- tests of cpio-generic.el
-;	$Id: cpio-generic-tests.el,v 1.4 2018/11/29 01:57:15 doug Exp $	
+;;; cpio-generic-tests.el --- tests of cpio-generic.el. -*- coding: utf-8 -*-
+;	$Id: cpio-generic-tests.el,v 1.6 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -20,10 +19,10 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;; 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2015 Dec 27
-;; Version: 0.02
+;; Version: 0.13β
 ;; Keywords: 
 
 ;;; Commentary:

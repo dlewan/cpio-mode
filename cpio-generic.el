@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-generic.el --- generically useful functions created in support of CPIO mode.
-;	$Id: cpio-generic.el,v 1.10 2018/11/29 01:57:15 doug Exp $	
+;;; cpio-generic.el --- generically useful functions created in support of CPIO mode. -*- coding: utf-8 -*-
+;	$Id: cpio-generic.el,v 1.13 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -21,17 +20,16 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;; 
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2015 Apr 23
-;; Version: 0.02
-;; Keywords: generically useful emacs lisp functions.
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 
 ;;
 ;; This file contains useful generic functions,
-;; commands for managing debuggers
 ;; and other temporarily useful hacks
 ;; to help with the development of cpio-mode.
 ;;
@@ -53,10 +51,6 @@
 ;; 
 
 (defvar *cg-integer-hex-digits* nil)
-
-(defvar *cg-debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" fname)$"
-  "RE to match a debugger created by M-x insert-debugger.")
-(setq *cg-debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" fname)")
 
 (defvar *cg-insert-after* nil
   "Value used to define that a marker has type 'insert after'.")
@@ -699,61 +693,6 @@ Other languages are not yet implemented."
 ;; 
 ;; Commands
 ;; 
-
-(defun insert-debugger ()
-  "Insert a new debugger statement above the line containing point."
-  (interactive)
-  (let ((fname "insert-debugger"))
-    (beginning-of-line)
-    (open-line 1)
-    (insert (format "(message \"%%s(): %d\" fname)" (count-lines (point-min) (point))))
-    (indent-according-to-mode)))
-(local-set-key "\M-\C-i" 'insert-debugger)
-
-(defun update-debuggers ()
-  "Update the line numbers in all the debuggers created by M-x insert-debugger."
-  (interactive)
-  (let ((fname "update-debuggers"))
-    (save-excursion
-      (save-restriction
-	(goto-char (point-min))
-	(while (re-search-forward *cg-debugger-re* (point-max) t)
-	  (replace-match (format "%d" (count-lines (point-min) (point)))
-			 nil nil nil 1))))
-    (save-buffer)))
-(local-set-key "\M-\C-u" 'update-debuggers)
-
-(defun remove-debugger ()
-  "Remove the next debugger.
-Return T if one was found
-and NIL otherwise.
-This function respects narrowing."
-  (interactive)
-  (let ((fname "remove-debugger"))
-    (cond ((re-search-forward *cg-debugger-re* (point-max) t)
-	   (delete-region (match-beginning 0) (match-end 0))
-	   t)
-	  (t nil))))
-
-(defun remove-some-debuggers (arg)
-  "Remove the next ARG debuggers.
-Return non-NIL if any were found and deleted.
-Return NIL if none were found.
-This function respects narrowing."
-  (interactive "p")
-  (let ((fname "remove-some-debuggers")
-	(ct 0))
-    (while (and (< 0 arg) (remove-debugger))
-      (setq ct (1+ ct))
-      (setq arg (1- arg)))
-    ct))
-
-(defun remove-all-debuggers ()
-  "Remove all debuggers created by (insert-debuggers).
-This function respects narrowing."
-  (interactive)
-  (let ((fname "remove-all-debuggers"))
-    (while (remove-debugger))))
 
 
 (provide 'cpio-generic)

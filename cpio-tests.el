@@ -1,10 +1,9 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-tests.el --- tests for cpio-mode as a whole.
-;	$Id: cpio-tests.el,v 1.2 2018/05/12 16:36:03 doug Exp $	
+;;; cpio-tests.el --- tests for cpio-mode as a whole. -*- coding: utf-8 -*-
+;	$Id: cpio-tests.el,v 1.4 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -20,20 +19,16 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Nov 28
-;; Version: 
-;; Keywords: 
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 
-;; This file contains ERT tests for cpio-mode.
-;; Truly generic code has not yet been tested.
-;; Generic code for affiliated buffers is tested in cab-test.el.
-;; cpio-modes.el contains code for manipulating file mode information;
-;; it is tested in cpio-modes-test.el.
-
+;; All the real automated testing happens in cpio-dired-bin/crc/odc-test.el
+;; and cpio-dired-test.el (for newc archives).
 
 ;;; Documentation:
 

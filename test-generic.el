@@ -1,5 +1,39 @@
-;	$Id: test-generic.el,v 1.3 2018/11/29 01:57:16 doug Exp $	
+;;; test-generic.el --- Generic code to support automated tests. -*- coding: utf-8 -*-
+;	$Id: test-generic.el,v 1.5 2018/12/03 19:57:22 doug Exp $	
 
+;; COPYRIGHT
+
+;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
+;; All rights reserved.
+;; 
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;; 
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;; 
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Maintainer: -- " --
+;; Created: 2018 Nov 19
+;; Version: 0.13β
+;; Keywords: files
+
+;;; Commentary:
+
+;;; Documentation:
+
+;;; Code:
+
+;;
+;; Dependencies
+;; 
 
 ;;
 ;; Vars
@@ -223,7 +257,7 @@ CAVEATS: \(1\) If ARCHIVE-CONTENTS contains entries that contain entry headers,
   "Remove [ and ] from the pretty printed catalog and replace them with » and « respectively.
 Return the new string."
   (let ((fname "cdmt-bin-tidy-up-catalog")
-	(catalog-string (pp (cpio-catalog)))
+	(catalog-string (pp (cpio-catalog) 'cdmt-noop))
 	(substitutions (list (cons "\\[" "»")
 			     (cons "\\]" "«")
 			     (cons "\\\"" "¨"))))
@@ -667,9 +701,9 @@ including any messages after the previous one."
 	  (insert (apply 'format fmt fills))
 	  (unless (bolp) (insert "\n"))))))
 
-(defun cdmt-message (fmt &rest fills)
-  "A NOOP to replace the functional (cdmt-message)."
-  (let ((fname "cdmt-message"))))
+;; (defun cdmt-message (fmt &rest fills)
+;;   "A NOOP to replace the functional (cdmt-message)."
+;;   (let ((fname "cdmt-message"))))
 
 (defun cdmt-ensure-test-names ()
   "Make sure every message after the point includes the test-name."
@@ -765,3 +799,81 @@ including any messages after the previous one."
 		   fname (count-lines (point-min) (point))))))
       ;; And do it all again.
       )))
+
+(defun cdmt-noop (c)
+  "Accept the character C and do nothing."
+  (let ((fname "cdmt-noop"))))
+
+
+;;
+;; Functions for managing standard debuggers
+;; 
+(defvar *cg-debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" \\(f\\|test-\\)name)$"
+  "RE to match a debugger created by M-x insert-debugger.")
+(setq *cg-debugger-re* "^\\s-*(message \"%s(): \\([[:digit:]]+\\)\" \\(f\\|test-\\)name)$")
+
+(defun insert-debugger ()
+  "Insert a new debugger statement above the line containing point."
+  (interactive)
+  (let ((fname "insert-debugger")
+	(var-name))
+
+    (if (string-match "-test.el" (buffer-file-name))
+	(setq var-name "test-name")
+      (setq var-name fname))
+
+    (beginning-of-line)
+    (open-line 1)
+    (insert (format "(message \"%%s(): %d\" %s)" (count-lines (point-min) (point)) var-name))
+    (indent-according-to-mode)))
+(local-set-key "\M-\C-i" 'insert-debugger)
+
+(defun update-debuggers ()
+  "Update the line numbers in all the debuggers created by M-x insert-debugger."
+  (interactive)
+  (let ((fname "update-debuggers"))
+    (save-excursion
+      (save-restriction
+	(goto-char (point-min))
+	(while (re-search-forward *cg-debugger-re* (point-max) t)
+	  (replace-match (format "%d" (count-lines (point-min) (point)))
+			 nil nil nil 1))))
+    (save-buffer)))
+(local-set-key "\M-\C-u" 'update-debuggers)
+
+(defun remove-debugger ()
+  "Remove the next debugger.
+Return T if one was found
+and NIL otherwise.
+This function respects narrowing."
+  (interactive)
+  (let ((fname "remove-debugger"))
+    (cond ((re-search-forward *cg-debugger-re* (point-max) t)
+	   (delete-region (match-beginning 0) (match-end 0))
+	   t)
+	  (t nil))))
+
+(defun remove-some-debuggers (arg)
+  "Remove the next ARG debuggers.
+Return non-NIL if any were found and deleted.
+Return NIL if none were found.
+This function respects narrowing."
+  (interactive "p")
+  (let ((fname "remove-some-debuggers")
+	(ct 0))
+    (while (and (< 0 arg) (remove-debugger))
+      (setq ct (1+ ct))
+      (setq arg (1- arg)))
+    ct))
+
+(defun remove-all-debuggers ()
+  "Remove all debuggers created by (insert-debuggers).
+This function respects narrowing."
+  (interactive)
+  (let ((fname "remove-all-debuggers"))
+    (while (remove-debugger))))
+
+(provide 'test-generic)
+;;; test-generic.el ends here
+
+

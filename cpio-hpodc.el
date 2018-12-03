@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-hpodc.el --- handle hpodc cpio entry header formats
-;	$Id: cpio-hpodc.el,v 1.4 2018/05/12 16:36:02 doug Exp $	
+;;; cpio-hpodc.el --- handle hpodc cpio entry header formats. -*- coding: utf-8 -*-
+;	$Id: cpio-hpodc.el,v 1.6 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -21,11 +20,11 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;; 
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2015 Jan 03
-;; Version: 0.02
-;; Keywords: cpio, HP portable character header
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 

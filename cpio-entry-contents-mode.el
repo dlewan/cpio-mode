@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents.
-;	$Id: cpio-entry-contents-mode.el,v 1.9 2018/11/29 01:57:15 doug Exp $	
+;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents. -*- coding: utf-8 -*-
+;	$Id: cpio-entry-contents-mode.el,v 1.11 2018/12/03 19:57:21 doug Exp $	
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
@@ -19,11 +18,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Dec 06
-;; Version: 0.02
-;; Keywords: cpio, contents, edit
+;; Version: 0.13β
+;; Keywords: files
 
 ;;; Commentary:
 

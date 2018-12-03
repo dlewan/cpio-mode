@@ -1,6 +1,5 @@
-;; -*- coding: utf-8 -*-
-;;; cpio-modes-test.el --- tests of the code in cpio-modes.el.
-;	$Id: cpio-modes-test.el,v 1.6 2018/11/29 17:46:58 doug Exp $	
+;;; cpio-modes-test.el --- tests of the code in cpio-modes.el. -*- coding: utf-8 -*-
+;	$Id: cpio-modes-test.el,v 1.8 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
@@ -20,10 +19,10 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan (d.lewan2000@gmail.com)
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: -- " --
 ;; Created: 2017 Nov 28
-;; Version: 
+;; Version: 0.13β
 ;; Keywords: 
 
 ;;; Commentary:
