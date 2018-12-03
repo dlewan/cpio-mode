@@ -1,5 +1,4 @@
 ;;; cpio-hpbin.el --- handle hpbin cpio entry header formats. -*- coding: utf-8 -*-
-;	$Id: cpio-hpbin.el,v 1.6 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

@@ -1,5 +1,4 @@
 ;;; cpio-dired.el --- UI definition à la dired. -*- coding: utf-8 -*-
-;	$Id: cpio-dired.el,v 1.18 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 

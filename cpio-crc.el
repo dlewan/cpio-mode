@@ -1,5 +1,4 @@
 ;;; cpio-crc.el --- handle crc cpio entry header formats -*- coding: utf-8 -*-
-;	$Id: cpio-crc.el,v 1.16 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

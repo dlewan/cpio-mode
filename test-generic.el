@@ -1,5 +1,4 @@
 ;;; test-generic.el --- Generic code to support automated tests. -*- coding: utf-8 -*-
-;	$Id: test-generic.el,v 1.5 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 

@@ -1,5 +1,4 @@
 ;;; ttt.el --- Run lots of tests against cpio-mode. -*- coding: utf-8 -*-
-;	$Id: ttt.el,v 1.5 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-dnl 	$Id: configure.ac,v 1.15 2018/12/03 18:03:58 doug Exp $	
 
 # 
 # Copyright © 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.

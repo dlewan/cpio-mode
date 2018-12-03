@@ -1,5 +1,4 @@
 ;;; cpio-bin.el --- handle bin cpio entry header formats -*- coding: utf-8 -*-
-;	$Id: cpio-bin.el,v 1.15 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

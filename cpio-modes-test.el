@@ -1,5 +1,4 @@
 ;;; cpio-modes-test.el --- tests of the code in cpio-modes.el. -*- coding: utf-8 -*-
-;	$Id: cpio-modes-test.el,v 1.8 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

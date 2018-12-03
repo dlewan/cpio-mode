@@ -1,5 +1,5 @@
 ;;; cpio-entry-contents-mode.el --- minor mode for editing a cpio-entry's contents. -*- coding: utf-8 -*-
-;	$Id: cpio-entry-contents-mode.el,v 1.11 2018/12/03 19:57:21 doug Exp $	
+
 ;; COPYRIGHT
 ;; 
 ;; Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.

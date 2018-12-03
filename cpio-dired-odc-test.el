@@ -1,5 +1,4 @@
 ;;; cpio-dired-odc-test.el --- Tests of cpio-dired-mode for odc archives. -*- coding: utf-8 -*-
-;	$Id: cpio-dired-odc-test.el,v 1.13 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 

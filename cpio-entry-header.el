@@ -1,5 +1,4 @@
 ;;; cpio-entry-header.el --- handle cpio entry headers. -*- coding: utf-8 -*-
-;	$Id: cpio-entry-header.el,v 1.6 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

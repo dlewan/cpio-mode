@@ -1,5 +1,4 @@
 ;; cpio-ustar.el --- Let tar-mode handle tar archives. -*- coding: utf-8 -*-
-;; $Id: cpio-ustar.el,v 1.6 2018/12/03 19:57:22 doug Exp $
 
 ;; COPYRIGHT
 ;; 

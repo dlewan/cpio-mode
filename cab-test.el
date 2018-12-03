@@ -1,5 +1,4 @@
 ;;; cab-test.el --- automated tests for cpio-affiliated-buffers. -*- coding: utf-8 -*-
-;	$Id: cab-test.el,v 1.10 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 

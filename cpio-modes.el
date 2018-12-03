@@ -1,5 +1,4 @@
 ;;; cpio-modes.el --- handle file modes/permissions. -*- coding: utf-8 -*-
-;	$Id: cpio-modes.el,v 1.11 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

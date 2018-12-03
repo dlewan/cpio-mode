@@ -1,5 +1,4 @@
 ;;; cpio-newc.el --- handle portable newc cpio archives. -*- coding: utf-8 -*-
-;	$Id: cpio-newc.el,v 1.19 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

@@ -1,5 +1,4 @@
 ;;; cpio.el --- Handle cpio archives in the style of dired. -*- coding: utf-8 -*-
-;	$Id: cpio.el,v 1.20 2018/12/03 00:43:40 doug Exp $	
 
 ;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.

@@ -1,5 +1,4 @@
 ;;; cpio-generic.el --- generically useful functions created in support of CPIO mode. -*- coding: utf-8 -*-
-;	$Id: cpio-generic.el,v 1.13 2018/12/03 19:57:22 doug Exp $	
 
 ;; COPYRIGHT
 ;; 

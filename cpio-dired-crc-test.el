@@ -1,5 +1,4 @@
 ;;; cpio-dired-crc-test.el --- Tests of cpio-dired-mode for crc archives. -*- coding: utf-8 -*-
-;	$Id: cpio-dired-crc-test.el,v 1.15 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 

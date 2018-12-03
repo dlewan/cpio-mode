@@ -1,5 +1,4 @@
 ;;; cpio-generic-tests.el --- tests of cpio-generic.el. -*- coding: utf-8 -*-
-;	$Id: cpio-generic-tests.el,v 1.6 2018/12/03 19:57:21 doug Exp $	
 
 ;; COPYRIGHT
 ;; 
