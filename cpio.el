@@ -1,6 +1,6 @@
 ;;; cpio.el --- Handle cpio archives in the style of dired. -*- coding: utf-8 -*-
 
-;; COPYRIGHT 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
+;; COPYRIGHT 2015, 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -243,83 +243,26 @@
 ;; 
 
 
-;; During development I need access to local files.
+(require 'dired)
 
-;; (setq load-path (add-to-list 'load-path (substring default-directory -1)))
+(require 'cpio-generic)
+(require 'cpio-modes)
 
-;; (require 'dired)
-;; (if (file-exists-p (concat default-directory "cpio-generic.elc"))
-;;     (load (concat default-directory "cpio-generic.elc"))
-;;   (load (concat default-directory "cpio-generic.el")))
-;; (if (file-exists-p (concat default-directory "cpio-modes.elc"))
-;;     (load (concat default-directory "cpio-modes.elc"))
-;;   (load (concat default-directory "cpio-modes.el")))
-;; (if (file-exists-p (concat default-directory "cpio-affiliated-buffers.elc"))
-;;     (load (concat default-directory "cpio-affiliated-buffers.elc"))
-;;   (load (concat default-directory "cpio-affiliated-buffers.el")))
-;; (if (file-exists-p (concat default-directory "cpio-bin.elc"))
-;;     (load (concat default-directory "cpio-bin.elc"))
-;;   (load (concat default-directory "cpio-bin.el")))
-;; newc has to precede crc.
-;; (if (file-exists-p (concat default-directory "cpio-newc.elc"))
-;;     (load (concat default-directory "cpio-newc.elc"))
-;;   (load (concat default-directory "cpio-newc.el")))
-;; (if (file-exists-p (concat default-directory "cpio-crc.elc"))
-;;     (load (concat default-directory "cpio-crc.elc"))
-;;   (load (concat default-directory "cpio-crc.el")))
-;; (if (file-exists-p (concat default-directory "cpio-hpbin.elc"))
-;;     (load (concat default-directory "cpio-hpbin.elc"))
-;;   (load (concat default-directory "cpio-hpbin.el")))
-;; (if (file-exists-p (concat default-directory "cpio-hpodc.elc"))
-;;     (load (concat default-directory "cpio-hpodc.elc"))
-;;   (load (concat default-directory "cpio-hpodc.el")))
-;; (if (file-exists-p (concat default-directory "cpio-odc.elc"))
-;;     (load (concat default-directory "cpio-odc.elc"))
-;;   (load (concat default-directory "cpio-odc.el")))
-;; (if (file-exists-p (concat default-directory "cpio-dired.elc"))
-;;     (load (concat default-directory "cpio-dired.elc"))
-;;   (load (concat default-directory "cpio-dired.el")))
-;; (if (file-exists-p (concat default-directory "cpio-entry-contents-mode.elc"))
-;;     (load (concat default-directory "cpio-entry-contents-mode.elc"))
-;;   (load (concat default-directory "cpio-entry-contents-mode.el")))
+(require 'cpio-affiliated-buffers)
 
-(unless (featurep 'dired)
-  (require 'dired))
-
-(unless (featurep 'cpio-generic)
-  (require 'cpio-generic))
-(unless (featurep 'cpio-modes)
-  (require 'cpio-modes))
-
-(unless (featurep 'cpio-affiliated-buffers)
-  (require 'cpio-affiliated-buffers))
-
-(unless (featurep 'cpio-bin)
-  (require 'cpio-bin))
+(require 'cpio-bin)
 ;; While I like things to be alphabetical, newc /must/ precede crc.
-(unless (featurep 'cpio-newc)
-  (require 'cpio-newc))
-(unless (featurep 'cpio-crc)
-  (require 'cpio-crc))
-(unless (featurep 'cpio-hpbin)
-  (require 'cpio-hpbin))
-(unless (featurep 'cpio-hpodc)
-  (require 'cpio-hpodc))
-(unless (featurep 'cpio-odc)
-  (require 'cpio-odc))
-(unless (featurep 'cpio-dired)
-  (require 'cpio-dired))
-(unless (featurep 'cpio-entry-contents-mode)
-  (require 'cpio-entry-contents-mode))
+(require 'cpio-newc)
+(require 'cpio-crc)
+(require 'cpio-hpbin)
+(require 'cpio-hpodc)
+(require 'cpio-odc)
+(require 'cpio-dired)
+(require 'cpio-entry-contents-mode)
 
 ;; Formats not supported:
 ;;   (require 'cpio-tar)
 ;;   (require 'cpio-ustar)
-;; Obsolete files:
-;;   (require 'cpio-wanted)
-;;   (if (file-exists-p (concat default-directory "cpio-wanted.elc"))
-;;       (load (concat default-directory "cpio-wanted.elc"))
-;;     (load (concat default-directory "cpio-wanted.el")))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -1693,6 +1636,15 @@ or nil."
   "Treat cpio archives like file systems with a dired UI."
   (if (null (setq *cpio-format* (cpio-discern-archive-type)))
       (error "You're not in a supported CPIO buffer. It begins [[%s]]." (buffer-substring-no-properties 1 8)))
+
+  ;; 
+  ;; HEREHERE Get rid of this once things look clean.
+  ;; 
+  (cpio-backup-during-development)
+  ;; 
+  ;; EO temporary code for development
+  ;; 
+  
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
     ;; You really only need this for the binary archive formats,
@@ -1711,6 +1663,25 @@ or nil."
     ;; cpio-mode is the top level function here,
     ;; so this should control what we see at this point.
     (switch-to-buffer cpio-dired-buffer)))
+
+;; 
+;; HEREHERE Get rid of this once things look clean.
+;; 
+(defun cpio-backup-during-development ()
+  "Create a time-stamped backup of the file in the current-buffer.
+There's an implied CONTRACT there:
+The buffer must contain a file."
+  (let* ((fname "cpio-backup-during-development")
+	 (filename (buffer-file-name))
+	 (backup-file (format "%s-%s"
+			      filename
+			      (format-time-string "%Y%m%d%H%H%M%S.%3N"))))
+    (copy-file filename backup-file nil 'keep-time 'preserve-uid-gid 'preserve-permissions)))
+
+;; 
+;; EO temporary code for development
+;; 
+
 
 (defvar *cpio-dired-modified* nil
   "A flag to record if any archive-modifying events have occured

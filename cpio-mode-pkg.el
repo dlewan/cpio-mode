@@ -1,8 +1,7 @@
-;;; cpio-hpodc.el --- handle hpodc cpio entry header formats. -*- coding: utf-8 -*-
+;; cpio-mode-pkg.el --- package declaration for cpio-mode. -*- coding: utf-8 -*-
 
-;; COPYRIGHT
 ;; 
-;; Copyright © 2015, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2015, 2018, 2019 Douglas Lewan, d_lewan2000@yahoo.com.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,37 +18,8 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;; 
 
-;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
-;; Created: 2015 Jan 03
-;; Version: 0.13β
-;; Keywords: files
+(define-package "cpio-mode"
+  "0.14β"
+  "Handle CPIO archives like dired."
+  "(bindat 24.5) (cl 24.5) (ert 24.5)")
 
-;;; Commentary:
-
-;;; Documentation:
-
-;;; Code:
-
-;;
-;; Dependencies
-;; 
-
-
-;; 
-;; Vars
-;; 
-
-
-;; 
-;; Library
-;; 
-
-
-;; 
-;; Commands
-;; 
-
-
-(provide 'cpio-hpodc)
-;;; cpio-hpodc.el ends here.

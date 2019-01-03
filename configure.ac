@@ -19,7 +19,7 @@
 # 
 
 dnl Autoconf requirements
-AC_INIT(cpio-mode, 0.13β, d.lewan2000@gmail.com)
+AC_INIT(cpio-mode, 0.14β, d.lewan2000@gmail.com)
 AC_PREFIX_DEFAULT(${HOME}/local)
 
 dnl information on the package
@@ -60,6 +60,7 @@ dnl checks for structures
 dnl checks for compiler characteristics
 dnl checks for library functions
 dnl checks for system services
+
 AC_CONFIG_FILES([Makefile
 		 stamp-h
 		 test_data/alphabet/Makefile],

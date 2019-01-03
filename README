@@ -1,8 +1,8 @@
 # -*- mode: org; encoding: utf-8 -*-
-#	$Id: README,v 1.9 2018/12/03 00:43:38 doug Exp $	
+#	$Id: README,v 1.11 2019/01/03 21:04:21 doug Exp $	
 
 # 
-# Copyright © 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
+# Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
 # All rights reserved.
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -142,9 +142,22 @@ cpio-mode includes a few ERT tests.
 All the testing is sunny day day testing.
 Rarely are any error conditions tested.
 
+** Dependencies
 For any testing to succeed set your umask to 022,
 otherwise all of the data in the tests are incorrect.
 
+Since the automated tests explicitly invoke cpio-mode 
+as does the function (cdmt-reset),
+you cannot use any automatic invocation of cpio-mode.
+One way of doing this is to invoke »emacs -Q«.
+(You'll also need »-eval "(setq load-path (add-to-list 'load-path \".\"))"«.
+until I figure out the right way to handle loading.)
+Thus a good invocation is
+    »emacs -Q -eval "(setq load-path (add-to-list 'load-path \".\"))"«
+Some recommendations for automatic invocation of cpio-mode can be found
+in the comments near the top of cpio.el.
+
+** Internals
 - cpio-generic-tests.el provides basic testing of some of the funciton
   implemented in cpio-generic.el.
 

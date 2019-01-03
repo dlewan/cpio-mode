@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2015, 2016, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com
+;; Copyright © 2015, 2016, 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -53,8 +53,7 @@
 ;; 
 (eval-when-compile
   (require 'cl))
-(unless (featurep 'cl)
-  (require 'cl))
+(require 'cl)
 
 ;; (condition-case err
 ;;     (require 'cpio-generic)
