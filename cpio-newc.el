@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2015, 2016, 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,9 @@
 ;; 
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -52,8 +52,8 @@
 ;; Dependencies
 ;; 
 (eval-when-compile
-  (require 'cl))
-(require 'cl)
+  (require 'cl-lib))
+(require 'cl-lib)
 
 ;; (condition-case err
 ;;     (require 'cpio-generic)
@@ -66,19 +66,19 @@
 ;; Things to make the byte compiler happy.
 (defvar *cpio-catalog*)
 (defvar *cpio-padding-modulus*)
-(declare-function cpio-entry-name "cpio.el")
-(declare-function cpio-ino "cpio.el")
-(declare-function cpio-mode-value "cpio.el")
-(declare-function cpio-uid "cpio.el")
-(declare-function cpio-gid "cpio.el")
-(declare-function cpio-nlink "cpio.el")
-(declare-function cpio-mtime "cpio.el")
-(declare-function cpio-entry-size "cpio.el")
-(declare-function cpio-dev-maj "cpio.el")
-(declare-function cpio-dev-min "cpio.el")
-(declare-function cpio-entry-attrs-from-catalog-entry "cpio.el")
-(declare-function cpio-contents-start "cpio.el")
-(declare-function cpio-entry-attrs "cpio.el")
+(declare-function cpio-entry-name "cpio-mode.el")
+(declare-function cpio-ino "cpio-mode.el")
+(declare-function cpio-mode-value "cpio-mode.el")
+(declare-function cpio-uid "cpio-mode.el")
+(declare-function cpio-gid "cpio-mode.el")
+(declare-function cpio-nlink "cpio-mode.el")
+(declare-function cpio-mtime "cpio-mode.el")
+(declare-function cpio-entry-size "cpio-mode.el")
+(declare-function cpio-dev-maj "cpio-mode.el")
+(declare-function cpio-dev-min "cpio-mode.el")
+(declare-function cpio-entry-attrs-from-catalog-entry "cpio-mode.el")
+(declare-function cpio-contents-start "cpio-mode.el")
+(declare-function cpio-entry-attrs "cpio-mode.el")
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
 
@@ -800,7 +800,7 @@ once the TRAILER is written and padded."
 ;; 
 
 (eval-when-compile
-  (require 'cl))				;For (mapcar*)
+  (require 'cl-lib))				;For (mapcar*)
 (defun cpio-newc-present-header (header-string)
   "Parse the HEADER-STRING and present its fields nicely.
 That is show their names and octal and decimal values."

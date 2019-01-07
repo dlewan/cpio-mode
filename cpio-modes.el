@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Nov 28
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -36,11 +36,11 @@
 ;; Dependencies
 ;; 
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
-(declare-function cpio-mode-value "cpio.el")
+(declare-function cpio-mode-value "cpio-mode.el")
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
 
@@ -126,13 +126,29 @@ fmt, sock, link, block, character, fifo."
     (concat file-type user-mode group-mode other-mode)))
 
 (defvar *cpio-modes-link*    "l")
+(setq *cpio-modes-link* "l")
+
 (defvar *cpio-modes-reg*     "-")
+(setq *cpio-modes-reg* "-")
+
 (defvar *cpio-modes-dir*     "d")
+(setq *cpio-modes-dir* "d")
+
 (defvar *cpio-modes-char*    "c")
+(setq *cpio-modes-char* "c")
+
 (defvar *cpio-modes-block*   "b")
+(setq *cpio-modes-block* "b")
+
 (defvar *cpio-modes-fifo*    "p")
+(setq *cpio-modes-fifo* "p")
+
 (defvar *cpio-modes-sock*    "s")
+(setq *cpio-modes-sock* "s")
+
 (defvar *cpio-modes-unknown* "?")
+(setq *cpio-modes-unknown* "?")
+
 
 (defun cpio-int-mode-to-file-type (int-mode)
   "Extract the one character string that expresses the file type from INT-MODE.
@@ -264,6 +280,8 @@ please let me know."
 	     "-")))))
 
 (defun cpio-mode-string-to-int-mode (mode-string)
+  ;; HEREHERE This should do some error checking.
+  ;; It will currently flag an error if MODE-STRING is not long enough.
   "Convert an ls -l style mode string to its corresponding integer."
   (let* ((fname "cpio-mode-string-to-int-mode")
 	 (bits 0)
@@ -393,6 +411,34 @@ please let me know."
 	   (setq bits (logior bits s-isvtx))))
     bits))
 
+(defun cpio-mode-extractable-p (mode)
+  "Return non-NIL if MODE represents an entry that can be extracted by cpio-mode.
+That is, a regular file, symbolic link or directory. "
+  (let ((fname "cpio-mode-not-extractable-p"))
+    (or (s-islnk mode)
+	(s-isreg mode)
+	(s-isdir mode))))
+
+(defun cpio-valid-numeric-mode (proposed-mode-num)
+  "Return non-NIL if the PROPOSED-MODE-NUM is a valid numeric file mode."
+  (let ((fname "cpio-valid-numeric-mode"))
+    (/= 0 (logxor proposed-mode-num
+		  ;; This list could be pared down a little,
+		  ;; but this is more readable.
+		  (logand s-ifmt
+			  s-ifsock
+			  s-iflnk
+			  s-ifreg
+			  s-ifblk
+			  s-ifdir
+			  s-ifchr
+			  s-ififo
+			  s-isuid
+			  s-isgid
+			  s-isvtx
+			  s-irwxu
+			  s-irwxg
+			  s-irwxo)))))
 
 (provide 'cpio-modes)
 ;;; cpio-modes ends here

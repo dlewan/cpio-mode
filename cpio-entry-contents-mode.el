@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Dec 06
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -97,21 +97,21 @@ If NAME is not given, then use 'aa'."
 ;; Things to make the byte compiler happy.
 (defvar cpio-entry-name)
 (defvar *cpio-catalog-entry-contents-start-idx*)
-(declare-function cpio-contents-start "cpio.el")
-(declare-function cpio-delete-archive-entry "cpio.el")
+(declare-function cpio-contents-start "cpio-mode.el")
+(declare-function cpio-delete-archive-entry "cpio-mode.el")
 (declare-function cpio-dired-find-entry "cpio-dired.el")
 (declare-function cpio-dired-goto-entry "cpio-dired.el")
-(declare-function cpio-entry "cpio.el")
-(declare-function cpio-entry-attrs "cpio.el")
-(declare-function cpio-entry-exists-p "cpio.el")
-(declare-function cpio-entry-header-start "cpio.el")
-(declare-function cpio-insert-padded-contents "cpio.el")
-(declare-function cpio-make-header-string "cpio.el")
-(declare-function cpio-mode "cpio.el")
+(declare-function cpio-entry "cpio-mode.el")
+(declare-function cpio-entry-attrs "cpio-mode.el")
+(declare-function cpio-entry-exists-p "cpio-mode.el")
+(declare-function cpio-entry-header-start "cpio-mode.el")
+(declare-function cpio-insert-padded-contents "cpio-mode.el")
+(declare-function cpio-make-header-string "cpio-mode.el")
+(declare-function cpio-mode "cpio-mode.el")
 (declare-function cpio-present-ala-dired "cpio-dired.el")
-(declare-function cpio-set-entry-modified "cpio.el")
-(declare-function cpio-set-entry-size "cpio.el")
-(declare-function cpio-entry-exists-p "cpio.el")
+(declare-function cpio-set-entry-modified "cpio-mode.el")
+(declare-function cpio-set-entry-size "cpio-mode.el")
+(declare-function cpio-entry-exists-p "cpio-mode.el")
 (declare-function cpio-dired-goto-entry "cpio-dired.el")
 (declare-function cpio-dired-find-entry "cpio-dired.el")
 ;; EO things for the byte compiler.
@@ -214,6 +214,8 @@ reload the [current] entry contents."
 ;; 
 (defvar *cpio-entry-contents-mode-map* (make-sparse-keymap)
   "Keymap for cpio-entry-contents-mode.")
+(setq *cpio-entry-contents-mode-map* (make-sparse-keymap))
+
 
 (defun cpio-entry-contents-make-keymap ()
   "Define the keys that cpio-entry-contents-mode must override."
@@ -250,7 +252,8 @@ prepared for editing."
     (set-auto-mode 'keep-mode-if-same)
     (setq *cab-parent* cab-parent)
     (setq cpio-entry-name entry-name)
-    (setq buffer-file-name local-buffer-file-name)
+    ;; Why was I doing this?
+    ;; (setq buffer-file-name local-buffer-file-name)
     (setq cpio-entry-contents-mode t)))
 
 (cpio-entry-contents-make-keymap)

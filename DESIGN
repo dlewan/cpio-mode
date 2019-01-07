@@ -1,7 +1,8 @@
-#	$Id: DESIGN,v 1.7 2019/01/03 21:04:20 doug Exp $	
+#	$Id: DESIGN,v 1.9 2019/01/07 07:44:33 doug Exp $	
 
 # 
-# Copyright © 2015, 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
+# Copyright © 2019 Free Software Foundation, Inc.
+# 
 # All rights reserved.
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -40,8 +41,8 @@ there are the following entry header formats:
 • hpbin,	the obsolete binary format used by HPUX's cpio.
 • hpodc,	the portable format used by HPUX's cpio.
 
-The file cpio.el is the door into the package.
-cpio.el controls loading other files as needed and, as of yet,
+The file cpio-mode.el is the door into the package.
+cpio-mode.el controls loading other files as needed and, as of yet,
 implements the high-level presentation and user-interface functions.
 
 Believing in portability, the formats newc, odc and crc will be first

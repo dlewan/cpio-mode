@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -18,10 +18,10 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Author: Douglas Lewan <(d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Nov 22
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -48,8 +48,13 @@
 
 ;;;;;;;;;;;;;;;;
 ;; Make the byte compiler happy.
-(defvar *cab-parent)
+(defvar *cab-parent*)
+(setq *cab-parent* nil)
+
 (defvar *cab-subordinates*)
+(setq *cab-subordinates* nil)
+
+
 (declare-function ert-set-test "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
 (declare-function ert--signal-should-execution "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")
 (declare-function ert-fail "/usr/share/emacs/24.5/lisp/emacs-lisp/ert.el")

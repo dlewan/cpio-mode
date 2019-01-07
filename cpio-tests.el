@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Nov 28
-;; Version: 0.13β
+;; Version: 0.15β
 ;; Keywords: files
 
 ;;; Commentary:

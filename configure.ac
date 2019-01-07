@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # 
-# Copyright © 2015, 2017, 2018 Douglas Lewan, d.lewan2000@gmail.com.
+# Copyright © 2019 Free Software Foundation, Inc.
 # All rights reserved.
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 # 
 
 dnl Autoconf requirements
-AC_INIT(cpio-mode, 0.14β, d.lewan2000@gmail.com)
+AC_INIT(cpio-mode, 0.16β, d.lewan2000@gmail.com)
 AC_PREFIX_DEFAULT(${HOME}/local)
 
 dnl information on the package
@@ -61,8 +61,10 @@ dnl checks for compiler characteristics
 dnl checks for library functions
 dnl checks for system services
 
+dnl HEREHERE TODO: test_data/modes/Makefile,
 AC_CONFIG_FILES([Makefile
 		 stamp-h
+		 test_data/Makefile
 		 test_data/alphabet/Makefile],
 		 [echo timestamp > stamp-h])
 AC_OUTPUT

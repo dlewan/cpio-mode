@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2015, 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,9 @@
 ;; 
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -38,19 +38,19 @@
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
-(declare-function cpio-entry-name "cpio.el" (attrs))
-(declare-function cpio-ino "cpio.el" (attrs))
-(declare-function cpio-mode-value "cpio.el" (attrs))
-(declare-function cpio-uid "cpio.el" (attrs))
-(declare-function cpio-gid "cpio.el" (attrs))
-(declare-function cpio-nlink "cpio.el" (attrs))
-(declare-function cpio-mtime "cpio.el" (attrs))
-(declare-function cpio-entry-size "cpio.el" (attrs))
-(declare-function cpio-dev-maj "cpio.el" (attrs))
-(declare-function cpio-rdev-maj "cpio.el" (attrs))
-(declare-function cpio-entry-attrs-from-catalog-entry "cpio.el" (entry))
-(declare-function cpio-contents-start "cpio.el" (entry-name))
-(declare-function cpio-entry-attrs "cpio.el" (entry-name))
+(declare-function cpio-entry-name "cpio-mode.el" (attrs))
+(declare-function cpio-ino "cpio-mode.el" (attrs))
+(declare-function cpio-mode-value "cpio-mode.el" (attrs))
+(declare-function cpio-uid "cpio-mode.el" (attrs))
+(declare-function cpio-gid "cpio-mode.el" (attrs))
+(declare-function cpio-nlink "cpio-mode.el" (attrs))
+(declare-function cpio-mtime "cpio-mode.el" (attrs))
+(declare-function cpio-entry-size "cpio-mode.el" (attrs))
+(declare-function cpio-dev-maj "cpio-mode.el" (attrs))
+(declare-function cpio-rdev-maj "cpio-mode.el" (attrs))
+(declare-function cpio-entry-attrs-from-catalog-entry "cpio-mode.el" (entry))
+(declare-function cpio-contents-start "cpio-mode.el" (entry-name))
+(declare-function cpio-entry-attrs "cpio-mode.el" (entry-name))
 (defvar *cpio-catalog*)
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;

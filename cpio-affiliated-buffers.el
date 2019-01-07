@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Nov 22
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -106,8 +106,9 @@
 
 
 ;; HEREHERE Remove the following test code before publishing cpio-mode.
-(defvar *cab-info-buffer* (get-buffer-create "*cab info*")
+(defvar OBS-*cab-info-buffer* (get-buffer-create "*cab info*")
   "A buffer for holding information about affiliated buffers.")
+(setq OBS-*cab-info-buffer* (get-buffer-create "*cab info*"))
 
 (defun OBS-cab-test-kill-buffer-hook ()
   "Hook to run when killing a buffer.
@@ -167,7 +168,7 @@ It's not strictly a hook, but it pairs with the above kill-buffer-hook."
 ;; Dependencies
 ;; 
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 
 
 ;; 
@@ -175,9 +176,15 @@ It's not strictly a hook, but it pairs with the above kill-buffer-hook."
 ;; 
 (defvar *cab-subordinates* ()
   "A list of subordinate buffers affiliated with the current buffer.")
+(setq *cab-subordinates* ())
+
+
 (make-variable-buffer-local '*cab-subordinates*)
 (defvar *cab-parent* nil
   "The parent buffer of an affiliated buffer.")
+(setq *cab-parent* nil)
+
+
 (make-variable-buffer-local '*cab-parent*)
 
 ;; 
@@ -250,12 +257,6 @@ CONTRACT: BUFFER and PARENT are buffers."
   (let ((fname "cab-kill-buffer-hook")
 	(buffer (current-buffer)))
     (cond ((buffer-live-p (current-buffer))
-	   ;; (message "    Deregistering subordinates: [[%s]]." *cab-subordinates*)
-	   (mapc (lambda (b)
-		   (if (buffer-live-p b)
-		       (with-current-buffer b
-			 (makunbound 'cab-parent))))
-		 *cab-subordinates*)
 	   (if (buffer-live-p *cab-parent*)
 	       (with-current-buffer *cab-parent*
 		 (delete buffer *cab-subordinates*))))
@@ -306,7 +307,7 @@ CAVEAT: This function should disappear as affiliated buffer code stabilizes."
     (mapc (lambda (b)
 	    (with-current-buffer b
 	      (if (boundp '*cab-subordinates*)
-		  (setq *cab-subordinates* (delete-duplicates *cab-subordinates*)))))
+		  (setq *cab-subordinates* (delete-dups *cab-subordinates*)))))
 	  (buffer-list))))
 
 (defun cab-clean-ruthlessly ()

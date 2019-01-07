@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2016, 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,9 @@
 ;; 
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -55,10 +55,10 @@
 ;; Things to make the byte compiler happy.
 (declare-function cg-pad-right "cpio-generic.el")
 (declare-function cg-round-up "cpio-generic.el")
-(declare-function cpio-contents "cpio.el" (entry-name &optional archive-buffer))
-(declare-function cpio-entry-exists-p "cpio.el" (entry-name))
-(declare-function cpio-entry-name "cpio.el" (attrs))
-(declare-function cpio-entry-size "cpio.el" (attrs))
+(declare-function cpio-contents "cpio-mode.el" (entry-name &optional archive-buffer))
+(declare-function cpio-entry-exists-p "cpio-mode.el" (entry-name))
+(declare-function cpio-entry-name "cpio-mode.el" (attrs))
+(declare-function cpio-entry-size "cpio-mode.el" (attrs))
 (declare-function cpio-newc-parse-chksum "cpio-newc.el")
 (declare-function cpio-newc-parse-dev-maj "cpio-newc.el")
 (declare-function cpio-newc-parse-dev-min "cpio-newc.el")
@@ -74,7 +74,7 @@
 (declare-function cpio-newc-parse-rdev-min "cpio-newc.el")
 (declare-function cpio-newc-parse-uid "cpio-newc.el")
 (declare-function cpio-special-file "cpio-modes.el")
-(declare-function cpio-validate-catalog-entry "cpio.el" (catalog-entry))
+(declare-function cpio-validate-catalog-entry "cpio-mode.el" (catalog-entry))
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
 

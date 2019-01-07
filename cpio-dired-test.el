@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2018 Mar 23
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: 
 
 ;;; Commentary:
@@ -60,9 +60,9 @@
 (load (concat default-directory "test-generic.el"))
 
 (eval-when-compile
-  (if (file-exists-p (concat default-directory "cpio.elc"))
-      (load (concat default-directory "cpio.elc")))
-  (load (concat default-directory "cpio.el")))
+  (if (file-exists-p (concat default-directory "cpio-mode.elc"))
+      (load (concat default-directory "cpio-mode.elc")))
+  (load (concat default-directory "cpio-mode.el")))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -72,8 +72,8 @@
 (defvar cpio-dired-del-marker)
 (defvar cpio-dired-keep-marker-copy-str)
 (defvar cpio-dired-keep-marker-rename)
-(declare-function cpio-catalog "cpio.el")
-(declare-function cpio-contents-buffer-name "cpio.el")
+(declare-function cpio-catalog "cpio-mode.el")
+(declare-function cpio-contents-buffer-name "cpio-mode.el")
 (declare-function cpio-dired-add-entry "cpio-dired.el")
 (declare-function cpio-dired-buffer-name "cpio-dired.el")
 (declare-function cpio-dired-change-marks "cpio-dired.el")
@@ -168,7 +168,7 @@
 (declare-function cpio-image-dired-jump-thumbnail-buffer "cpio-dired.el")
 (declare-function cpio-image-dired-mark-tagged-entries "cpio-dired.el")
 (declare-function cpio-image-dired-tag-entries "cpio-dired.el")
-(declare-function cpio-mode "cpio.el")
+(declare-function cpio-mode "cpio-mode.el")
 (declare-function cpio-view-dired-style-buffer "cpio-dired.el")
 (declare-function cdmt-reset "test-generic.el")
 (declare-function cdmt-tidy-up-catalog "test-generic.el")
@@ -6783,6 +6783,8 @@ TRAILER!!!	(( filename ))
 ;; N.B. cdmt-newc- = cpio-dired-mode-test-
 
 (defvar run-dir default-directory)
+(setq run-dir default-directory)
+
 
 (custom-set-variables (list 'cpio-try-names nil))
 

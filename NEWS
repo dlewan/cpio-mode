@@ -1,7 +1,7 @@
 # -*- outline -*-
 
 # 
-# Copyright © 2015, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
+# Copyright © 2019 Free Software Foundation, Inc.
 # All rights reserved.
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -17,6 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
+
+* Version 0.16β
+** Copyright assignment to the FSF.
+
+* Version 0.15β
+** Killing the archive buffer now also kills all subordinates.
+** More work on meeting ELPA conventions.
+*** cpio.el is now cpio-mode.el
+*** removed cpio-mode-pkg.el
+
 
 * Version 0.14β
 ** Since this is beta code, the archive file is backed up.

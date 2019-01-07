@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 ;; 
-;; Copyright © 2015, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,9 @@
 ;; 
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Apr 23
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -73,7 +73,7 @@
 	(setq *cg-integer-hex-digits* hex-digit-ct)))
   *cg-integer-hex-digits*)
 
-(defun cg-hex-format-pair (pair)
+(defun OBS-cg-hex-format-pair (pair)
   "Return a hex formatted representation of PAIR."
   (let ((fname "cg-hex-format-pair")
 	(hex-digit-count (cg-integer-hex-digits))
@@ -82,7 +82,7 @@
     (setq formatter (concat formatter formatter))
     (format formatter (car pair) (cdr pair))))
 
-(defun cg-hex-format-triple (triple)
+(defun OBS-cg-hex-format-triple (triple)
   "Return a hex formatted representation of TRIPLE."
   (let ((fname "cg-hex-format-triple")
 	(hex-digit-count (cg-integer-hex-digits))

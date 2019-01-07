@@ -1,8 +1,8 @@
 # -*- mode: org; encoding: utf-8 -*-
-#	$Id: README,v 1.11 2019/01/03 21:04:21 doug Exp $	
+#	$Id: README,v 1.14 2019/01/07 07:44:34 doug Exp $	
 
 # 
-# Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com
+# Copyright © 2019 Free Software Foundation, Inc.
 # All rights reserved.
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 
+* Caveat
+This is currenty beta code.
+Please don't do anything critical with it.
+
+That said, the current version /does/ create a backup
+of every archive that it is applied to.
+It is your responsibility to remove those archives.
+They are marked with a date time stamp in the form YYYYmmddHHMMSS.mmm.
 * Intent
 
 The intents of cpio-mode are the following:
@@ -61,7 +69,7 @@ However, the internal structure of cpio-mode implements
 all of the manipulation code in terms of parsed headers
 (which look much like inodes), so adding new formats should be
 relatively easy.
-See the documentation in cpio.el
+See the documentation in cpio-mode.el
 for a slightly more detailed description of this structure.
 
 You should be able to add a new format if
@@ -152,10 +160,13 @@ you cannot use any automatic invocation of cpio-mode.
 One way of doing this is to invoke »emacs -Q«.
 (You'll also need »-eval "(setq load-path (add-to-list 'load-path \".\"))"«.
 until I figure out the right way to handle loading.)
-Thus a good invocation is
+Thus, a good invocation is
     »emacs -Q -eval "(setq load-path (add-to-list 'load-path \".\"))"«
 Some recommendations for automatic invocation of cpio-mode can be found
-in the comments near the top of cpio.el.
+in the comments near the top of cpio-mode.el.
+
+And, of course, you must run ./configure
+before trying to run automated tests.
 
 ** Internals
 - cpio-generic-tests.el provides basic testing of some of the funciton

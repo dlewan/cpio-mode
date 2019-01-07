@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan (d.lewan2000@gmail.com)
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2018 Nov 19
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -40,6 +40,8 @@
 
 (defvar *cdmt-header-re* ()
   "Variable to hold the format-specific RE to match a header.")
+(setq *cdmt-header-re* ())
+
 ;; These indexes don't seem to be used.
 ;; (defvar *cpio-magic-re-idx* ())
 ;; (defvar *cpio-mode-re-idx* ())
@@ -52,6 +54,8 @@
 ;; (defvar *cpio-filename-re-idx* ())
 
 (defvar *cdmt-archive-format* ())
+(setq *cdmt-archive-format* ())
+
 
 
 (defun cdmt-filter-archive-contents (archive-contents)
@@ -533,6 +537,22 @@ to grab temp- references in sub-directories."
 			   "cpio-chksum-re-idx"
 			   "cpio-filename-re-idx"
 			   "cdmt-archive-format"))
+(setq cdmt-generic-vars (list
+			   "cdmt-small-archive"
+			   "cdmt-large-archive"
+			   "cdmt-header-re"
+
+			   "cpio-magic-re-idx"
+			   "cpio-mode-re-idx"
+			   "cpio-uid-re-idx"
+			   "cpio-gid-re-idx"
+			   "cpio-nlink-re-idx"
+			   "cpio-filesize-re-idx"
+			   "cpio-namesize-re-idx"
+			   "cpio-chksum-re-idx"
+			   "cpio-filename-re-idx"
+			   "cdmt-archive-format"))
+
 
 (defun cdmt-convert-vars (format)
   "Convert all the uses of FORMAT specific vars to their generic counterparts.
@@ -871,6 +891,153 @@ This function respects narrowing."
   (interactive)
   (let ((fname "remove-all-debuggers"))
     (while (remove-debugger))))
+
+(defun find-unused-symbols ()
+  "Look for unused variables (defvar) and functions (defun) in *.el."
+  (interactive)
+  (let ((fname "find-unused-symbols")
+	(vars ())
+	(funs ())
+	(el-files (directory-files "." nil ".+\\.el" nil))
+	(grep-cmd "egrep")
+	(grep-opts "")
+	(buf (get-buffer-create "*symbols*"))
+	(unused-vars ())
+	(unused-funs ())
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (with-current-buffer buf (erase-buffer))
+    (setq funs (delete-duplicates (sort (gather-funs el-files) 'string-lessp) :test 'string-equal))
+    (setq vars (delete-duplicates (sort (gather-vars el-files) 'string-lessp) :test 'string-equal))
+
+    
+    ;; (setq el-files (list "cpio-mode.el"))
+    ;; (setq funs (list "unused-fun" "used-fun"))
+    ;; (setq vars (list "unused-var" "used-var"))
+
+
+    (with-current-buffer buf
+      (insert "Functions found:\n")
+      (mapc (lambda (f)
+	      (insert "    " f "\n"))
+	    funs)
+      )
+    (with-current-buffer buf
+      (insert "Variables found:\n")
+      (mapc (lambda (v)
+	      (insert "    " v "\n"))
+	    vars)
+      )
+    ;; (pop-to-buffer buf)
+    ;; (goto-char (point-min))
+
+    (mapc (lambda (func)
+		(let ((usedp nil))
+		  (catch 'out
+		    (mapc (lambda (f)
+			    (with-current-buffer (find-file-noselect f)
+			      (save-excursion 
+				(goto-char (point-min))
+				(cond ((re-search-forward (concat "^.+(" func) (point-max) t)
+				       (setq usedp t)
+				       (throw 'out t))
+				      (t nil)))))
+			  el-files))
+		  (unless usedp
+		    (push func unused-funs))))
+	  funs)
+
+    (mapc (lambda (v)
+	    (let ((usedp nil))
+	      (catch 'out
+		(mapc (lambda (f)
+			(with-current-buffer (find-file-noselect f)
+			  (save-excursion 
+			    (goto-char (point-min))
+			    (cond ((re-search-forward (concat "^[[:blank:]]+.+[[:blank:]]" v) (point-max) t)
+				   (setq usedp t)
+				   (throw 'out t))
+				  (t nil)))))
+		      el-files))
+	      (unless usedp
+		(push v unused-vars))))
+	  vars)
+
+
+
+
+    (with-current-buffer buf
+      (goto-char (point-max))
+      (insert "\nUnused functions:\n")
+      (mapc (lambda (func)
+	      (insert (format "    %s\n" func)))
+	    (sort unused-funs 'string-lessp)))
+
+    (with-current-buffer buf
+      (goto-char (point-max))
+      (insert "\nUnused variables:\n")
+      (mapc (lambda (v)
+	      (insert (format "    %s\n" v)))
+	    (sort unused-vars 'string-lessp)))
+
+    (pop-to-buffer buf)
+    (goto-char (point-min))
+
+    ;; (mapc (lambda (v)
+    ;; (setq grep-cmd (concat grep-cmd " -e '[[:blank:]]+ " v "'")))
+    ;; vars)
+    ;; (mapc (lambda (f)
+    ;; (setq grep-opts (concat grep-opts "-e '[[:blank:]]+(' " f "[[:space:]]" " ")))
+    ;; funs)
+    ;; (grep grep-cmd)
+    ))
+(defvar unused-var ())
+
+(defun gather-vars (&optional files)
+  "Return a list of variables (defvar) defined in FILES.
+If FILES is NIL, then look in *.el."
+  (unless files (setq files (directory-files "." nil ".+\\.el" nil)))
+  (let ((fname "gather-vars")
+	(results ())
+	(str)
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (mapc (lambda (f)
+	    (with-current-buffer (find-file-noselect f)
+	      (save-excursion
+		(widen)
+		(goto-char (point-min))
+		(while (re-search-forward "^\\(  \\)?(defvar \\([[:graph:]]+\\)" (point-max) t)
+		  (setq str (match-string-no-properties 2))
+		  (while (string-match ")\\'" str)
+		    (setq str (substring str 0 -1)))
+		  (push str results)))))
+	  files)
+    results
+    ))
+
+(defun gather-funs (&optional files)
+  "Return a list of functions (defun) defined in FILES.
+If FILES is NIL, then look in *.el."
+  (unless files (setq files (directory-files "." nil ".+\\.el" nil)))
+  (let ((fname "gather-funs")
+	(results ())
+	(str)
+	)
+    ;; (error "%s() is not yet implemented" fname)
+    (mapc (lambda (f)
+	    (with-current-buffer (find-file-noselect f)
+	      (save-excursion
+		(widen)
+		(goto-char (point-min))
+		(while (re-search-forward "^(defun \\([[:graph:]]+\\)" (point-max) t)
+		  (setq str (match-string-no-properties 1))
+		  (while (string-match ")\\'" str)
+		    (setq str (substring str 0 -1)))
+		  (push str results)))))
+	  files)
+    results
+    ))
 
 (provide 'test-generic)
 ;;; test-generic.el ends here

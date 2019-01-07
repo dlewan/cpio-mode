@@ -2,7 +2,7 @@
 
 ;; COPYRIGHT
 
-;; Copyright © 2017, 2018, 2019 Douglas Lewan, d.lewan2000@gmail.com.
+;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
 ;; 
 ;; This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
-;; Maintainer: -- " --
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Dec 01
-;; Version: 0.13β
+;; Version: 0.16β
 ;; Keywords: files
 
 ;;; Commentary:
@@ -123,53 +123,53 @@ Keep any preceding comments."
 (defvar *cpio-catalog-entry-attrs-idx*)
 (defvar *cpio-catalog-entry-contents-start-idx*)
 (defvar *cpio-catalog-entry-header-start-idx*)
-(declare-function cpio-adjust-trailer "cpio.el")
-(declare-function cpio-catalog "cpio.el")
-(declare-function cpio-contents "cpio.el")
-(declare-function cpio-contents-start "cpio.el")
-(declare-function cpio-create-entry-attrs "cpio.el")
-(declare-function cpio-create-faux-directory-attrs "cpio.el")
-(declare-function cpio-delete-trailer "cpio.el")
-(declare-function cpio-dev-maj "cpio.el")
-(declare-function cpio-dev-maj-to-dev-maj-string "cpio.el")
-(declare-function cpio-dev-min "cpio.el")
-(declare-function cpio-dev-min-to-dev-min-string "cpio.el")
+(declare-function cpio-adjust-trailer "cpio-mode.el")
+(declare-function cpio-catalog "cpio-mode.el")
+(declare-function cpio-contents "cpio-mode.el")
+(declare-function cpio-contents-start "cpio-mode.el")
+(declare-function cpio-create-entry-attrs "cpio-mode.el")
+(declare-function cpio-create-faux-directory-attrs "cpio-mode.el")
+(declare-function cpio-delete-trailer "cpio-mode.el")
+(declare-function cpio-dev-maj "cpio-mode.el")
+(declare-function cpio-dev-maj-to-dev-maj-string "cpio-mode.el")
+(declare-function cpio-dev-min "cpio-mode.el")
+(declare-function cpio-dev-min-to-dev-min-string "cpio-mode.el")
 (declare-function cpio-dired-modified-p "cpio-dired.el")
 (declare-function cpio-dired-set-modified "cpio-dired.el")
 (declare-function cpio-dired-set-unmodified "cpio-dired.el")
-(declare-function cpio-entry "cpio.el")
-(declare-function cpio-entry-attrs "cpio.el")
-(declare-function cpio-entry-contents-start "cpio.el")
-(declare-function cpio-entry-exists-p "cpio.el")
-(declare-function cpio-entry-header-start "cpio.el")
-(declare-function cpio-entry-name "cpio.el")
-(declare-function cpio-entry-name-to-entry-name-string "cpio.el")
-(declare-function cpio-entry-size "cpio.el")
-(declare-function cpio-extract-all "cpio.el")
-(declare-function cpio-filesize-to-filesize-string "cpio.el")
-(declare-function cpio-find-entry "cpio.el")
-(declare-function cpio-gid "cpio.el")
-(declare-function cpio-gid-to-gid-string "cpio.el")
-(declare-function cpio-insert-padded-contents "cpio.el")
-(declare-function cpio-insert-trailer "cpio.el")
-(declare-function cpio-make-header-string "cpio.el")
-(declare-function cpio-mode "cpio.el")
-(declare-function cpio-mode-value "cpio.el")
-(declare-function cpio-move-to-entry "cpio.el")
-(declare-function cpio-mtime "cpio.el")
-(declare-function cpio-mtime-to-mtime-string "cpio.el")
-(declare-function cpio-nlink "cpio.el")
-(declare-function cpio-nlink-to-nlink-string "cpio.el")
-(declare-function cpio-numeric-entry-type "cpio.el")
-(declare-function cpio-set-contents-start "cpio.el")
-(declare-function cpio-set-entry-name "cpio.el")
-(declare-function cpio-set-entry-unmodified "cpio.el")
-(declare-function cpio-set-gid "cpio.el")
-(declare-function cpio-set-mode "cpio.el")
-(declare-function cpio-set-uid "cpio.el")
-(declare-function cpio-sort-catalog "cpio.el")
-(declare-function cpio-uid "cpio.el")
-(declare-function cpio-uid-to-uid-string "cpio.el")
+(declare-function cpio-entry "cpio-mode.el")
+(declare-function cpio-entry-attrs "cpio-mode.el")
+(declare-function cpio-entry-contents-start "cpio-mode.el")
+(declare-function cpio-entry-exists-p "cpio-mode.el")
+(declare-function cpio-entry-header-start "cpio-mode.el")
+(declare-function cpio-entry-name "cpio-mode.el")
+(declare-function cpio-entry-name-to-entry-name-string "cpio-mode.el")
+(declare-function cpio-entry-size "cpio-mode.el")
+(declare-function cpio-extract-all "cpio-mode.el")
+(declare-function cpio-filesize-to-filesize-string "cpio-mode.el")
+(declare-function cpio-find-entry "cpio-mode.el")
+(declare-function cpio-gid "cpio-mode.el")
+(declare-function cpio-gid-to-gid-string "cpio-mode.el")
+(declare-function cpio-insert-padded-contents "cpio-mode.el")
+(declare-function cpio-insert-trailer "cpio-mode.el")
+(declare-function cpio-make-header-string "cpio-mode.el")
+(declare-function cpio-mode "cpio-mode.el")
+(declare-function cpio-mode-value "cpio-mode.el")
+(declare-function cpio-move-to-entry "cpio-mode.el")
+(declare-function cpio-mtime "cpio-mode.el")
+(declare-function cpio-mtime-to-mtime-string "cpio-mode.el")
+(declare-function cpio-nlink "cpio-mode.el")
+(declare-function cpio-nlink-to-nlink-string "cpio-mode.el")
+(declare-function cpio-numeric-entry-type "cpio-mode.el")
+(declare-function cpio-set-contents-start "cpio-mode.el")
+(declare-function cpio-set-entry-name "cpio-mode.el")
+(declare-function cpio-set-entry-unmodified "cpio-mode.el")
+(declare-function cpio-set-gid "cpio-mode.el")
+(declare-function cpio-set-mode "cpio-mode.el")
+(declare-function cpio-set-uid "cpio-mode.el")
+(declare-function cpio-sort-catalog "cpio-mode.el")
+(declare-function cpio-uid "cpio-mode.el")
+(declare-function cpio-uid-to-uid-string "cpio-mode.el")
 ;; EO byte compiler code.
 ;;;;;;;;;;;;;;;;
 
@@ -330,25 +330,39 @@ This is what the do-commands look for, and what the mark-commands store.")
 
 (defvar cpio-dired-del-marker ?D
   "Character used to flag entries for deletion.")
+(setq cpio-dired-del-marker ?D)
+
 (defvar cpio-dired-del-str (char-to-string cpio-dired-del-marker)
   "In cpio-dired, a string corresponding to cpio-dired-del-marker.")
+(setq cpio-dired-del-str (char-to-string cpio-dired-del-marker))
+
   
 ;; HEREHERE dired-keep-marker-copy is customizable.
 ;; Should it be here too?
 (defvar cpio-dired-keep-marker-copy ?C
   "Character used to flag entries for copying.")
+(setq cpio-dired-keep-marker-copy ?C)
+
 (defvar cpio-dired-keep-marker-copy-str ?C
   "In cpio-dired, a string corresponding to cpio-dired-keep-marker-copy.")
+(setq cpio-dired-keep-marker-copy-str ?C)
+
 
 ;; HEREHERE dired-keep-marker-rename is customizable.
 ;; Should it be here too?
 (defvar cpio-dired-keep-marker-rename ?R
   "Character used to flag entries for renaming.")
+(setq cpio-dired-keep-marker-rename ?R)
+
 (defvar cpio-dired-keep-marker-rename-str (char-to-string cpio-dired-keep-marker-rename)
   "In cpio-dired, a string corresponding to cpio-dired-keep-marker-rename.")
+(setq cpio-dired-keep-marker-rename-str (char-to-string cpio-dired-keep-marker-rename))
+
 
 (defvar cpio-dired-re-inode-size "[0-9 \t]*"
   "Regexp for optional initial inode and file size as made by `ls -i -s'.")
+(setq cpio-dired-re-inode-size "[0-9 \t]*")
+
 
 ;; These regexps must be tested at beginning-of-line, but are also
 ;; used to search for next matches, so neither omitting "^" nor
@@ -357,12 +371,20 @@ This is what the do-commands look for, and what the mark-commands store.")
 (defvar cpio-dired-re-mark "^[^ \n]"
   "Regexp matching a marked line.
 Important: the match ends just after the marker.")
+(setq cpio-dired-re-mark "^[^ \n]")
+
 (defvar cpio-dired-re-maybe-mark "^. ")
+(setq cpio-dired-re-maybe-mark "^. ")
+
 ;; The [^:] part after "d" and "l" is to avoid confusion with the
 ;; DOS/Windows-style drive letters in directory names, like in "d:/foo".
 (defvar cpio-dired-re-dir (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size "d[^:]"))
+(setq cpio-dired-re-dir (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size "d[^:]"))
+
 (defvar cpio-dired-re-sym (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size "l[^:]"))
-(defvar cpio-dired-re-exe;; match ls permission string of an executable file
+(setq cpio-dired-re-sym (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size "l[^:]"))
+
+(defvar cpio-dired-re-exe ;; match ls permission string of an executable file
   (mapconcat (function
 	      (lambda (x)
 		;; (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size x)))
@@ -371,8 +393,22 @@ Important: the match ends just after the marker.")
 	       "-[-r][-w].[-r][-w][xs][-r][-w]."
 	       "-[-r][-w].[-r][-w].[-r][-w][xst]")
 	     "\\|"))
+(setq cpio-dired-re-exe ;; match ls permission string of an executable file
+  (mapconcat (function
+	      (lambda (x)
+		;; (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size x)))
+		(concat cpio-dired-re-maybe-mark " " x)))
+	     '("-[-r][-w][xs][-r][-w].[-r][-w]."
+	       "-[-r][-w].[-r][-w][xs][-r][-w]."
+	       "-[-r][-w].[-r][-w].[-r][-w][xst]")
+	     "\\|"))
+
 (defvar cpio-dired-re-perms "[-bcdlps][-r][-w].[-r][-w].[-r][-w].")
+(setq cpio-dired-re-perms "[-bcdlps][-r][-w].[-r][-w].[-r][-w].")
+
 (defvar cpio-dired-re-dot "^.* \\.\\.?/?$")
+(setq cpio-dired-re-dot "^.* \\.\\.?/?$")
+
 (defvar cpio-dired-font-lock-keywords
   ;; cpio-dired-font-lock-keywords is adapted from dired.
   (list
@@ -477,12 +513,12 @@ Important: the match ends just after the marker.")
    ;; permissions, to win generally.  -- fx.
    ;; Fixme: we could also put text properties on the permission
    ;; fields with keymaps to frob the permissions, somewhat a la XEmacs.
-   (list (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size
-		 "[-d]....\\(w\\)....")	; group writable
-	 '(1 cpio-dired-perm-write-face))
-   (list (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size
-		 "[-d].......\\(w\\).")	; world writable
-	 '(1 cpio-dired-perm-write-face))
+;;DL   (list (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size
+;;DL		 "[-d]....\\(w\\)....")	; group writable
+;;DL	 '(1 cpio-dired-perm-write-face))
+;;DL   (list (concat cpio-dired-re-maybe-mark cpio-dired-re-inode-size
+;;DL		 "[-d].......\\(w\\).")	; world writable
+;;DL	 '(1 cpio-dired-perm-write-face))
    ;;
    ;; Subdirectories.
    (list cpio-dired-re-dir
@@ -526,29 +562,44 @@ Important: the match ends just after the marker.")
 
 (defvar cpio-entry-name ()
   "Name of the entry whose contents are being edited.")
+(setq cpio-entry-name ())
+
 
 (defconst *cpio-dirline-re* "^..d"
   "Regular expression to match an entry for a directory.")
+(setq *cpio-dirline-re* "^..d")
+
 
 (defvar *cpio-dired-copy-history* ()
   "History of copies made in cpio-dired-mode.")
+(setq *cpio-dired-copy-history* ())
+
 
 (defvar *cpio-dired-do-chgrp-history* ()
   "History of M-x cpio-dired-do-chgrp.")
+(setq *cpio-dired-do-chgrp-history* ())
+
 
 (defvar *cpio-dired-do-chown-history* ()
   "History of M-x cpio-dired-do-chown.")
+(setq *cpio-dired-do-chown-history* ())
+
 
 (defvar *cpio-dired-do-rename-history* ()
   "History of M-x cpio-dired-do-rename.")
+(setq *cpio-dired-do-rename-history* ())
+
 
 (defvar *cpio-dired-head-offset* 2
   "The number of lines in the cpio-dired buffer devoted to the dired-style header.")
+(setq *cpio-dired-head-offset* 2)
+
 
 (defvar *cpio-dired-buffer* ()
   "The [subordinate] buffer used to present the curent catalog
 à la dired.")
 (setq *cpio-dired-buffer* ())
+
 (make-variable-buffer-local '*cpio-dired-buffer*)
 
 
@@ -568,6 +619,8 @@ Important: the match ends just after the marker.")
   :version "22.1")
 (defvar cpio-dired-header-face 'cpio-dired-header
   "Face name used for directory headers.")
+(setq cpio-dired-header-face 'cpio-dired-header)
+
 
 (defface cpio-dired-mark
   '((t (:inherit font-lock-constant-face)))
@@ -592,6 +645,8 @@ Important: the match ends just after the marker.")
   :version "22.1")
 (defvar cpio-dired-flagged-face 'cpio-dired-flagged
   "Face name used for files flagged for deletion.")
+(setq cpio-dired-flagged-face 'cpio-dired-flagged)
+
 
 (defface cpio-dired-warning
   ;; Inherit from font-lock-warning-face since with min-colors 8
@@ -613,6 +668,8 @@ Important: the match ends just after the marker.")
   :version "22.2")
 (defvar cpio-dired-perm-write-face 'cpio-dired-perm-write
   "Face name used for permissions of group- and world-writable files.")
+(setq cpio-dired-perm-write-face 'cpio-dired-perm-write)
+
 
 (defface cpio-dired-directory
   '((t (:inherit font-lock-function-name-face)))
@@ -621,6 +678,8 @@ Important: the match ends just after the marker.")
   :version "22.1")
 (defvar cpio-dired-directory-face 'cpio-dired-directory
   "Face name used for subdirectories.")
+(setq cpio-dired-directory-face 'cpio-dired-directory)
+
 
 (defface cpio-dired-symlink
   '((t (:inherit font-lock-keyword-face)))
@@ -629,6 +688,8 @@ Important: the match ends just after the marker.")
   :version "22.1")
 (defvar cpio-dired-symlink-face 'cpio-dired-symlink
   "Face name used for symbolic links.")
+(setq cpio-dired-symlink-face 'cpio-dired-symlink)
+
 
 (defface cpio-dired-ignored
   '((t (:inherit shadow)))
@@ -637,6 +698,8 @@ Important: the match ends just after the marker.")
   :version "22.1")
 (defvar cpio-dired-ignored-face 'cpio-dired-ignored
   "Face name used for files suffixed with `completion-ignored-extensions'.")
+(setq cpio-dired-ignored-face 'cpio-dired-ignored)
+
 
 (defcustom cpio-dired-trivial-filenames dired-trivial-filenames
   "Regexp of entries to skip when finding the first meaningful entry of a directory."
@@ -944,12 +1007,12 @@ This returns the buffer created."
     ;; No, I do not yet understand why this must be done
     ;; every time the presentation is updated.
 
-    ;; (with-current-buffer "cpio.el"
+    ;; (with-current-buffer "cpio-mode.el"
     ;;   kill-buffer-hook)
 
     (cab-register buffer archive-buffer)
 
-    ;; (with-current-buffer "cpio.el"
+    ;; (with-current-buffer "cpio-mode.el"
     ;;    kill-buffer-hook)
 
     buffer))
@@ -2057,6 +2120,8 @@ in the active region."
 ;; % &		dired-flag-garbage-entries
 (defvar cpio-dired-garbage-entries-regexp dired-garbage-files-regexp
   "Regular expression to match in cpio-dired-flag-garbage-entries.")
+(setq cpio-dired-garbage-entries-regexp dired-garbage-files-regexp)
+
 (defun cpio-dired-flag-garbage-entries () ;✓✓✓
   "Flag for deletion all entries that match `cpio-dired-garbage-entries-regexp'."
   (interactive)
@@ -2136,9 +2201,8 @@ and any affiliated buffers thereof."
 		   (if (y-or-n-p "You've made changes to the archive. Save first? ")
 		       (cpio-dired-save-archive)))
 	       (with-current-buffer *cab-parent*
-		 (remove-hook 'kill-buffer-hook 'cab-kill-buffer-hook)
 		 (kill-buffer))
-	       (remove-hook 'kill-buffer-hook 'cab-kill-buffer-hook)
+	       ;; This should be a noop.
 	       (kill-buffer))
 	      (t
 	       (warn "%s(): Archive buffer [[%s]] is not there." fname (file-name-nondirectory (buffer-file-name *cab-parent*)))
@@ -2931,6 +2995,8 @@ permissions are hidden from view."
 ;; mode definition
 ;; 
 (defvar *cpio-dired-have-made-keymap* nil)
+(setq *cpio-dired-have-made-keymap* nil)
+
 
 (define-derived-mode cpio-dired-mode fundamental-mode "cpio-dired"
   "Mode for editing cpio archives in the style of dired."
