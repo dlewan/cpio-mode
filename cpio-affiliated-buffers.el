@@ -4,38 +4,38 @@
 
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Nov 22
-;; Version: 0.16β
+;; Version: 0.17
 ;; Keywords: files
 
 ;;; Commentary:
 
 ;; To keep track of which buffers are connected to a specific archive,
 ;; cpio-mode uses the idea of affiliated buffers.
-;; 
+;;
 ;; The buffers affiliated with an archive's buffer are the following:
 ;; 1. The buffer holding the dired-like information.
 ;; 2. The buffers holding any entry's contents.
 ;; Killing [deregistering] the dired-like buffer also kills the archive's buffer,
 ;; and killing the archive's buffer kills
 ;; all remaining affiliated buffers.
-;; 
+;;
 
 ;;; Documentation:
 
@@ -44,7 +44,7 @@
 ;;   to the current buffer.
 ;; • *cab-parent* -- a buffer, the buffer to which the current buffer is affiliated.
 ;; Both variables are buffer local.
-;; 
+;;
 ;; The existence of a subordinate buffer depends
 ;; on the the existence of its parent.
 ;; One consequence is that a subordinate buffer can have only one parent.
@@ -58,7 +58,7 @@
 ;; (cab-registered-p (buffer parent)
 ;;     Return non-NIL if BUFFER is a registered subordinate of PARENT.
 ;; (cab-kill-buffer-hook)
-;;     A hook for subordinate buffers that removes their registry entry 
+;;     A hook for subordinate buffers that removes their registry entry
 ;;     with PARENT.
 ;; (cab-deregister (&optional buffer))
 ;;     Kill BUFFER and its subordinates.
@@ -134,8 +134,8 @@ that are affiliated with each other."
 		     (with-current-buffer buf
 		       *cab-subordinates*)))
 	      (t (insert "    No subordinates.\n")))))))
-  
-(defun OBS-cab-test-register-buffer-hook ( buffer parent )
+
+(defun OBS-cab-test-register-buffer-hook (buffer parent)
   "Record some information about the registration of a BUFFER
 as an affiliated buffer.
 It's not strictly a hook, but it pairs with the above kill-buffer-hook."
@@ -159,21 +159,21 @@ It's not strictly a hook, but it pairs with the above kill-buffer-hook."
 
 ;;
 ;; Generic functions
-;; 
+;;
 
 
 
 
 ;;
 ;; Dependencies
-;; 
+;;
 (eval-when-compile
   (require 'cl-lib))
 
 
-;; 
+;;
 ;; Vars
-;; 
+;;
 (defvar *cab-subordinates* ()
   "A list of subordinate buffers affiliated with the current buffer.")
 (setq *cab-subordinates* ())
@@ -187,9 +187,9 @@ It's not strictly a hook, but it pairs with the above kill-buffer-hook."
 
 (make-variable-buffer-local '*cab-parent*)
 
-;; 
+;;
 ;; Library
-;; 
+;;
 (defun cab-register (buffer parent)
   "Register the given BUFFER as an affiliate of the PARENT buffer.
 If BUFFER is already an affiliate of PARENT, then succeed quietly.
@@ -220,7 +220,7 @@ Return NIL if buffer is already affiliated to another parent."
 	     (push buffer *cab-subordinates*)
 	     (add-hook 'kill-buffer-hook 'cab-kill-buffer-hook nil 'local)
 	     (local-set-key "\C-x\C-k" (lambda () (cab-deregister parent))))))))
-  
+
 (defun cab-detect-parenthood-cycle (buffer parent)
   "Return non-NIL if affiliating BUFFER with PARENT would create a parenthood cycle."
   (let ((fname "cab-detect-parenthood-cycle"))
@@ -273,7 +273,7 @@ if you want to lose registry information."
 	(parent)
 	(subordinates))
     (cond ((buffer-live-p buffer)
-	   (with-current-buffer buffer 
+	   (with-current-buffer buffer
 	     (setq parent *cab-parent*)
 	     (setq subordinates *cab-subordinates*))
 	   (mapc 'cab-deregister subordinates)
@@ -292,7 +292,7 @@ if you want to lose registry information."
   (let ((fname "cab-simple-deregister")
 	(parent)
 	(subordinates))
-    (with-current-buffer buffer 
+    (with-current-buffer buffer
       (setq parent *cab-parent*)
       (setq subordinates *cab-subordinates*))
     (mapc 'cab-simple-deregister subordinates)

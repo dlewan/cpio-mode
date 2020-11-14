@@ -1,28 +1,28 @@
 ;;; cpio-crc.el --- handle crc cpio entry header formats -*- coding: utf-8 -*-
 
 ;; COPYRIGHT
-;; 
+;;
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;; 
+;;
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.16β
+;; Version: 0.17
 ;; Keywords: files
 
 ;;; Commentary:
@@ -33,20 +33,20 @@
 
 ;;
 ;; Dependencies
-;; 
+;;
 
 ;; (eval-when-compile
 ;;   (condition-case err
 ;;       (require 'cpio-generic)
-;;     (error 
+;;     (error
 ;;      (if (file-exists-p (concat default-directory "cpio-generic.elc"))
-;; 	 (load (concat default-directory "cpio-generic.elc"))
+;;	 (load (concat default-directory "cpio-generic.elc"))
 ;;        (load (concat default-directory "cpio-generic.el")))))
 ;;   (condition-case err
 ;;       (require 'cpio-newc)
 ;;     (error
 ;;      (if (file-exists-p (concat default-directory "cpio-newc.elc"))
-;; 	 (load (concat default-directory "cpio-newc.elc"))
+;;	 (load (concat default-directory "cpio-newc.elc"))
 ;;        (load (concat default-directory "cpio-newc.el"))))))
 
 (require 'cpio-newc)
@@ -79,9 +79,9 @@
 ;;;;;;;;;;;;;;;;
 
 
-;; 
+;;
 ;; Vars
-;; 
+;;
 
 (defconst *cpio-crc-header-length* (length "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000")
   "The length of a crc header.")
@@ -114,13 +114,13 @@
 				   "\\(" *cpio-crc-mode-re*     "\\)"
 				   "\\(" *cpio-crc-uid-re*      "\\)"
 				   "\\(" *cpio-crc-gid-re*      "\\)"
-				   
+
 				   "\\(" *cpio-crc-nlink-re*    "\\)"
 				   "\\(" *cpio-crc-mtime-re*    "\\)"
 				   "\\(" *cpio-crc-filesize-re* "\\)"
 				   "\\(" *cpio-crc-dev-maj-re*  "\\)"
 				   "\\(" *cpio-crc-dev-min-re*  "\\)"
-				   
+
 				   "\\(" *cpio-crc-rdev-maj-re* "\\)"
 				   "\\(" *cpio-crc-rdev-min-re* "\\)"
 				   "\\(" *cpio-crc-namesize-re* "\\)"
@@ -144,9 +144,9 @@
 (defconst *cpio-crc-chksum-re-idx*   *cpio-newc-chksum-re-idx*)
 (defconst *cpio-crc-filename-re-idx* *cpio-newc-filename-re-idx*)
 
-;; 
+;;
 ;; EO newc header variables.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defconst *cpio-crc-field-width*     *cpio-newc-field-width*)
@@ -181,14 +181,14 @@ Taken from cpio-2.12/src/global.c."
   :group 'cpio)
 
 
-;; 
+;;
 ;; Library
-;; 
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for working with a cpio newc header
-;; 
+;;
 
 (defun cpio-newc-header-at-point (&optional where)
   "Return the header string at or following point WHERE.
@@ -209,14 +209,14 @@ CAVEATS:
 	     (forward-char (length *cpio-newc-magic-re*))
 	     (while (and (re-search-backward *cpio-newc-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-newc-header-re*)))))
-	     (if found 
+	     (if found
 		 (match-string-no-properties 0)))))))
 ;; OBSOLETE (setq cpio-header-at-point-func 'cpio-newc-header-at-point)
 
 ;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Parsing a header
-;; 
+;;
 
 (defalias 'cpio-crc-header-size    'cpio-newc-header-size)
 (defalias 'cpio-crc-parse-magic    'cpio-newc-parse-magic)
@@ -340,9 +340,9 @@ This function does NOT include the contents."
 ;; Filename is not one of ATTRS. ∴ It doesn't get a constructor here.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for whole entries
-;; 
+;;
 (defun cpio-crc-parse-header-at-point ()
   "Parse the crc cpio header that begins at point.
 If there is no header there, then signal an error."
@@ -453,10 +453,10 @@ CAVEAT: This respects neither narrowing nor the point."
       (cpio-crc-make-chksum (buffer-substring-no-properties (point-min) (point-max))))))
 
 
-;; 
+;;
 ;; Commands
 ;;
- 
+
 
 (provide 'cpio-crc)
 ;;; cpio-crc.el ends here.

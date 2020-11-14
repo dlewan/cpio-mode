@@ -1,4 +1,4 @@
-;; cpio-ustar.el --- Let tar-mode handle tar archives. -*- coding: utf-8 -*-
+;;; cpio-entry-header.el --- handle cpio entry headers. -*- coding: utf-8 -*-
 
 ;; COPYRIGHT
 ;;
@@ -12,15 +12,43 @@
 ;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 
-;;; Tar archives are already handled by tar-mode.
+;; Author: Douglas Lewan <d.lewan2000@gmail.com>
+;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
+;; Created: 2015 Jan 03
+;; Version: 0.17
+;; Keywords: files
 
-(error "Detection of tar archives should invoke tar-mode.")
+;;; Commentary:
 
-;;; cpio-ustar.el ends here.
+;;; Documentation:
+
+;;; Code:
+
+;;
+;; Dependencies
+;;
+
+
+;;
+;; Vars
+;;
+
+
+;;
+;; Library
+;;
+
+
+;;
+;; Commands
+;;
+
+
+;;; cpio-entry-header.el ends here.

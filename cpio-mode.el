@@ -2,7 +2,7 @@
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
-;; Version: 0.16β
+;; Version: 0.17
 ;; Long description: cpio-mode provides a dired-like interface for working with cpio archives. You can view, edit and save entries. You can also change permissions, UID, etc.
 ;; Dependencies: (bindat 24.5) (cl 24.5) (ert 24.5)
 ;; Created: 2015 Jan 03
@@ -11,17 +11,17 @@
 
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -35,75 +35,75 @@
 
 ;;; Documentation:
 
-;; 
+;;
 ;; NAME: cpio-mode
-;; 
+;;
 ;; USAGE:
 ;;     (load-library 'cpio-mode) OR
 ;;     (require 'cpio-mode)
 ;;
 ;;     Once loaded, there are several ways to invoke cpio-mode:
-;; 
+;;
 ;;     • M-x cpio-mode
-;; 
+;;
 ;;     • If you want to put a cpio-archive into cpio-mode autmatically,
-;;       then add the following to your .emacs:
-;;         (add-hook 'find-file-hook 'cpio-mode-find-file-hook)
+;;	 then add the following to your .emacs:
+;;	   (add-hook 'find-file-hook 'cpio-mode-find-file-hook)
 ;;
 ;;     • Another way to do this would be to modify magic-mode-alist
-;;         (setq magic-mode-alist
-;;              (add-to-list 'magic-mode-alist
-;;                           (cons 'cpio-discern-archive-type 'cpio-mode))).
+;;	   (setq magic-mode-alist
+;;		(add-to-list 'magic-mode-alist
+;;			     (cons 'cpio-discern-archive-type 'cpio-mode))).
 ;;
 ;;     • If you only care about archives that end .cpio,
-;;       then the following would also work:
-;;         (setq auto-mode-alist
-;;               (add-to-list 'auto-mode-alist (cons "\\.cpio\\'" 'cpio-mode))).
-;; 
+;;	 then the following would also work:
+;;	   (setq auto-mode-alist
+;;		 (add-to-list 'auto-mode-alist (cons "\\.cpio\\'" 'cpio-mode))).
+;;
 ;; DESCRIPTION:
 ;;     cpio-mode presents a cpio archive as if it were a directory
 ;;     in a manner like dired-mode.
 ;;     tar-mode already does such a thing for tar archives,
 ;;     and some ideas (and likely code) have been adapted from tar-mode.
-;; 
+;;
 ;;     To automatically invoke cpio-mode when finding a file
 ;;     add the following to your find-file-hook.
-;; 
+;;
 ;;     You can use toggle-cpio-mode to switch between cpio-mode
 ;;     and fundamental mode.
-;; 
+;;
 ;; KEYMAP:
 ;;     This should be conceptually as close to dired as I can make it.
-;; 
+;;
 ;; OPTIONS:
-;; 
+;;
 ;; ENVIRONMENT:
 ;;     Early development was done under emacs 24.2
 ;;     on the Fedora 18 distribution of 64 bit GNU/Linux.
-;; 
+;;
 ;;     Later development happened under emacs 24.5
 ;;     on GNU/Linux Mint, Linux kernel 4.4.0.
 ;;
 ;;     Current development is happening on emacs 24.5
 ;;     on GNU/Linux Trisquel, Linux Kernel 4.4.0.
-;; 
+;;
 ;; RETURN CODE:
-;; 
+;;
 ;; NOTES:
 ;;     Binary formats are not yet implemented.
-;; 
+;;
 ;; CAVEATS:
 ;;     Only regular files can be edited.
 ;;     I'm not sure what to do with symbolic links yet.
-;; 
+;;
 ;; SECURITY ISSUES:
 ;;     There are no ownership/group-ship tests on anything.
 ;;     You could create an archive with bad behavior
 ;;     (for example, a set-uid executable)
 ;;     when unpacked by root.
-;; 
+;;
 
-;; 
+;;
 ;; cpio-mode.el is the entry point to all of cpio-mode code.
 ;; It defines the archive management variables and functions
 ;; that define cpio-mode.
@@ -112,7 +112,7 @@
 ;;    defined in
 ;;    • cpio-generic.el, truly generic code,
 ;;    • cpio-modes.el, file-mode related information,
-;; 2. Every archive format has its own file: 
+;; 2. Every archive format has its own file:
 ;;    cpio-bin for the cpio binary format,
 ;;    cpio-crc for the cpio CRC format,
 ;;    etc.
@@ -121,55 +121,55 @@
 ;;    a list of the information of all the headers
 ;;    in the current archive.
 ;; 4. The package cpio-dired, defining the user interface.
-;; 
+;;
 ;; The following figure shows the relationships
 ;; among those components.
-;; 
-;; +----------------------+   +-------------+   +-------------+
-;; | Format specific code |   |             |   |             |
-;; | +---------------+    |   |             |   |             |
-;; | | cpio-bin      |    |   |             |   |             |
-;; | | +--------------+   |   |    CPIO     |   | dired-like  |
-;; | +-|cpio-crc      |   |<->|    Logic    |<->|     UI      |
-;; |   | +-------------+  |   |             |   |             |
-;; |   +-| hpbin       |  |   |             |   |             |
-;; |     | +------------+ |   |             |   |             |
-;; |     +-| ···        | |   |             |   |             |
-;; |       +------------+ |   |             |   |             |
-;; +----------------------+   +-------------+   +-------------+
-;;             Λ                     Λ                 Λ
-;;             |                     |                 |
-;;             V                     V                 V
+;;
+;; +----------------------+   +-------------+	+-------------+
+;; | Format specific code |   |		    |	|	      |
+;; | +---------------+	  |   |		    |	|	      |
+;; | | cpio-bin	     |	  |   |		    |	|	      |
+;; | | +--------------+	  |   |	   CPIO	    |	| dired-like  |
+;; | +-|cpio-crc      |	  |<->|	   Logic    |<->|     UI      |
+;; |   | +-------------+  |   |		    |	|	      |
+;; |   +-| hpbin       |  |   |		    |	|	      |
+;; |	 | +------------+ |   |		    |	|	      |
+;; |	 +-| ···	| |   |		    |	|	      |
+;; |	   +------------+ |   |		    |	|	      |
+;; +----------------------+   +-------------+	+-------------+
+;;	       Λ		     Λ		       Λ
+;;	       |		     |		       |
+;;	       V		     V		       V
 ;; +----------------------------------------------------------+
-;; | generic code                                             |
-;; |          +------------+ +--------------+ +-----+         |
-;; |          | cpio-modes | | cpio-generic | | ··· |         |
-;; |          +------------+ +--------------+ +-----+         |
+;; | generic code					      |
+;; |	      +------------+ +--------------+ +-----+	      |
+;; |	      | cpio-modes | | cpio-generic | | ··· |	      |
+;; |	      +------------+ +--------------+ +-----+	      |
 ;; +----------------------------------------------------------+
-;; 
+;;
 ;; The basic idea is that the format-spedific code parses and makes headers
 ;; while all the cpio logic uses those parsed headers to edit
 ;; and calls format-specific parsing and making functions.
-;; 
+;;
 ;; The main data structures are the following.
-;; 
+;;
 ;; 0. Parsed headers, an inode-like array structure.
-;; 
+;;
 ;; 1. Entries, an array containing a parsed header,
 ;;    the header start and the contents start.
-;; 
+;;
 ;; 2. The catalog, a list of the entries in the cpio archive,
 ;;    including the trailer.
-;; 
+;;
 ;; 3. The buffer holding the archive.
 ;;    This buffer is put into cpio-mode.
 ;;    It holds all the "global" data,
 ;;    like the catalog described above.
-;; 
+;;
 ;; 4. The buffer holding the dired-like UI.
 ;;    cpio-mode creates this buffer and
 ;;    puts this buffer into cpio-dired-mode.
-;; 
+;;
 ;; 5. Buffers visiting entries.
 ;;    cpio-dired-mode uses the archive buffer
 ;;    to get entry contents and them in the visiting buffer.
@@ -181,16 +181,16 @@
 
 ;;
 ;; All files that define cpio-mode begin with "cpio."
-;; 
+;;
 ;; Global variables all begin '*cpio-...'.
 ;; Functions are named 'cpio-...'.
-;; 
+;;
 ;; The corresponding archive format specific names for format FMT
 ;; begin '*cpio-FMT-...' and 'cpio-FMT-...'.
 ;; The format-specific variables names are calculated
 ;; in (cpio-set-local-vars).
 ;; That function drops directly into corresponding format-specific functions
-;;     
+;;
 ;; The format-specific function names are calculated
 ;; in (cpio-set-local-funcs).
 ;; Here is the process:
@@ -199,19 +199,19 @@
 ;;     --> "cpio" "do" "good" "stuff"
 ;;     --> "cpio-fmt-do-good-stuff"
 ;;     --> cpio-fmt-do-good-stuff
-;; 
+;;
 ;; The index of FIELD within a parsed header is named 'cpio-FIELD-parsed-idx'.
 ;;
 ;; Each archive format FMT has a regular expression
 ;; that identifies that format unambiguously called '*cpio-FMT-header-re*'.
-;; 
+;;
 ;; The functions (cpio-get-FIELD) operate directly on the header
 ;; to extract FIELD.
 ;; It's not clear that these need to be defined here.
 ;;
 ;; The functions (cpio-FIELD) operate on a parsed header
 ;; to extract FIELD.
-;; 
+;;
 ;; Depending on the context the expression "entry attributes",
 ;; often abbreviated "attrs", and the phrase "parsed header"
 ;; are used to reference the structure
@@ -227,13 +227,13 @@
 ;; The context should make it clear which is intended.
 ;; Yes, in principle they're isomorphic.
 ;; (And, yes, I hate specifications that depend on context.)
-;; 
+;;
 
 ;;; Code:
 
 ;;
 ;; Dependencies
-;; 
+;;
 
 
 (require 'dired)
@@ -303,9 +303,9 @@
 ;;;;;;;;;;;;;;;;
 
 
-;; 
+;;
 ;; Vars
-;; 
+;;
 (defvar *cpio-format* ()
   "The format of the cpio archive in the current-buffer.
 Takes the values 'bin, 'newc, 'odc etc.")
@@ -351,13 +351,13 @@ with their corresponding archive types.
 The archive types are symbols: 'bin, 'newc, 'odc, etc.
 See `cpio-discern-archive-type' for the full list.")
 (setq *cpio-re-type-alist* (list
-			    (cons *cpio-bin-header-re*   'bin)
-			    (cons *cpio-crc-header-re*   'crc)
+			    (cons *cpio-bin-header-re*	 'bin)
+			    (cons *cpio-crc-header-re*	 'crc)
 			    (cons *cpio-hpbin-header-re* 'hpbin)
 			    (cons *cpio-hpodc-header-re* 'hpodc)
-			    (cons *cpio-newc-header-re*  'newc)
-			    (cons *cpio-odc-header-re*   'odc)
-			    (cons *cpio-tar-header-re*   'tar)
+			    (cons *cpio-newc-header-re*	 'newc)
+			    (cons *cpio-odc-header-re*	 'odc)
+			    (cons *cpio-tar-header-re*	 'tar)
 			    (cons *cpio-ustar-header-re* 'ustar)))
 
 (defvar cpio-build-catalog-func ()
@@ -516,11 +516,11 @@ A parsed header is a vector of the following form:
   ;; (setq i (1+ i))
   (defvar *cpio-catalog-entry-attrs-idx* i)
   (setq *cpio-catalog-entry-attrs-idx* i)
-  
+
   (setq i (1+ i))
   (defvar *cpio-catalog-entry-header-start-idx* i)
   (setq *cpio-catalog-entry-header-start-idx* i)
-  
+
   (setq i (1+ i))
   (defvar *cpio-catalog-entry-contents-start-idx* i)
   (setq *cpio-catalog-entry-contents-start-idx* i)
@@ -627,7 +627,7 @@ for a cpio archive of the current format.")
 
 ;;
 ;; Customizations
-;; 
+;;
 (defgroup cpio ()
   "Customizations for cpio-mode."
   :group 'data)
@@ -638,9 +638,9 @@ for a cpio archive of the current format.")
   :group 'cpio)
 
 
-;; 
+;;
 ;; Library
-;; 
+;;
 
 (defun cpio-mode-find-file-hook ()
   "find-file hook to detect if a file is likely a cpio archive.
@@ -665,15 +665,15 @@ and NIL if the current buffer does not begin with a cpio entry header."
 	  (setq i (1+ i)))))
     (with-syntax-table *cpio-archive-syntax-table*
       (save-excursion
- 	(widen)
+	(widen)
 	(goto-char (point-min))
- 	(catch 'found-it
- 	  (mapc (lambda (archive-spec)
- 		  (cond ((looking-at-p (car archive-spec))
- 			 (setq this-archive-type (cdr archive-spec))
- 			 (throw 'found-it t))
+	(catch 'found-it
+	  (mapc (lambda (archive-spec)
+		  (cond ((looking-at-p (car archive-spec))
+			 (setq this-archive-type (cdr archive-spec))
+			 (throw 'found-it t))
 			(t t)))
- 		*cpio-re-type-alist*))))
+		*cpio-re-type-alist*))))
     this-archive-type))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -761,7 +761,7 @@ CAVEAT: See `cpio-magic'."
     (aref parsed-header *cpio-rdev-min-parsed-idx*)))
 
 (defun cpio-namesize (parsed-header)
-  "Return the size of the name  in PARSED-HEADER.
+  "Return the size of the name	in PARSED-HEADER.
 CAVEAT: See `cpio-magic'."
   (let ((fname "cpio-namesize"))
     (aref parsed-header *cpio-namesize-parsed-idx*)))
@@ -851,7 +851,7 @@ WHERE can be an integer or marker."
 	   (with-current-buffer *cab-parent*
 	     (cpio-contents entry-name)))
 	  ((eq major-mode 'cpio-mode)
-	   (let* ((entry-attrs    (cpio-entry-attrs    entry-name))
+	   (let* ((entry-attrs	  (cpio-entry-attrs    entry-name))
 		  (contents-start (cpio-contents-start entry-name))
 		  (contents-size  (cpio-entry-size entry-attrs))
 		  (contents-end (+ contents-start contents-size))
@@ -1038,7 +1038,7 @@ CONTRACT: ENTRY-NAME is in fact an entry of a regular file."
 		 (write-file entry-name))
 	       (unless restore (kill-buffer temp-buffer)))
 	      (t
-	       (with-temp-buffer 
+	       (with-temp-buffer
 		 (insert (cpio-contents entry-name archive-buffer))
 		 (write-file entry-name)
 		 (unless restore (kill-buffer temp-buffer)))
@@ -1071,21 +1071,21 @@ If ENTRY-NAME is not in the current archive, then return NIL."
 (defun cpio-numeric-entry-type (numeric-mode)
   "Return the numeric entry type of the given NUMERIC MODE."
   (let ((fname "cpio-numeric-entry-type"))
-    (cond ((= #o170000 (logand s-ifmt   numeric-mode))
+    (cond ((= #o170000 (logand s-ifmt	numeric-mode))
 	   s-ifmt)
 	  ((= #o140000 (logand s-ifsock numeric-mode))
 	   s-ifsock)
-	  ((= #o120000 (logand s-iflnk  numeric-mode))
+	  ((= #o120000 (logand s-iflnk	numeric-mode))
 	   s-iflnk)
-	  ((/= 0       (logand s-ifreg  numeric-mode))
+	  ((/= 0       (logand s-ifreg	numeric-mode))
 	   s-ifreg)
-	  ((/= 0       (logand s-ifdir  numeric-mode))
+	  ((/= 0       (logand s-ifdir	numeric-mode))
 	   s-ifdir)
-	  ((/= s-ifblk (logand s-ifblk  numeric-mode))
+	  ((/= s-ifblk (logand s-ifblk	numeric-mode))
 	   s-ifblk)
-	  ((/= 0       (logand s-ifchr  numeric-mode))
+	  ((/= 0       (logand s-ifchr	numeric-mode))
 	   s-ifchr)
-	  ((/= 0       (logand s-ififo  numeric-mode))
+	  ((/= 0       (logand s-ififo	numeric-mode))
 	   s-ififo)
 	  (t
 	   s-ifunk))))
@@ -1101,7 +1101,7 @@ based on its attributes in the catalog."
 	 (gid (cpio-gid-to-gid-string (cpio-gid attrs))))
     (cpio-set-file-owner   file-name uid)
     (cpio-set-file-group   file-name gid)
-    (cpio-set-file-mode    file-name mode-value)
+    (cpio-set-file-mode	   file-name mode-value)
     (cpio-set-file-modtime file-name modtime)))
 
 (defun cpio-set-file-owner (file-name user) ;HEREHERE Generic?
@@ -1238,7 +1238,7 @@ CONTRACT: You're at the point of insertion."
 	(with-current-buffer *cab-parent*
 	  (cpio-insert-padded-header header-string))
       (with-writable-buffer
-       (insert (cpio-padded header-string *cpio-padding-modulus* *cpio-padding-char*))))))
+       (insert (cpio-pad header-string *cpio-padding-modulus* *cpio-padding-char*))))))
 
 (defun cpio-insert-padded-contents (contents) ;HEREHERE Generic
   "Insert an appropriately padded version of CONTENTS into the archive buffer.
@@ -1249,7 +1249,7 @@ CONTRACT: Point is at the point of insertion."
 	  (cpio-insert-padded-contents contents))
       (with-writable-buffer
        ;; (cpio-set-contents-start (point))
-       (insert (cpio-padded contents *cpio-padding-modulus* *cpio-padding-char*))))))
+       (insert (cpio-pad contents *cpio-padding-modulus* *cpio-padding-char*))))))
 
 (defun cpio-sort-catalog ()
   "Return a copy of the catalog sorted by entry name (car cpio-catalog-entry)."
@@ -1259,7 +1259,7 @@ CONTRACT: Point is at the point of insertion."
 (defun cpio-entry-less-p (l r)
   "Return non-nil if [the car of] entry L precedes [the car of] entry L.
 CONTRACT: L and R should be entries:
-        (entry-name [inode mode uid ...] entry-start entry-end)."
+	(entry-name [inode mode uid ...] entry-start entry-end)."
   (let ((fname "cpio-entry-less-p"))
     (string-lessp (car l) (car r))))
 
@@ -1370,7 +1370,7 @@ a UNIX/GNU/Linux time as an integer."
 		  (= 0 (buffer-size)))
 	     ;; I can't seem to get coding right.
 	     ;; (cpio-set-auto-coding (setq contents (cpio-contents entry-name)))
-	     (with-writable-buffer 
+	     (with-writable-buffer
 	      (insert (cpio-contents entry-name)))
 	     (goto-char (point-min)))
 	    (t t))
@@ -1390,7 +1390,7 @@ a UNIX/GNU/Linux time as an integer."
 (defun cpio-contents-buffer-name (name)
   "Return the name of the buffer that would/does hold the contents of entry NAME.
 CAVEAT: Yes, there's a possibility of a collision here.
-However, that would mean that you're editing 
+However, that would mean that you're editing
 more than one archive, each containing entries of the same name
 more than one of whose contents you are currently editing.
 Run more than one instance of emacs to avoid such collisions."
@@ -1398,7 +1398,7 @@ Run more than one instance of emacs to avoid such collisions."
     ;; (format "%s (in cpio archive %s)" name (file-name-nondirectory (buffer-file-name *cab-parent*)))))
     name))
 ;;    (expand-file-name
-;;      (concat name "!"))))
+;;	(concat name "!"))))
 
 (defun cpio-create-entry-attrs (filename)
   "Create an entry attribute structure based on the given FILENAME."
@@ -1423,10 +1423,10 @@ Run more than one instance of emacs to avoid such collisions."
 	 (chksum (cpio-make-chksum-for-file filename))
 
 	 (result (make-vector 14 nil)))
-    (aset result *cpio-ino-parsed-idx*        ino)
-    (aset result *cpio-mode-parsed-idx*       mode)
-    (aset result *cpio-uid-parsed-idx*        uid)
-    (aset result *cpio-gid-parsed-idx*        gid)
+    (aset result *cpio-ino-parsed-idx*	      ino)
+    (aset result *cpio-mode-parsed-idx*	      mode)
+    (aset result *cpio-uid-parsed-idx*	      uid)
+    (aset result *cpio-gid-parsed-idx*	      gid)
 
     (aset result *cpio-nlink-parsed-idx*      nlink)
     (aset result *cpio-mtime-parsed-idx*      (seconds-to-time mtime))
@@ -1437,9 +1437,9 @@ Run more than one instance of emacs to avoid such collisions."
     (aset result *cpio-rdev-maj-parsed-idx*   rdev-maj)
     (aset result *cpio-rdev-min-parsed-idx*   rdev-min)
     (aset result *cpio-namesize-parsed-idx*   namesize)
-    
+
     (aset result *cpio-chksum-parsed-idx*     chksum)
-    (aset result *cpio-name-parsed-idx*       filename)
+    (aset result *cpio-name-parsed-idx*	      filename)
 
     result))
 
@@ -1462,7 +1462,7 @@ many are simply invented."
 		       s-ixusr))
 	 (uid (user-uid))
 	 (gid (group-gid))
-	 
+
 	 (nlink 1)
 	 (now (current-time))
 	 (mtime (list (nth 0 now) (nth 1 now)))
@@ -1475,24 +1475,24 @@ many are simply invented."
 	 (namesize (1+ (length name)))
 	 (chksum 0)			;Checksum for a direcory is always 0.
 	 (result (make-vector 14 nil)))
-    (aset result *cpio-ino-parsed-idx*        ino)
-    (aset result *cpio-mode-parsed-idx*       mode)
-    (aset result *cpio-uid-parsed-idx*        uid)
-    (aset result *cpio-gid-parsed-idx*        gid)
-    
+    (aset result *cpio-ino-parsed-idx*	      ino)
+    (aset result *cpio-mode-parsed-idx*	      mode)
+    (aset result *cpio-uid-parsed-idx*	      uid)
+    (aset result *cpio-gid-parsed-idx*	      gid)
+
     (aset result *cpio-nlink-parsed-idx*      nlink)
     (aset result *cpio-mtime-parsed-idx*      mtime)
     (aset result *cpio-entry-size-parsed-idx* entry-size)
     (aset result *cpio-dev-maj-parsed-idx*    dev-maj)
-    
+
     (aset result *cpio-dev-min-parsed-idx*    dev-min)
     (aset result *cpio-rdev-maj-parsed-idx*   rdev-maj)
     (aset result *cpio-rdev-min-parsed-idx*   rdev-min)
     (aset result *cpio-namesize-parsed-idx*   namesize)
-    
+
     (aset result *cpio-chksum-parsed-idx*     chksum)
-    (aset result *cpio-name-parsed-idx*       name)
-    
+    (aset result *cpio-name-parsed-idx*	      name)
+
     result))
 
 (defun cpio-entry-exists-p (name)
@@ -1524,7 +1524,7 @@ in the current archive."
 
 ;;
 ;; Functions about the modified state of a catalog entry.
-;; 
+;;
 (defun cpio-set-entry-unmodified (catalog-entry)
   "Mark the given CATALOG-ENTRY as not modified."
   (let ((fname "cpio-set-entry-unmodified"))
@@ -1542,7 +1542,7 @@ in the current archive."
   (let ((fname "cpio-entry-modified-p")
 	(modified-flag))
     (cpio-validate-catalog-entry catalog-entry)
-    (cond ((eq 'cpio-mode-modified 
+    (cond ((eq 'cpio-mode-modified
 	       (setq modified-flag (aref catalog-entry *cpio-catalog-entry-modified-flag-idx*)))
 	   t)
 	  ((eq 'cpio-mode-unmodified catalog-entry)
@@ -1595,7 +1595,7 @@ contents of the current buffer following point against
 `auto-coding-regexp-alist'.  If no match is found, it checks for a
 `coding:' tag in the first one or two lines following point.  If no
 `coding:' tag is found, it checks any local variables list in the last
-3K bytes out of the SIZE bytes.  Finally, if none of these methods
+3K bytes out of the SIZE bytes.	 Finally, if none of these methods
 succeed, it checks to see if any function in `auto-coding-functions'
 gives a match.
 
@@ -1638,11 +1638,11 @@ If nothing is specified, the return value is nil."
 		       (string-match
 			"\\(.*;\\)?[ \t]*unibyte:[ \t]*\\([^ ;]+\\)"
 			contents))
-              (display-warning 'mule
-                               (format "\"unibyte: t\" (in %s) is obsolete; \
+	      (display-warning 'mule
+			       (format "\"unibyte: t\" (in %s) is obsolete; \
 use \"coding: 'raw-text\" instead."
-                                       (file-relative-name entry-name))
-                               :warning)
+				       (file-relative-name entry-name))
+			       :warning)
 	      (setq coding-system 'raw-text))
 	    (when (and (not coding-system)
 		       (string-match
@@ -1704,7 +1704,7 @@ or nil."
 	  (cpio-set-coding-system entry-name))
       ;; (setq last-coding-system-used
       ;;       (car (find-coding-systems-region (cpio-contents-start entry-name)
-      ;; 				        (cpio-contents-end   entry-name))))
+      ;;					(cpio-contents-end   entry-name))))
       (set-buffer-file-coding-system last-coding-system-used 'force 'nomodify))))
 
 (defun cpio-not-modified ()
@@ -1721,9 +1721,9 @@ or nil."
 			 (not-modified))))
 		 *cab-subordinates*)))))
 
-;; 
+;;
 ;; Commands
-;; 
+;;
 
 (defun cpio-view-dired-style-buffer ()
   "Switch to the dired style buffer corresponding to this archive buffer."
@@ -1738,9 +1738,9 @@ or nil."
     (switch-to-buffer (cpio-dired-buffer-name archive-file-name))))
 
 
-;; 
+;;
 ;; Mode definition
-;; 
+;;
 
 ;; HEREHERE I'm hoping dired-mode gives me decent stuff for free.
 ;; dired-mode -- Nope the hooks for dired-mode want a nicer environment.
@@ -1751,13 +1751,13 @@ or nil."
   (if (null (setq *cpio-format* (cpio-discern-archive-type)))
       (error "You're not in a supported CPIO buffer. It begins [[%s]]." (buffer-substring-no-properties 1 8)))
 
-  ;; 
+  ;;
   ;; HEREHERE Get rid of this once things look clean.
-  ;; 
+  ;;
   (cpio-backup-during-development)
-  ;; 
+  ;;
   ;; EO temporary code for development
-  ;; 
+  ;;
   
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
@@ -1778,9 +1778,9 @@ or nil."
     ;; so this should control what we see at this point.
     (switch-to-buffer cpio-dired-buffer)))
 
-;; 
+;;
 ;; HEREHERE Get rid of this once things look clean.
-;; 
+;;
 (defun cpio-backup-during-development ()
   "Create a time-stamped backup of the file in the current-buffer.
 There's an implied CONTRACT there:
@@ -1792,9 +1792,9 @@ The buffer must contain a file."
 			      (format-time-string "%Y%m%d%H%H%M%S.%3N"))))
     (copy-file filename backup-file nil 'keep-time 'preserve-uid-gid 'preserve-permissions)))
 
-;; 
+;;
 ;; EO temporary code for development
-;; 
+;;
 
 
 (defvar *cpio-dired-modified* nil
@@ -1856,7 +1856,7 @@ and, thus, the archive can be saved."
     (setq cpio-mode-map keymap)
     (unless *cpio-have-made-keymap*
       (define-key cpio-mode-map "\C-c\C-c" 'cpio-view-dired-style-buffer)
-      (define-key cpio-mode-map        "q" 'cpio-quit))))
+      (define-key cpio-mode-map	       "q" 'cpio-quit))))
 
 (defun cpio-quit ()
   "Quit cpio mode and kill all the affiliated buffers."
@@ -2019,7 +2019,7 @@ See *cpio-local-funcs* for more information."
 (defun cpio-set-local-ustar-vars ()
   "Set buffer local variables appropriate for a USTAR format CPIO archive."
   (let ((fname "cpio-set-local-ustar-vars"))
-    (error "%s() is not yet implemented" fname)))
+x    (error "%s() is not yet implemented" fname)))
 
 (defun cpio-set-local-hpbin-vars ()
   "Set buffer local variables appropriate for a HPBIN format CPIO archive."

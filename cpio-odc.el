@@ -1,28 +1,28 @@
 ;;; cpio-odc.el --- handle old portable cpio entry header format. -*- coding: utf-8 -*-
 
 ;; COPYRIGHT
-;; 
+;;
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;; 
+;;
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.16β
+;; Version: 0.17
 ;; Keywords: files
 
 ;;; Commentary:
@@ -31,10 +31,10 @@
 
 
 ;;; Code:
-
+
 ;;
 ;; Dependencies
-;; 
+;;
 
 ;; (load-file (concat default-directory "cpio-generic.el"))
 
@@ -69,10 +69,10 @@
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
 
-
-;; 
+
+;;
 ;; Vars
-;; 
+;;
 
 (defconst *cpio-odc-header-length* (length "0707070000000000000000000000000000000000010000000000000000000001300000000000")
   "The length of an odc header.")
@@ -99,45 +99,45 @@
   "The width of all of the fields in a odc header.")
 (setq *cpio-odc-field-width* 6)
 
-(defconst *cpio-odc-ino-re*      (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-ino-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_ino field in a odc header.")
-(setq *cpio-odc-ino-re*          (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-ino-re*		 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-dev-re*      (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-dev-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_dev field in a odc header.")
-(setq *cpio-odc-dev-re*          (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-dev-re*		 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-mode-re*     (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-mode-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_mode field in a odc header.")
-(setq *cpio-odc-mode-re*         (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-mode-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-uid-re*      (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-uid-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_uid field in a odc header.")
-(setq *cpio-odc-uid-re*          (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-uid-re*		 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-gid-re*      (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-gid-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_gid field in a odc header.")
-(setq *cpio-odc-gid-re*          (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-gid-re*		 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-nlink-re*    (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-nlink-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_nlink field in a odc header.")
-(setq *cpio-odc-nlink-re*        (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-nlink-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-rdev-re*     (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
+(defconst *cpio-odc-rdev-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_rdev field in a odc header.")
-(setq *cpio-odc-rdev-re*         (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-rdev-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-mtime-re*            "[0-7]\\{11\\}"
+(defconst *cpio-odc-mtime-re*		 "[0-7]\\{11\\}"
   "RE to match the c_mtime field in a odc header.")
-(setq *cpio-odc-mtime-re*                "[0-7]\\{11\\}")
+(setq *cpio-odc-mtime-re*		 "[0-7]\\{11\\}")
 
 (defconst *cpio-odc-namesize-re* (format "[0-7]\\{%d\\}" *cpio-odc-field-width*)
   "RE to match the c_namesize field in a odc header.")
-(setq *cpio-odc-namesize-re*     (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
+(setq *cpio-odc-namesize-re*	 (format "[0-7]\\{%d\\}" *cpio-odc-field-width*))
 
-(defconst *cpio-odc-filesize-re*         "[0-7]\\{11\\}"
+(defconst *cpio-odc-filesize-re*	 "[0-7]\\{11\\}"
   "RE to match the c_filesize field in a odc header.")
-(setq *cpio-odc-filesize-re*             "[0-7]\\{11\\}")
+(setq *cpio-odc-filesize-re*		 "[0-7]\\{11\\}")
 
 (defconst *cpio-odc-filename-re* "[[:print:]]+"
   "RE to match the c_filename field in a odc header.")
@@ -145,17 +145,17 @@
 
 (defconst *cpio-odc-header-re* ()
   "RE to match odc header format cpio archives.")
-(setq *cpio-odc-header-re* (concat "\\(" *cpio-odc-magic-re*    "\\)"
-				   "\\(" *cpio-odc-dev-re*      "\\)"
-				   "\\(" *cpio-odc-ino-re*      "\\)"
-				   "\\(" *cpio-odc-mode-re*     "\\)"
+(setq *cpio-odc-header-re* (concat "\\(" *cpio-odc-magic-re*	"\\)"
+				   "\\(" *cpio-odc-dev-re*	"\\)"
+				   "\\(" *cpio-odc-ino-re*	"\\)"
+				   "\\(" *cpio-odc-mode-re*	"\\)"
 
-				   "\\(" *cpio-odc-uid-re*      "\\)"
-				   "\\(" *cpio-odc-gid-re*      "\\)"
-				   "\\(" *cpio-odc-nlink-re*    "\\)"
-				   "\\(" *cpio-odc-rdev-re*     "\\)"
+				   "\\(" *cpio-odc-uid-re*	"\\)"
+				   "\\(" *cpio-odc-gid-re*	"\\)"
+				   "\\(" *cpio-odc-nlink-re*	"\\)"
+				   "\\(" *cpio-odc-rdev-re*	"\\)"
 
-				   "\\(" *cpio-odc-mtime-re*    "\\)"
+				   "\\(" *cpio-odc-mtime-re*	"\\)"
 				   "\\(" *cpio-odc-namesize-re* "\\)"
 				   "\\(" *cpio-odc-filesize-re* "\\)"
 				   "\\(" *cpio-odc-filename-re* "\\)"
@@ -209,9 +209,9 @@
   (defconst *cpio-odc-filename-re-idx* 0
     "Index of the sub RE from *cpio-odc-header-re* to parse the filename.")
   (setq *cpio-odc-filename-re-idx* (setq i (1+ i))))
-;; 
+;;
 ;; EO odc header variables.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -243,29 +243,29 @@ in a odc cpio archive.")
   (defconst *cpio-odc-magic-field-offset* offset-so-far)
   (setq *cpio-odc-magic-field-offset* offset-so-far)
 
-  (defconst *cpio-odc-dev-field-offset*      ())
-  (setq *cpio-odc-dev-field-offset*          (setq offset-so-far (+ offset-so-far (length *cpio-odc-magic*))))
+  (defconst *cpio-odc-dev-field-offset*	     ())
+  (setq *cpio-odc-dev-field-offset*	     (setq offset-so-far (+ offset-so-far (length *cpio-odc-magic*))))
 
-  (defconst *cpio-odc-ino-field-offset*      ())
-  (setq *cpio-odc-ino-field-offset*          (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (defconst *cpio-odc-ino-field-offset*	     ())
+  (setq *cpio-odc-ino-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
   (defconst *cpio-odc-mode-field-offset*     ())
-  (setq *cpio-odc-mode-field-offset*         (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (setq *cpio-odc-mode-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
-  (defconst *cpio-odc-uid-field-offset*      ())
-  (setq *cpio-odc-uid-field-offset*          (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (defconst *cpio-odc-uid-field-offset*	     ())
+  (setq *cpio-odc-uid-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
-  (defconst *cpio-odc-gid-field-offset*      ())
-  (setq *cpio-odc-gid-field-offset*          (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (defconst *cpio-odc-gid-field-offset*	     ())
+  (setq *cpio-odc-gid-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
   (defconst *cpio-odc-nlink-field-offset*    ())
-  (setq *cpio-odc-nlink-field-offset*        (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (setq *cpio-odc-nlink-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
   (defconst *cpio-odc-rdev-field-offset*     ())
-  (setq *cpio-odc-rdev-field-offset*         (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (setq *cpio-odc-rdev-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
   (defconst *cpio-odc-mtime-field-offset*    ())
-  (setq *cpio-odc-mtime-field-offset*        (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
+  (setq *cpio-odc-mtime-field-offset*	     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
   (defconst *cpio-odc-namesize-field-offset* ())
   (setq *cpio-odc-namesize-field-offset*     (setq offset-so-far (+ offset-so-far 11)))
@@ -274,7 +274,7 @@ in a odc cpio archive.")
   (setq *cpio-odc-filesize-field-offset*     (setq offset-so-far (+ offset-so-far *cpio-odc-field-width*)))
 
   (defconst *cpio-odc-name-field-offset*     ())
-  (setq *cpio-odc-name-field-offset*         (setq offset-so-far (+ offset-so-far 11))))
+  (setq *cpio-odc-name-field-offset*	     (setq offset-so-far (+ offset-so-far 11))))
 
 (defconst *cpio-odc-trailer* "0707070000000000000000000000000000000000010000000000000000000001300000000000TRAILER!!!\0"
   "The TRAILER string for a odc archive.")
@@ -286,15 +286,15 @@ in a odc cpio archive.")
 Taken from cpio-2.12/src/global.c."
   :type 'integer
   :group 'cpio)
-
-;; 
+
+;;
 ;; Library
-;; 
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for working with a cpio odc header
-;; 
+;;
 
 (defun cpio-odc-header-at-point (&optional where)
   "Return the header string at or following point WHERE.
@@ -315,13 +315,13 @@ CAVEATS:
 	     (forward-char (length *cpio-odc-magic-re*))
 	     (while (and (re-search-backward *cpio-odc-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-odc-header-re*)))))
-	     (if found 
+	     (if found
 		 (match-string-no-properties 0)))))))
 
 ;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Parsing a header
-;; 
+;;
 
 (defun cpio-odc-parse-header (header-string)
   "Return the internal entry header structure encoded in HEADER-STR.
@@ -341,15 +341,15 @@ This function does NOT get the contents."
     (save-match-data
       (string-match *cpio-odc-header-re* header-string)
       (setq result
-	    (vector 
-		    (cpio-odc-parse-ino      header-string)
+	    (vector
+		    (cpio-odc-parse-ino	     header-string)
 		    (cpio-odc-parse-mode     header-string)
-		    (cpio-odc-parse-uid      header-string)
-		    (cpio-odc-parse-gid      header-string)
+		    (cpio-odc-parse-uid	     header-string)
+		    (cpio-odc-parse-gid	     header-string)
 		    (cpio-odc-parse-nlink    header-string)
 		    (cpio-odc-parse-mtime    header-string)
 		    (setq filesize (cpio-odc-parse-filesize header-string))
-		    (cpio-odc-parse-dev      header-string)
+		    (cpio-odc-parse-dev	     header-string)
 		    0			;dev-min
 		    (cpio-odc-parse-rdev     header-string)
 		    0			;rdev-min
@@ -465,9 +465,9 @@ After all that's where the contents are, not in the header."
 				    (+ where namesize filesize))))
 
 ;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Header construction
-;; 
+;;
 
 (defun cpio-odc-make-header-string (attrs &optional contents)
   "Make a ODC style padded cpio header for the given ATTRibuteS.
@@ -475,15 +475,15 @@ This function does NOT include the contents."
   (let ((fname "cpio-odc-make-header-string")
 	(name (cpio-entry-name attrs))
 	(header-string))
-    (setq header-string (concat  (cpio-odc-make-magic    attrs)
-				 (cpio-odc-make-dev      attrs)
-				 (cpio-odc-make-ino      attrs)
-				 (cpio-odc-make-mode     attrs)
-				 (cpio-odc-make-uid      attrs)
-				 (cpio-odc-make-gid      attrs)
-				 (cpio-odc-make-nlink    attrs)
-				 (cpio-odc-make-rdev     attrs)
-				 (cpio-odc-make-mtime    attrs)
+    (setq header-string (concat	 (cpio-odc-make-magic	 attrs)
+				 (cpio-odc-make-dev	 attrs)
+				 (cpio-odc-make-ino	 attrs)
+				 (cpio-odc-make-mode	 attrs)
+				 (cpio-odc-make-uid	 attrs)
+				 (cpio-odc-make-gid	 attrs)
+				 (cpio-odc-make-nlink	 attrs)
+				 (cpio-odc-make-rdev	 attrs)
+				 (cpio-odc-make-mtime	 attrs)
 				 (format "%06o" (1+ (length name)))
 				 (cpio-odc-make-filesize attrs)
 				 name
@@ -553,9 +553,9 @@ This function does NOT include the contents."
 ;; Filename is not one of ATTRS. ∴ It doesn't get a constructor here.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for whole entries
-;; 
+;;
 (defun cpio-odc-parse-header-at-point ()
   "Parse the odc cpio header that begins at point.
 If there is no header there, then signal an error."
@@ -687,11 +687,11 @@ once the TRAILER is written and padded."
     (with-writable-buffer
      (delete-region (point) (point-max)))))
 
-
-;; 
-;; Commands
-;; 
 
-
+;;
+;; Commands
+;;
+
+
 (provide 'cpio-odc)
 ;;; cpio-odc.el ends here.

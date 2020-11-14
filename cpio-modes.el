@@ -1,27 +1,27 @@
 ;;; cpio-modes.el --- handle file modes/permissions. -*- coding: utf-8 -*-
 
 ;; COPYRIGHT
-;; 
+;;
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Nov 28
-;; Version: 0.16β
+;; Version: 0.17
 ;; Keywords: files
 
 ;;; Commentary:
@@ -34,9 +34,10 @@
 
 ;;
 ;; Dependencies
-;; 
+;;
 (eval-when-compile
-  (require 'cl-lib))
+  (require 'cl-lib)
+  (require 'cl-extra))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -45,12 +46,12 @@
 ;;;;;;;;;;;;;;;;
 
 
-;; 
+;;
 ;; Vars
 ;;
 ;;
 ;; Mode-related bits (adapted from /usr/include/linux/stat.h).
-;; 
+;;
 
 (defconst s-ifunk  #o1000000)
 (defconst s-ifmt   #o0170000)
@@ -84,9 +85,9 @@
   "A bit mask of the modes that can be set by chmod(1).")
 
 
-;; 
+;;
 ;; Library
-;; 
+;;
 
 (defun s-islnk (m)
   (= (logand m s-ifmt) s-iflnk))
@@ -206,7 +207,7 @@ please let me know."
 	   (if (/= (logand int-mode s-isuid) 0)
 	       "s"
 	     "x"))
-	  (t 
+	  (t
 	   (if (/= (logand int-mode s-isuid) 0)
 	       "S"
 	     "-")))))
@@ -240,7 +241,7 @@ please let me know."
 	   (if (/= (logand int-mode s-isgid) 0)
 	       "s"
 	     "x"))
-	  (t 
+	  (t
 	   (if (/= (logand int-mode s-isgid) 0)
 	       "S"
 	     "-")))))
@@ -274,7 +275,7 @@ please let me know."
 	   (if (/= (logand s-isvtx int-mode) 0)
 	       "t"
 	     "x"))
-	  (t 
+	  (t
 	   (if (/= (logand s-isvtx int-mode) 0)
 	       "T"
 	     "-")))))
@@ -286,10 +287,10 @@ please let me know."
   (let* ((fname "cpio-mode-string-to-int-mode")
 	 (bits 0)
 	 (chars (mapcar 'string-to-char (split-string mode-string "" t)))
-	 (type-char (car (subseq chars 0  1)))
-	 (owner-chars    (subseq chars 1  4))
-	 (group-chars    (subseq chars 4  7))
-	 (other-chars    (subseq chars 7 10)))
+	 (type-char (car (cl-subseq chars 0  1)))
+	 (owner-chars    (cl-subseq chars 1  4))
+	 (group-chars    (cl-subseq chars 4  7))
+	 (other-chars    (cl-subseq chars 7 10)))
     (setq bits (logior bits
 		       (cpio-type-char-to-bits type-char)
 		       (cpio-owner-chars-to-bits owner-chars)

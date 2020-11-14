@@ -1,28 +1,28 @@
 ;;; cpio-bin.el --- handle bin cpio entry header formats -*- coding: utf-8 -*-
 
 ;; COPYRIGHT
-;; 
+;;
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;; 
+;;
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.16β
+;; Version: 0.17
 ;; Keywords: files
 
 ;;; Commentary:
@@ -33,7 +33,7 @@
 
 ;;
 ;; Dependencies
-;; 
+;;
 (require 'bindat)
 
 ;;;;;;;;;;;;;;;;
@@ -56,9 +56,9 @@
 ;;;;;;;;;;;;;;;;
 
 
-;; 
+;;
 ;; Vars
-;; 
+;;
 
 (defconst *cpio-bin-header-length* (length (string-as-unibyte "\307q\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"))
   "The length of a bin header.")
@@ -135,7 +135,7 @@
 (defconst cpio-bin-index-spec
   '(;; (:magic	u16)
     (:dev	u16)
-    (:ino	u16)	
+    (:ino	u16)
     (:mode	u16)
     (:uid	u16)
     (:gid	u16)
@@ -145,10 +145,10 @@
     (:namesize	u16)
     (:filesize	u32)
     (:filename	strz (:namesize))))
-(setq cpio-bin-index-spec 
+(setq cpio-bin-index-spec
   '((:magic	u16r)
     (:dev	u16r)
-    (:ino	u16r)	
+    (:ino	u16r)
     (:mode	u16r)
     (:uid	u16r)
     (:gid	u16r)
@@ -192,9 +192,9 @@ in a bin cpio archive.")
   :group 'cpio)
 
 
-;; 
+;;
 ;; Library
-;; 
+;;
 
 (defun cpio-bin-header-at-point (&optional where)
   "Return the header string at or following point WHERE.
@@ -215,7 +215,7 @@ CAVEATS:
 	     (forward-char (length *cpio-bin-magic-re*))
 	     (while (and (re-search-backward *cpio-bin-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-bin-header-re*)))))
-	     (if found 
+	     (if found
 		 (string-as-unibyte (match-string-no-properties 0))))))))
 
 (defun cpio-bin-parse-header (header-string)
@@ -243,17 +243,17 @@ The function does NOT get the contents of that entry."
 			 (bindat-get-field header-info :mode)
 			 (bindat-get-field header-info :uid)
 			 (bindat-get-field header-info :gid)
-			 
+
 			 (bindat-get-field header-info :nlink)
 			 mtime
 			 filesize
 			 (bindat-get-field header-info :dev)
-			 
+
 			 0				;dev min
 			 (bindat-get-field header-info :rdev)
 			 0				;rdev min
 			 (bindat-get-field header-info :namesize)
-			 
+
 			 0				;checksum
 		    entry-name))
 	   (if (cpio-entry-name result)
@@ -267,15 +267,15 @@ The function does NOT get the contents of that entry."
 	;; The namesize in the header includes the terminating NULL at the end of the name.
 	(local-namesize (1- namesize))
 	(total -1))
-    (if (= 0 (mod (setq total (+ 1 *cpio-bin-name-field-offset* local-namesize)) 
+    (if (= 0 (mod (setq total (+ 1 *cpio-bin-name-field-offset* local-namesize))
 		  *cpio-bin-padding-modulus*))
 	(setq total (1+ total)))
     (cg-round-up total *cpio-bin-padding-modulus*)))
 
 ;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Header construction
-;; 
+;;
 
 (defun cpio-bin-make-header-string (attrs &optional contents)
   "Make a BIN style padded cpio header for the given ATTRibuteS.
@@ -286,7 +286,7 @@ This function does NOT include the contents."
 	(padding)
 	(mtime (cpio-bin-make-mtime attrs))
 	(filesize (cpio-bin-make-filesize attrs)))
-    (setq header-string 
+    (setq header-string
 	  (bindat-pack cpio-bin-index-spec
 		       (list
 			(cons :magic     (cpio-bin-make-magic    attrs))
@@ -380,9 +380,9 @@ This function does NOT include the contents."
 ;; Filename is not one of ATTRS. ∴ It doesn't get a constructor here.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for whole entries
-;; 
+;;
 (defun cpio-bin-parse-header-at-point ()
   "Parse the bin cpio header that begins at point.
 If there is no header there, then signal an error."
@@ -519,9 +519,9 @@ once the TRAILER is written and padded."
   (let ((fname "cpio-newc-make-chcksum-for-file"))
     0))
 
-;; 
+;;
 ;; Commands
-;; 
+;;
 
 
 (provide 'cpio-bin)

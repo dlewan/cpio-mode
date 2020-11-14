@@ -21,7 +21,7 @@
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2017 Dec 06
-;; Version: 0.16β
+;; yVersion: 0.17
 ;; Keywords: files
 
 ;;; Commentary:

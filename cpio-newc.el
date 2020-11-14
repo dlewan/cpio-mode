@@ -1,28 +1,28 @@
 ;;; cpio-newc.el --- handle portable newc cpio archives. -*- coding: utf-8 -*-
 
 ;; COPYRIGHT
-;; 
+;;
 ;; Copyright © 2019 Free Software Foundation, Inc.
 ;; All rights reserved.
-;; 
+;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
 ;; GNU General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;; 
+;;
 
 ;; Author: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Maintainer: Douglas Lewan <d.lewan2000@gmail.com>
 ;; Created: 2015 Jan 03
-;; Version: 0.16β
+;; Version: 0.17
 ;; Keywords: files
 
 ;;; Commentary:
@@ -39,7 +39,7 @@
 ;; to parse a newc header.
 ;; Every FIELD's matching substring has an index named
 ;; *cpio-newc-FIELD-idx*'.
-;; 
+;;
 ;; HEREHERE The following are currently UNUSED:
 ;; Every FIELD has a function (cpio-newc-get-FIELD)
 ;; that operates on a parsed header to retrieve the value of that FIELD.
@@ -47,10 +47,10 @@
 ;; After all, a parsed header has the same structure for each format.
 
 ;;; Code:
-
+
 ;;
 ;; Dependencies
-;; 
+;;
 (eval-when-compile
   (require 'cl-lib))
 (require 'cl-lib)
@@ -58,9 +58,9 @@
 ;; (condition-case err
 ;;     (require 'cpio-generic)
 ;;     (error
-;;      (if (file-exists-p (concat default-directory "cpio-generic.elc"))
-;; 	 (load-file (concat default-directory "cpio-generic.elc"))
-;;        (load-file (concat default-directory "cpio-generic.el")))))
+;;	(if (file-exists-p (concat default-directory "cpio-generic.elc"))
+;;	 (load-file (concat default-directory "cpio-generic.elc"))
+;;	  (load-file (concat default-directory "cpio-generic.el")))))
 
 ;;;;;;;;;;;;;;;;
 ;; Things to make the byte compiler happy.
@@ -81,15 +81,15 @@
 (declare-function cpio-entry-attrs "cpio-mode.el")
 ;; EO things for the byte compiler.
 ;;;;;;;;;;;;;;;;
-
-;; 
+
+;;
 ;; Vars
-;; 
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; newc header format vars
-;; 
+;;
 
 (defconst *cpio-newc-header-length* (length "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000")
   "The length of a newc header.")
@@ -151,7 +151,7 @@
   "RE to match the c_namesize field in a newc header.")
 (setq *cpio-newc-namesize-re* "[[:xdigit:]]\\{8\\}")
 
-(defconst *cpio-newc-chksum-re*  "[[:xdigit:]]\\{8\\}"
+(defconst *cpio-newc-chksum-re*	 "[[:xdigit:]]\\{8\\}"
   "RE to match the CRC checksum in a newc header.")
 (setq *cpio-newc-chksum-re* "[[:xdigit:]]\\{8\\}")
 
@@ -161,14 +161,14 @@
 
 (defconst *cpio-newc-header-re* ()
   "RE to match newc header format cpio archives.")
-(setq *cpio-newc-header-re* (concat "\\(" *cpio-newc-magic-re*    "\\)"
-				    "\\(" *cpio-newc-ino-re*      "\\)"
-				    "\\(" *cpio-newc-mode-re*     "\\)"
-				    "\\(" *cpio-newc-uid-re*      "\\)"
-				    "\\(" *cpio-newc-gid-re*      "\\)"
+(setq *cpio-newc-header-re* (concat "\\(" *cpio-newc-magic-re*	  "\\)"
+				    "\\(" *cpio-newc-ino-re*	  "\\)"
+				    "\\(" *cpio-newc-mode-re*	  "\\)"
+				    "\\(" *cpio-newc-uid-re*	  "\\)"
+				    "\\(" *cpio-newc-gid-re*	  "\\)"
 
-				    "\\(" *cpio-newc-nlink-re*    "\\)"
-				    "\\(" *cpio-newc-mtime-re*    "\\)"
+				    "\\(" *cpio-newc-nlink-re*	  "\\)"
+				    "\\(" *cpio-newc-mtime-re*	  "\\)"
 				    "\\(" *cpio-newc-filesize-re* "\\)"
 				    "\\(" *cpio-newc-dev-maj-re*  "\\)"
 				    "\\(" *cpio-newc-dev-min-re*  "\\)"
@@ -176,7 +176,7 @@
 				    "\\(" *cpio-newc-rdev-maj-re* "\\)"
 				    "\\(" *cpio-newc-rdev-min-re* "\\)"
 				    "\\(" *cpio-newc-namesize-re* "\\)"
-				    "\\(" *cpio-newc-chksum-re*   "\\)"
+				    "\\(" *cpio-newc-chksum-re*	  "\\)"
 				    "\\(" *cpio-newc-filename-re* "\\)"
 				    "\0"))
 
@@ -240,9 +240,9 @@
   (defconst *cpio-newc-filename-re-idx* 0 ; (setq i (1+ i))
     "Index of the sub RE from *cpio-newc-header-re* to parse the namesize.")
   (setq *cpio-newc-filename-re-idx* (setq i (1+ i))))
-;; 
+;;
 ;; EO newc header variables.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; *cpio-newc-magic-re*
@@ -275,22 +275,22 @@ in a newc cpio archive.")
   (setq *cpio-newc-magic-field-offset* i)
   (setq i (1+ i))
   (defconst *cpio-newc-ino-field-offset*      (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-ino-field-offset*          (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-ino-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-mode-field-offset*     (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-mode-field-offset*         (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-mode-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-uid-field-offset*      (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-uid-field-offset*          (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-uid-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-gid-field-offset*      (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-gid-field-offset*          (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-gid-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-nlink-field-offset*    (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-nlink-field-offset*        (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-nlink-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-mtime-field-offset*    (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-mtime-field-offset*        (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-mtime-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-filesize-field-offset* (+ l (* *cpio-newc-field-width* i)))
   (setq *cpio-newc-filesize-field-offset*     (+ l (* *cpio-newc-field-width* (1- i))))
@@ -311,10 +311,10 @@ in a newc cpio archive.")
   (setq *cpio-newc-namesize-field-offset*     (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-chksum-field-offset*   (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-chksum-field-offset*       (+ l (* *cpio-newc-field-width* (1- i))))
+  (setq *cpio-newc-chksum-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i))))
   (setq i (1+ i))
   (defconst *cpio-newc-name-field-offset*     (+ l (* *cpio-newc-field-width* i)))
-  (setq *cpio-newc-name-field-offset*         (+ l (* *cpio-newc-field-width* (1- i)))))
+  (setq *cpio-newc-name-field-offset*	      (+ l (* *cpio-newc-field-width* (1- i)))))
 
 (defconst *cpio-newc-trailer* "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!\0\0\0\0"
   "The TRAILER string for a newc archive.")
@@ -324,15 +324,15 @@ in a newc cpio archive.")
 Taken from cpio-2.12/src/global.c."
   :type 'integer
   :group 'cpio)
-
-;; 
+
+;;
 ;; Library
-;; 
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for working with a cpio newc header
-;; 
+;;
 
 (defun cpio-newc-header-at-point (&optional where)
   "Return the header string at or following point WHERE.
@@ -353,13 +353,13 @@ CAVEATS:
 	     (forward-char (length *cpio-newc-magic-re*))
 	     (while (and (re-search-backward *cpio-newc-magic-re* (point-min) t)
 			 (not (setq found (looking-at *cpio-newc-header-re*)))))
-	     (if found 
+	     (if found
 		 (match-string-no-properties 0)))))))
 
 ;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Parsing a header
-;; 
+;;
 
 (defun cpio-newc-parse-header (header-string)
   "Return the internal entry header structure encoded in HEADER-STRING.
@@ -396,7 +396,7 @@ This function does NOT get the contents."
 
 		    (cpio-newc-parse-chksum   header-string)
 		    (cpio-newc-parse-name     header-string namesize))))
-      ;; (cpio-newc-header-size    header-string namesize))))
+      ;; (cpio-newc-header-size	   header-string namesize))))
     (if (cpio-entry-name result)
 	result
       nil)))
@@ -408,7 +408,7 @@ This function does NOT get the contents."
 	;; The namesize in the header includes the terminating NULL at the end of the name.
 	(local-namesize (1- namesize))
 	(total -1))
-    (if (= 0 (mod (setq total (+ 1 *cpio-newc-name-field-offset* local-namesize)) 
+    (if (= 0 (mod (setq total (+ 1 *cpio-newc-name-field-offset* local-namesize))
 		  *cpio-newc-padding-modulus*))
 	(setq total (1+ total)))
     (cg-round-up total *cpio-newc-padding-modulus*)))
@@ -534,9 +534,9 @@ After all that's where the contents are, not in the header."
 				    (+ where namesize filesize))))
 
 ;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Header construction
-;; 
+;;
 
 (defun cpio-newc-make-header-string (attrs &optional contents)
   "Make a NEWC style padded cpio header for the given ATTRibuteS.
@@ -544,20 +544,20 @@ This function does NOT include the contents."
   (let ((fname "cpio-newc-make-header-string")
 	(name (cpio-entry-name attrs))
 	(header-string))
-    (setq header-string (concat  (cpio-newc-make-magic    attrs)
-				 (cpio-newc-make-ino      attrs)
-				 (cpio-newc-make-mode     attrs)
-				 (cpio-newc-make-uid      attrs)
-				 (cpio-newc-make-gid      attrs)
-				 (cpio-newc-make-nlink    attrs)
-				 (cpio-newc-make-mtime    attrs)
+    (setq header-string (concat	 (cpio-newc-make-magic	  attrs)
+				 (cpio-newc-make-ino	  attrs)
+				 (cpio-newc-make-mode	  attrs)
+				 (cpio-newc-make-uid	  attrs)
+				 (cpio-newc-make-gid	  attrs)
+				 (cpio-newc-make-nlink	  attrs)
+				 (cpio-newc-make-mtime	  attrs)
 				 (cpio-newc-make-filesize attrs)
 				 (cpio-newc-make-dev-maj  attrs)
 				 (cpio-newc-make-dev-min  attrs)
 				 (cpio-newc-make-rdev-maj attrs)
 				 (cpio-newc-make-rdev-min attrs)
 				 (format "%08X" (1+ (length name)))
-				 (cpio-newc-make-chksum   attrs)
+				 (cpio-newc-make-chksum	  attrs)
 				 name
 				 "\0"))
     (setq header-string (cg-pad-right header-string (cg-round-up (length header-string) *cpio-newc-padding-modulus*) "\0"))
@@ -652,9 +652,9 @@ This function does NOT include the contents."
 ;; Filename is not one of ATTRS. ∴ It doesn't get a constructor here.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; Functions for whole entries
-;; 
+;;
 (defun cpio-newc-parse-header-at-point ()
   "Parse the newc cpio header that begins at point.
 If there is no header there, then signal an error."
@@ -727,7 +727,7 @@ CAVEAT: This respects neither narrowing nor the point."
 	    (t t)))
     (nreverse catalog)))
     ;; catalog))
-    
+
 
 (defun cpio-newc-start-of-trailer ()
   "Return the character position of the (ostensible) start of the trailer
@@ -794,10 +794,10 @@ once the TRAILER is written and padded."
     ;; (error "%s() is not yet implemented" fname)
     0
     ))
-
-;; 
+
+;;
 ;; Test and other development assistance.
-;; 
+;;
 
 (eval-when-compile
   (require 'cl-lib))				;For (mapcar*)
@@ -913,7 +913,7 @@ what the proper way to do it is."
 				"  %5d\t"	   ;Name length
 				"  %5d\t"	   ;SOH
 				"  %5d\t"	   ;SOFN
-				
+
 				"  %5d\t"	   ;EOH
 				"  %5d\t"	   ;EON
 				"  %5d\t"	   ;hpad
@@ -938,9 +938,9 @@ what the proper way to do it is."
     (with-current-buffer lbuf
       (goto-char (point-max))
       (insert (concat "Notes: 1. Name length includes the terminating NULL.\n"
-		      "       2. SOH is calculated via a search for the magic number.\n"
-		      "       3. EOH and SON are equal; each calculation is via the point.\n"
-		      "       4. hpad and cpad are each calculated by motion.\n"))
+		      "	      2. SOH is calculated via a search for the magic number.\n"
+		      "	      3. EOH and SON are equal; each calculation is via the point.\n"
+		      "	      4. hpad and cpad are each calculated by motion.\n"))
       (goto-char (point-min)))
     (pop-to-buffer lbuf)))
 
@@ -977,13 +977,13 @@ what the proper way to do it is."
 		    (make-string 8 ?=)	;File size
 
 		    (make-string 8 ?=)	;SOC
- 		    (make-string 8 ?=)	;EOC
- 		    (make-string 8 ?=)	;cpad
- 		    (make-string 8 ?=)	;????
+		    (make-string 8 ?=)	;EOC
+		    (make-string 8 ?=)	;cpad
+		    (make-string 8 ?=)	;????
 		    "\n")))
 	  (t t))))
 
 
-
+
 (provide 'cpio-newc)
 ;;; cpio-newc.el ends here.
