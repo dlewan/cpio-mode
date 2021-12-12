@@ -930,6 +930,8 @@ MODE is either an integer or a string representing an integer."
   "Set the modification time in the PARSED-HEADER to MTIME.
 MTIME is an emacs time."
   (let ((fname "cpio-set-mtime"))
+    (if (fboundp 'time-convert)
+	(setq mtime (time-convert mtime 'list)))
     (aset parsed-header *cpio-mtime-parsed-idx* mtime)))
 
 (defun cpio-extract-all ()
@@ -1429,7 +1431,7 @@ Run more than one instance of emacs to avoid such collisions."
     (aset result *cpio-gid-parsed-idx*	      gid)
 
     (aset result *cpio-nlink-parsed-idx*      nlink)
-    (aset result *cpio-mtime-parsed-idx*      (seconds-to-time mtime))
+    (cpio-set-mtime result mtime)
     (aset result *cpio-entry-size-parsed-idx* entry-size)
     (aset result *cpio-dev-maj-parsed-idx*    dev-maj)
 
@@ -1465,7 +1467,6 @@ many are simply invented."
 
 	 (nlink 1)
 	 (now (current-time))
-	 (mtime (list (nth 0 now) (nth 1 now)))
 
 	 (entry-size 0)
 	 (dev-maj 1)
@@ -1481,6 +1482,7 @@ many are simply invented."
     (aset result *cpio-gid-parsed-idx*	      gid)
 
     (aset result *cpio-nlink-parsed-idx*      nlink)
+    (cpio-set-mtime result now)
     (aset result *cpio-mtime-parsed-idx*      mtime)
     (aset result *cpio-entry-size-parsed-idx* entry-size)
     (aset result *cpio-dev-maj-parsed-idx*    dev-maj)
@@ -1758,7 +1760,7 @@ or nil."
   ;;
   ;; EO temporary code for development
   ;;
-  
+
   (let ((archive-buffer (current-buffer))
 	(cpio-dired-buffer))
     ;; You really only need this for the binary archive formats,
